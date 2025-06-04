@@ -1,0 +1,87 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Technology Stack & Dependencies
+
+## Frontend Stack
+
+### Core Framework
+- **Next.js App Router** - Modern Next.js with Server Components, improved routing, and layouts
+- **TypeScript** - Type safety throughout the application
+- **React 18+** - Latest React features and patterns
+
+### UI & Styling
+- **Shadcn/ui** - Accessible and customizable components built on Tailwind CSS and Radix UI
+- **Tailwind CSS** - Utility-first CSS framework (via Shadcn/ui)
+- **Radix UI** - Headless, accessible UI primitives (via Shadcn/ui)
+
+### State & Form Management
+- **React Hook Form** - Performant, flexible form validation and handling
+- **Zod** - Schema validation for both client and server (integrates with React Hook Form)
+- **Zustand** - Simple, scalable state management (less boilerplate than Redux)
+- **React Context** - For simpler global state needs (theme, language)
+
+### Internationalization & Accessibility
+- **next-intl** - i18n specifically designed for Next.js App Router
+- **eslint-plugin-jsx-a11y** - ESLint accessibility plugins
+- **Axe DevTools** - Browser extension for accessibility testing
+
+## Backend Stack
+
+### API & Database
+- **Next.js API Routes** - Unified codebase for prototype (can migrate to microservices later)
+- **Firebase Firestore** - NoSQL document database with real-time capabilities
+- **Firebase Authentication** - Anonymous sessions and future user accounts
+- **Firebase SDK** - firebase npm package
+
+### Data Structure Patterns
+```typescript
+// Firestore data structure
+/artifacts/${appId}/users/${userId}/eTickets/{ticketId}
+/artifacts/${appId}/public/data/eTicketReferences/{ticketId}
+```
+
+### Global Variables (Firebase Config)
+```typescript
+const firebaseConfig = JSON.parse(__firebase_config || '{}');
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+const userId = auth.currentUser?.uid || crypto.randomUUID();
+```
+
+## Specialized Features
+
+### OCR & QR Codes
+- **Tesseract.js** - Client-side OCR for passport MRZ reading (prototype)
+- **qrcode.react** - QR code generation for confirmations
+- **Google ML Kit / Apple Vision** - Production-grade mobile OCR (future)
+
+### Communication
+- **SendGrid / Resend** - Email confirmation services
+- **Firebase Extensions** - Email notifications
+
+## Development Tools
+
+### DevOps & Deployment
+- **Vercel** - Seamless Next.js deployment
+- **Firebase Hosting** - Alternative hosting option
+- **Git** - Version control (GitHub/GitLab)
+
+## Architecture Considerations
+
+### Component Organization
+- Use Atomic Design principles: Atoms, Molecules, Organisms, Templates, Pages
+- Leverage Server Components for non-interactive UI (performance)
+- Use Client Components for interactive elements
+
+### Directory Structure (Next.js App Router)
+```
+src/
+├── app/           # App Router pages and layouts
+├── components/    # Reusable UI components
+├── lib/          # Utilities and shared logic
+└── styles/       # Global styles and themes
+```
+
+For detailed development guidelines, see [development-guidelines.md](mdc:.cursor/rules/development-guidelines.mdc).

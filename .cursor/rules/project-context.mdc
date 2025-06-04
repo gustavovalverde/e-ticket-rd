@@ -1,0 +1,80 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Dominican Republic E-Ticket System Modernization Project
+
+## Project Overview
+
+This project is focused on modernizing the Dominican Republic's E-Ticket system for migration control, currently available at <https://eticket.migracion.gob.do/>. The goal is to create a modern, secure, and user-friendly digital platform for travelers entering or departing the country.
+
+For detailed project context, see [executive-summary.md](mdc:docs/product/executive-summary.md).
+
+## Key Objectives
+
+- **User Experience Enhancement**: Develop a mobile-first application with passport scanning capabilities, offline data entry, and streamlined user flows
+- **Technical Modernization**: Build a stable, scalable, and secure backend architecture with API-driven design
+- **Accessibility & Internationalization**: Provide multilingual support and ensure WCAG 2.1/2.2 AA compliance
+- **Integration**: Facilitate seamless integration with airline systems, eGates, and government services
+
+## Benchmark Systems
+
+The project uses New Zealand's Traveller Declaration (NZTD) and Singapore's Arrival Card (SGAC) as benchmarks for best practices in digital migration systems.
+
+## Technology Stack
+
+This is a **Next.js** project using:
+- App Router architecture (`src/app/`)
+- TypeScript for type safety
+- Modern React patterns and components
+
+## File Structure Patterns
+
+When working with this codebase, focus on these key areas:
+
+### Frontend Components & Pages
+- `src/app/**/*.{ts,tsx,js,jsx}` - App Router pages and layouts
+- `src/components/**/*.{ts,tsx,js,jsx}` - Reusable UI components
+- `src/lib/**/*.{ts,tsx,js,jsx}` - Utility functions and shared logic
+
+### Styling & Assets
+- `src/styles/**/*.{css,scss,module.css}` - Stylesheets
+- `public/**/*` - Static assets (images, icons, etc.)
+
+### Configuration & Documentation
+- `*.{json,js,ts,mjs}` - Configuration files (Next.js, TypeScript, ESLint, etc.)
+- `docs/**/*.md` - Project documentation
+- `README.md` - Main project documentation
+
+## Development Guidelines
+
+When contributing to this project, keep in mind:
+
+1. **Mobile-First Design**: Prioritize mobile user experience
+2. **Accessibility**: Ensure all components meet WCAG standards
+3. **Internationalization**: Design with multilingual support in mind
+4. **Performance**: Optimize for users with varying internet connectivity
+5. **Security**: Handle sensitive traveler data with appropriate security measures
+
+## Current Focus Areas
+
+Based on the executive summary, the project addresses these critical pain points from the current system:
+- Browser compatibility issues
+- Poor mobile experience
+- Complex and lengthy forms
+- Inconsistent QR code usage
+- Technical glitches and data loss
+- Third-party scam websites
+
+## Additional Resources
+
+For detailed implementation guidance, see these specialized rules:
+
+- **[Technology Stack](mdc:.cursor/rules/technology-stack.mdc)** - Complete tech stack, dependencies, and architecture patterns
+- **[Development Guidelines](mdc:.cursor/rules/development-guidelines.mdc)** - Best practices, coding standards, and quality requirements
+- **[Firebase Integration](mdc:.cursor/rules/firebase-integration.mdc)** - Firebase setup, data structures, and integration patterns
+- **[UI Patterns](mdc:.cursor/rules/ui-patterns.mdc)** - Shadcn/ui components, form patterns, and accessibility guidelines
+- **[Development Plan](mdc:.cursor/rules/development-plan.mdc)** - 4-week prototype timeline and deliverables
+
+Each rule provides specific implementation details and code examples for its respective domain.

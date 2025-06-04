@@ -1,0 +1,132 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Development Guidelines & Best Practices
+
+## Core Development Principles
+
+### User-Centric Design (UCD)
+- Traveler needs and experience are the priority in all design decisions
+- Seek continuous user feedback throughout development
+- Test with diverse groups of representative travelers
+- Focus on the "happy path" but handle edge cases gracefully
+
+### Mobile-First Approach
+- Design and optimize for mobile experiences first
+- Scale designs to desktop secondarily
+- Consider Progressive Web App (PWA) features for offline access
+- Optimize for varying internet connectivity speeds
+
+### Accessibility First (WCAG 2.1/2.2 AA)
+- Meet or exceed Web Content Accessibility Guidelines Level AA
+- Test with keyboard navigation and screen readers
+- Use semantic HTML and proper ARIA labels
+- Ensure sufficient color contrast ratios
+- Test with Axe DevTools browser extension
+
+## Performance & Security
+
+### Performance Optimization
+- Prioritize fast load times and smooth interactions
+- Optimize images and assets
+- Use Next.js Server Components where possible
+- Implement proper caching strategies
+- Monitor Core Web Vitals
+
+### Security by Design
+- Integrate security considerations from the start
+- Implement data encryption for sensitive information
+- Follow OWASP Top 10 security practices
+- Secure handling of Personally Identifiable Information (PII)
+- Use Firebase Security Rules for data access control
+
+### Data Handling
+- **Data Minimization**: Collect only essential information
+- Follow GDPR principles and local data protection regulations
+- Clearly communicate data usage to users
+- Implement proper data validation using Zod schemas
+- Handle errors gracefully with meaningful messages
+
+## Code Quality & Architecture
+
+### Clean Code Practices
+- Write self-documenting code with clear naming
+- Keep functions and components small and focused
+- Use TypeScript for type safety
+- Implement proper error boundaries
+- Follow consistent code formatting and linting rules
+
+### Component Architecture
+- Use Atomic Design methodology
+- Create reusable, composable components
+- Separate concerns between UI and business logic
+- Implement proper prop validation
+- Use Server Components for static content, Client Components for interactivity
+
+### State Management Strategy
+- Use React Context for simple global state (theme, language)
+- Use Zustand for complex client-side state
+- Leverage Next.js Server Components for server-side data
+- Minimize client-side state when possible
+
+## Form & Data Patterns
+
+### Smart Forms Implementation
+- Use conditional rendering based on form state
+- Structure form configuration for easy dependency definition
+- Implement progressive disclosure to reduce cognitive load
+- Provide real-time validation with clear error messages
+- Save draft states to prevent data loss
+
+### Validation Strategy
+- Use Zod schemas for both client and server validation
+- Implement client-side validation for immediate feedback
+- Always validate on the server for security
+- Provide clear, actionable error messages
+- Use React Hook Form for performance and flexibility
+
+## Internationalization & Communication
+
+### Multilingual Support
+- Start with Spanish and English, design for easy expansion
+- Ensure persistent language selection across sessions
+- Use next-intl for proper Next.js App Router integration
+- Consider cultural differences in UI patterns
+- Test with longer translations (German, Arabic)
+
+### User Communication
+- Provide clear instructions at each step
+- Implement progress indicators for multi-step processes
+- Use loading states and success/error feedback
+- Avoid technical jargon in user-facing messages
+- Ensure consistent tone and terminology
+
+## Development Workflow
+
+### Agile Methodology
+- Use iterative development with short sprints
+- Implement continuous integration and deployment
+- Conduct regular code reviews
+- Maintain comprehensive documentation
+- Track progress with clear deliverables
+
+### Testing Strategy
+- Write unit tests for critical business logic
+- Implement integration tests for API endpoints
+- Conduct end-to-end testing across browsers and devices
+- Perform accessibility testing with automated tools
+- Test with real users when possible
+
+### Quality Assurance
+- Use ESLint and Prettier for code consistency
+- Implement pre-commit hooks for quality checks
+- Monitor application performance with tools like Lighthouse
+- Conduct security reviews of sensitive components
+- Document known limitations and technical debt
+
+For specific implementation patterns, see:
+- [Firebase Integration Patterns](mdc:.cursor/rules/firebase-integration.mdc)
+- [UI Component Patterns](mdc:.cursor/rules/ui-patterns.mdc)
+- [Technology Stack](mdc:.cursor/rules/technology-stack.mdc)
