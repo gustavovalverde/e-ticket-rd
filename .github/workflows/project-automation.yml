@@ -10,9 +10,6 @@ on:
   pull_request:
     types: [opened]
 
-env:
-  PROJECT_URL: https://github.com/orgs/gustavovalverde/projects/1
-
 jobs:
   # Add new items to project
   add-to-project:
