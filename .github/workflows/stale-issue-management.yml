@@ -1,0 +1,168 @@
+name: Stale Issue Management
+
+# Set default permissions to read-only for security
+permissions:
+  contents: read
+
+on:
+  schedule:
+    # Run every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    name: Clean up stale issues and PRs
+    # Minimal permissions for stale management operations
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Mark stale issues and PRs
+        uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Issue configuration
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had recent activity. 
+            
+            **For contributors:** If you're still working on this, please comment to keep it active.
+            **For maintainers:** Please review and either:
+            - Close if no longer relevant
+            - Add "keep-open" label if should remain open
+            - Update with current status
+            
+            This issue will be closed in 7 days if no further activity occurs.
+          
+          close-issue-message: |
+            This issue has been automatically closed due to inactivity. 
+            
+            If this issue is still relevant, please reopen it with updated information or create a new issue with current details.
+          
+          # PR configuration  
+          stale-pr-message: |
+            This pull request has been automatically marked as stale because it has not had recent activity.
+            
+            **For contributors:** If you're still working on this PR, please:
+            - Comment to keep it active
+            - Rebase if needed
+            - Address any review feedback
+            
+            This PR will be closed in 7 days if no further activity occurs.
+          
+          close-pr-message: |
+            This pull request has been automatically closed due to inactivity.
+            
+            If you're still working on this, please reopen and update the PR.
+          
+          # Labels and timing
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          close-issue-label: 'auto-closed'
+          close-pr-label: 'auto-closed'
+          
+          # Exempt important issues from being marked stale
+          exempt-issue-labels: 'keep-open,in-progress,critical,security,pinned,help-wanted,good-first-issue'
+          exempt-pr-labels: 'keep-open,in-progress,critical,security,wip,work-in-progress'
+          
+          # Timing configuration
+          days-before-stale: 180    # Mark as stale after 180 days
+          days-before-close: 7     # Close after 7 days of being stale
+          days-before-pr-close: 7  # Close PRs after 7 days of being stale
+          
+          # Only process issues/PRs in ascending order (oldest first)
+          ascending: true
+          
+          # Operation limits to prevent API rate limiting
+          operations-per-run: 100
+          
+          # Remove stale label when activity resumes
+          remove-stale-when-updated: true
+          
+          # Additional configuration
+          enable-statistics: true  # Log statistics about stale items
+          
+          # Only mark issues/PRs as stale, don't close them automatically
+          # Set to false if you want more aggressive cleanup
+          only-labels: false
+
+      - name: Report stale cleanup stats
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Input validation for context
+            if (!context || !context.repo) {
+              core.setFailed('Invalid workflow context received');
+              return;
+            }
+            
+            try {
+              // Get repository statistics with error handling
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'stale',
+                per_page: 100
+              });
+              
+              const { data: closedIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'closed',
+                labels: 'auto-closed',
+                since: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // Last 7 days
+                per_page: 100
+              });
+              
+              console.log(`📊 Stale Management Statistics:`);
+              console.log(`   Currently stale issues: ${issues.length}`);
+              console.log(`   Auto-closed in last 7 days: ${closedIssues.length}`);
+              
+              // Create an issue comment summary for high activity periods
+              if (issues.length > 20) {
+                const issueBody = `## 🧹 Weekly Stale Issue Report
+                
+                This is an automated report of stale issue cleanup activity.
+                
+                ### Current Status
+                - **Stale Issues**: ${issues.length} issues marked as stale
+                - **Recently Closed**: ${closedIssues.length} issues auto-closed in the last 7 days
+                
+                ### Action Required
+                ${issues.length > 20 ? '⚠️ High number of stale issues detected. Consider:' : '✅ Stale issue count is manageable.'}
+                
+                ${issues.length > 20 ? `
+                - Review stale issues for relevance
+                - Close outdated issues manually
+                - Add "keep-open" label to important issues
+                - Update project priorities
+                ` : ''}
+                
+                ### Recent Auto-Closed Issues
+                ${closedIssues.slice(0, 10).map(issue => `- #${issue.number}: ${issue.title}`).join('\n')}
+                ${closedIssues.length > 10 ? `\n... and ${closedIssues.length - 10} more` : ''}
+                
+                ---
+                *This report is generated automatically every Monday. Issues are marked stale after 180 days of inactivity and closed after 7 additional days.*`;
+                
+                // Only create an issue if there are significant numbers to report
+                if (issues.length > 20 || closedIssues.length > 10) {
+                  await github.rest.issues.create({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    title: `📊 Weekly Stale Issue Report - ${new Date().toISOString().split('T')[0]}`,
+                    body: issueBody,
+                    labels: ['maintenance', 'automated-report']
+                  });
+                }
+              }
+              
+              console.log('Stale cleanup statistics reported successfully');
+            } catch (error) {
+              core.setFailed(`Failed to generate stale cleanup report: ${error.message}`);
+            } 

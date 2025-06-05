@@ -1,0 +1,191 @@
+name: Simplified Project Automation
+
+# Set default permissions to read-only for security
+permissions:
+  contents: read
+
+on:
+  issues:
+    types: [opened, labeled]
+  pull_request:
+    types: [opened]
+
+env:
+  PROJECT_URL: https://github.com/orgs/gustavovalverde/projects/1
+
+jobs:
+  # Add new items to project
+  add-to-project:
+    runs-on: ubuntu-latest
+    # Minimal permissions for this specific job
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    if: github.event_name == 'issues' && github.event.action == 'opened' || github.event_name == 'pull_request' && github.event.action == 'opened'
+    steps:
+      - name: Add to project
+        uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
+        with:
+          project-url: ${{ env.PROJECT_URL }}
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+
+  # Smart labeling and project structure integration
+  smart-labeling:
+    runs-on: ubuntu-latest
+    # Minimal permissions for labeling operations
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    steps:
+      - name: Apply smart labels and metadata
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            
+            // Input validation and sanitization
+            if (!issue || !issue.number) {
+              core.setFailed('Invalid issue data received');
+              return;
+            }
+            
+            // Use environment variables to prevent script injection
+            const issueTitle = process.env.ISSUE_TITLE || '';
+            const issueBody = process.env.ISSUE_BODY || '';
+            const existingLabels = issue.labels ? issue.labels.map(label => label.name) : [];
+            
+            // Validate issue number is actually a number
+            const issueNumber = parseInt(issue.number);
+            if (isNaN(issueNumber) || issueNumber <= 0) {
+              core.setFailed('Invalid issue number');
+              return;
+            }
+            
+            let labelsToAdd = [];
+
+            // Theme detection based on keywords
+            const themeKeywords = {
+              'theme:core-experience': ['passport', 'ocr', 'form', 'user flow', 'e-ticket', 'submission'],
+              'theme:optimization': ['performance', 'accessibility', 'security', 'optimize', 'a11y', 'wcag'],
+              'theme:foundation': ['api', 'database', 'infrastructure', 'auth', 'backend', 'setup'],
+              'theme:enhanced-ux': ['mobile', 'ui', 'ux', 'design', 'interface', 'style'],
+              'theme:integration': ['integration', 'external', 'third-party', 'webhook', 'airline'],
+              'theme:advanced-features': ['advanced', 'enhancement', 'new feature'],
+              'theme:maintenance': ['refactor', 'technical debt', 'cleanup', 'maintenance'],
+              'theme:documentation': ['docs', 'documentation', 'readme', 'guide', 'tutorial', 'contributing']
+            };
+
+            // Apply theme labels based on content
+            for (const [theme, keywords] of Object.entries(themeKeywords)) {
+              if (keywords.some(keyword => issueBody.toLowerCase().includes(keyword)) && !existingLabels.includes(theme)) {
+                labelsToAdd.push(theme);
+              }
+            }
+
+            // Complexity estimation based on keywords
+            const complexityKeywords = {
+              'complexity:xl': ['major', 'architecture', 'refactor', 'rewrite', 'migration', 'epic'],
+              'complexity:l': ['complex', 'multiple parts', 'integration heavy', 'system-wide'],
+              'complexity:m': ['moderate', 'feature', 'component', 'several screens'],
+              'complexity:s': ['simple', 'small', 'minor fix', 'single screen'],
+              'complexity:xs': ['typo', 'quick fix', 'tiny change', 'one-liner', 'docs update']
+            };
+
+            // Apply complexity labels based on content
+            for (const [complexity, keywords] of Object.entries(complexityKeywords)) {
+              if (keywords.some(keyword => issueBody.toLowerCase().includes(keyword)) && !existingLabels.some(l => l.startsWith('complexity:'))) {
+                labelsToAdd.push(complexity);
+                break; // Only add one complexity label
+              }
+            }
+
+            // Priority detection
+            const bodyLower = issueBody.toLowerCase();
+            if (bodyLower.includes('critical') || bodyLower.includes('security') || bodyLower.includes('urgent')) {
+              labelsToAdd.push('priority:critical');
+            } else if (bodyLower.includes('high priority') || bodyLower.includes('important') || bodyLower.includes('blocks')) {
+              labelsToAdd.push('priority:high');
+            }
+
+            // Area detection for additional context
+            if (bodyLower.includes('mobile') || bodyLower.includes('responsive')) {
+              labelsToAdd.push('area:mobile');
+            }
+            if (bodyLower.includes('performance') || bodyLower.includes('slow')) {
+              labelsToAdd.push('area:performance');
+            }
+            if (bodyLower.includes('accessibility') || bodyLower.includes('a11y')) {
+              labelsToAdd.push('area:accessibility');
+            }
+
+            // Filter out existing labels and add new ones
+            const finalLabels = labelsToAdd.filter(label => !existingLabels.includes(label));
+            
+            if (finalLabels.length > 0) {
+              try {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: finalLabels
+                });
+                console.log(`Issue #${issueNumber}: Added smart labels: ${finalLabels.join(', ')}`);
+              } catch (error) {
+                core.setFailed(`Failed to add labels: ${error.message}`);
+              }
+            }
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+
+  # Handle critical security issues
+  security-alert:
+    runs-on: ubuntu-latest
+    # Minimal permissions for security alerts
+    permissions:
+      contents: read
+      issues: write
+    if: github.event_name == 'issues' && github.event.action == 'opened' && contains(github.event.issue.body, 'Security') && contains(github.event.issue.body, 'Critical')
+    steps:
+      - name: Security issue alert
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            
+            // Input validation
+            if (!issue || !issue.number) {
+              core.setFailed('Invalid issue data received');
+              return;
+            }
+            
+            const issueNumber = parseInt(issue.number);
+            if (isNaN(issueNumber) || issueNumber <= 0) {
+              core.setFailed('Invalid issue number');
+              return;
+            }
+            
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['security', 'urgent']
+              });
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: '🔒 **Critical Security Issue Detected**\n\nThis has been flagged for immediate review. Please use private disclosure for sensitive security issues.'
+              });
+              
+              console.log(`Security alert processed for issue #${issueNumber}`);
+            } catch (error) {
+              core.setFailed(`Failed to process security alert: ${error.message}`);
+            }
