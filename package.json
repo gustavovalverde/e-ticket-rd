@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint --fix",
     "lint:strict": "next lint --max-warnings 0",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write --list-different .",
+    "check-all": "npm run type-check && npm run lint:strict && npm run format:check"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

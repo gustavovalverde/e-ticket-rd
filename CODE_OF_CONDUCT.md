@@ -2,12 +2,14 @@
 
 ## What We're Building
 
-We're working on modernizing the Dominican Republic's E-Ticket system to make travel easier for everyone. We want to build with the right values from day one.
+We're working on modernizing the Dominican Republic's E-Ticket system to make travel easier for
+everyone. We want to build with the right values from day one.
 
 ## Our Values
 
-- **Every traveler matters**: We care about all users, including those with disabilities, limited tech skills, or challenging situations
-- **Security comes first**: We handle personal information carefully and responsibly  
+- **Every traveler matters**: We care about all users, including those with disabilities, limited
+  tech skills, or challenging situations
+- **Security comes first**: We handle personal information carefully and responsibly
 - **Quality matters**: We want to build fast, accessible software that works well
 - **Different views help**: Various perspectives make us build better things
 
@@ -34,10 +36,11 @@ We're working on modernizing the Dominican Republic's E-Ticket system to make tr
 ### What We Don't Want
 
 - **Ignoring security**: Adding vulnerabilities or bad security practices
-- **Ignoring accessibility**: Building features that exclude users with disabilities  
+- **Ignoring accessibility**: Building features that exclude users with disabilities
 - **Breaking performance**: Making the system slow
 - **Being disrespectful**: Personal attacks, trolling, or insulting language
-- **Discrimination**: Based on race, gender, disability, nationality, religion, or other personal traits
+- **Discrimination**: Based on race, gender, disability, nationality, religion, or other personal
+  traits
 
 ## Issues and Problems
 
@@ -65,4 +68,5 @@ Start a discussion in this repository or contact the maintainers through GitHub.
 
 ---
 
-**Remember**: We're building something that could help many travelers. Let's start with good practices and treat each other well.
+**Remember**: We're building something that could help many travelers. Let's start with good
+practices and treat each other well.

@@ -1,9 +1,11 @@
 # Pull Request Summary
 
 ## 🎯 What does this PR do?
+
 <!-- Brief description of your changes -->
 
 ## 🔗 Related Issues
+
 <!-- Link to related issues: Fixes #123, Closes #456 -->
 
 ---
@@ -19,17 +21,18 @@
 
 ## 📊 What This Changes
 
-**Performance Impact:** <!-- None/Minimal/Describe -->
-**Security Considerations:** <!-- None/Describe -->
+**Performance Impact:** <!-- None/Minimal/Describe --> **Security Considerations:**
+
+<!-- None/Describe -->
 
 ---
 
-<!-- 
+<!--
 OPTIONAL SECTIONS - Uncomment sections below that apply to your changes:
 
 ## 🎨 UI/UX Changes (uncomment if this PR changes the user interface)
 - [ ] Works with keyboard navigation
-- [ ] Keeps good color contrast  
+- [ ] Keeps good color contrast
 - [ ] Responsive design on mobile devices
 - [ ] Follows the Only-Once principle (don't ask users for info they've already provided)
 - [ ] Screen reader compatibility tested
@@ -72,4 +75,5 @@ OPTIONAL SECTIONS - Uncomment sections below that apply to your changes:
 
 ---
 
-**Remember**: This system serves millions of travelers. Please make sure your changes focus on performance, security, and user experience.
+**Remember**: This system serves millions of travelers. Please make sure your changes focus on
+performance, security, and user experience.

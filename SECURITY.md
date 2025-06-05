@@ -2,7 +2,8 @@
 
 ## Why Security Matters
 
-This project aims to handle traveler information for the Dominican Republic E-Ticket System. We want to build with security in mind from day one.
+This project aims to handle traveler information for the Dominican Republic E-Ticket System. We want
+to build with security in mind from day one.
 
 ## Reporting Security Issues
 
@@ -23,7 +24,8 @@ This project aims to handle traveler information for the Dominican Republic E-Ti
 - What parts of the code are affected
 - How serious you think it is
 
-We'll do our best to respond quickly, but keep in mind this is an open source project maintained on a best-effort basis.
+We'll do our best to respond quickly, but keep in mind this is an open source project maintained on
+a best-effort basis.
 
 ## What We're Building Toward
 
@@ -59,4 +61,5 @@ Open a discussion in this repository or contact the maintainers through GitHub.
 
 ---
 
-**Remember**: Every security decision we make now affects the project's future. Let's build it right from the beginning.
+**Remember**: Every security decision we make now affects the project's future. Let's build it right
+from the beginning.

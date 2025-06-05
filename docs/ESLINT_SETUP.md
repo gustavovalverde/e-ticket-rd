@@ -2,17 +2,21 @@
 
 ## Overview
 
-This document describes the comprehensive ESLint configuration implemented for the Dominican Republic E-Ticket project. The configuration is designed to ensure high code quality, accessibility compliance, and security standards suitable for government applications.
+This document describes the comprehensive ESLint configuration implemented for the Dominican
+Republic E-Ticket project. The configuration is designed to ensure high code quality, accessibility
+compliance, and security standards suitable for government applications.
 
 ## Configuration Features
 
 ### 🔧 **Core Technologies Supported**
+
 - **Next.js 15+** with App Router
 - **TypeScript 5+** with strict type checking
 - **React 19** with modern hooks
 - **JSX/TSX** with accessibility rules
 
 ### 🛡️ **Code Quality Standards**
+
 - **TypeScript-first** approach with strict type checking
 - **Accessibility compliance** (WCAG guidelines)
 - **Security best practices** for government applications
@@ -40,11 +44,13 @@ npm run type-check
 ## Configuration Structure
 
 ### 1. **Base Configuration**
+
 - JavaScript ES2022+ standards
 - Next.js core web vitals
 - TypeScript integration
 
 ### 2. **TypeScript Rules**
+
 ```javascript
 // Key TypeScript rules enforced:
 "@typescript-eslint/no-unused-vars": "error"
@@ -54,6 +60,7 @@ npm run type-check
 ```
 
 ### 3. **React & JSX Rules**
+
 ```javascript
 // React-specific optimizations:
 "react/react-in-jsx-scope": "off" // Not needed in Next.js
@@ -63,6 +70,7 @@ npm run type-check
 ```
 
 ### 4. **Accessibility Rules (Critical for Government)**
+
 ```javascript
 // WCAG compliance rules:
 "jsx-a11y/alt-text": "error"
@@ -73,6 +81,7 @@ npm run type-check
 ```
 
 ### 5. **Import Organization**
+
 ```javascript
 // Enforced import order:
 1. Node.js built-ins
@@ -86,6 +95,7 @@ npm run type-check
 ```
 
 ### 6. **Security Rules**
+
 ```javascript
 // Security best practices:
 "no-eval": "error"
@@ -97,21 +107,25 @@ npm run type-check
 ## File-Specific Configurations
 
 ### **TypeScript Files** (`*.ts`, `*.tsx`)
+
 - Full TypeScript rule enforcement
 - Type import consistency
 - Strict variable usage
 
 ### **React Components** (`*.jsx`, `*.tsx`)
+
 - React hooks compliance
 - JSX accessibility rules
 - Component best practices
 
 ### **Configuration Files** (`*.config.*`)
+
 - Relaxed rules for build configs
 - Allow CommonJS requires
 - Disable anonymous exports warnings
 
 ### **Test Files** (`*.test.*`, `*.spec.*`)
+
 - Allow `any` types for testing
 - Permit console usage
 - Relaxed import rules
@@ -119,6 +133,7 @@ npm run type-check
 ## Ignored Files and Directories
 
 The configuration automatically ignores:
+
 ```
 node_modules/     # Dependencies
 .next/           # Next.js build output
@@ -133,6 +148,7 @@ public/          # Static assets
 ## Integration with Development Workflow
 
 ### **Pre-commit Hooks** (Recommended)
+
 ```bash
 # Install Husky for pre-commit hooks
 npm install --save-dev husky lint-staged
@@ -147,15 +163,12 @@ npm install --save-dev husky lint-staged
 ```
 
 ### **VS Code Integration**
+
 Add to `.vscode/settings.json`:
+
 ```json
 {
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   }
@@ -163,6 +176,7 @@ Add to `.vscode/settings.json`:
 ```
 
 ### **CI/CD Integration**
+
 ```yaml
 # GitHub Actions example
 - name: Lint code
@@ -174,12 +188,14 @@ Add to `.vscode/settings.json`:
 ## Customization Guidelines
 
 ### **Adding New Rules**
+
 1. Add rules to the appropriate file pattern section
 2. Test with `npm run lint:strict`
 3. Document the reasoning for the rule
 4. Consider impact on existing code
 
 ### **Disabling Rules**
+
 ```javascript
 // For specific lines:
 // eslint-disable-next-line rule-name
@@ -189,11 +205,13 @@ Add to `.vscode/settings.json`:
 
 // For specific functions:
 /* eslint-disable-next-line rule-name */
-function myFunction() { }
+function myFunction() {}
 ```
 
 ### **Project-Specific Rules**
+
 For government compliance, these rules are **non-negotiable**:
+
 - All accessibility rules (`jsx-a11y/*`)
 - Security rules (`no-eval`, `no-script-url`, etc.)
 - TypeScript strict rules
@@ -204,11 +222,13 @@ For government compliance, these rules are **non-negotiable**:
 ### **Common Issues**
 
 1. **"Cannot resolve dependency" errors**
+
    ```bash
    npm install --save-dev eslint-import-resolver-typescript
    ```
 
 2. **TypeScript parser errors**
+
    ```bash
    npm install --save-dev @typescript-eslint/parser
    ```
@@ -218,6 +238,7 @@ For government compliance, these rules are **non-negotiable**:
    - Check `settings.react.version` in config
 
 ### **Performance Optimization**
+
 - Use `.eslintcache` for faster subsequent runs
 - Configure IDE to run ESLint on save only
 - Use `--max-warnings 0` in CI for strict enforcement
@@ -252,7 +273,8 @@ The ESLint configuration requires these packages:
 
 ## Government Compliance Notes
 
-This ESLint configuration is specifically designed for Dominican Republic government applications and includes:
+This ESLint configuration is specifically designed for Dominican Republic government applications
+and includes:
 
 - **WCAG 2.1 AA compliance** through jsx-a11y rules
 - **Security hardening** for public-facing applications
@@ -263,4 +285,4 @@ This ESLint configuration is specifically designed for Dominican Republic govern
 ---
 
 **Last Updated**: June 2025  
-**Compatible with**: Next.js 15+, TypeScript 5+, React 19+ 
+**Compatible with**: Next.js 15+, TypeScript 5+, React 19+

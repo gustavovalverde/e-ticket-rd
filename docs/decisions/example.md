@@ -7,8 +7,7 @@ nav_order: 9
 
 ## Context and Problem Statement
 
-How to write readable test assertions?
-How to write readable test assertions for advanced tests?
+How to write readable test assertions? How to write readable test assertions for advanced tests?
 
 ## Considered Options
 
@@ -30,16 +29,18 @@ Chosen option: "Plain JUnit5", because comes out best (see "Pros and Cons of the
 ### Confirmation
 
 - Check project dependencies, JUnit5 should appear (and be the only test assertion library).
-- Collect experience with JUnit5 in sprint reviews and retrospectives: does the gained experience match the pros and cons evaluation below?
+- Collect experience with JUnit5 in sprint reviews and retrospectives: does the gained experience
+  match the pros and cons evaluation below?
 - Decide whether and when to review the decision (this is the 'R' in the [ecADR definition of done]
-  (<https://medium.com/olzzio/a-definition-of-done-for-architectural-decisions-426cf5a952b9>) for ADs).
+  (<https://medium.com/olzzio/a-definition-of-done-for-architectural-decisions-426cf5a952b9>) for
+  ADs).
 
 ## Pros and Cons of the Options
 
 ### Plain JUnit5
 
-Homepage: <https://junit.org/junit5/docs/current/user-guide/>
-JabRef testing guidelines: <https://devdocs.jabref.org/getting-into-the-code/code-howtos#test-cases>
+Homepage: <https://junit.org/junit5/docs/current/user-guide/> JabRef testing guidelines:
+<https://devdocs.jabref.org/getting-into-the-code/code-howtos#test-cases>
 
 Example:
 
@@ -89,4 +90,5 @@ assertThat(markdownFormatter.format(source))
 
 ## More Information
 
-German comparison between Hamcrest and AssertJ: <https://www.sigs-datacom.de/uploads/tx_dmjournals/philipp_JS_06_15_gRfN.pdf>.
+German comparison between Hamcrest and AssertJ:
+<https://www.sigs-datacom.de/uploads/tx_dmjournals/philipp_JS_06_15_gRfN.pdf>.

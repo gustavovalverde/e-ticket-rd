@@ -2,13 +2,16 @@
 
 ## Overview
 
-This project modernizes the Dominican Republic's E-Ticket system for migration control, serving **millions of users annually**. Every contribution must prioritize **performance**, **security**, **cost efficiency**, and exceptional **user experience**.
+This project modernizes the Dominican Republic's E-Ticket system for migration control, serving
+**millions of users annually**. Every contribution must prioritize **performance**, **security**,
+**cost efficiency**, and exceptional **user experience**.
 
 ## 🎯 Core Principles
 
 ### 1. Only-Once Approach (OOTS Guidelines)
 
-Following the [EU Once-Only Technical System UX Guidelines](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines):
+Following the
+[EU Once-Only Technical System UX Guidelines](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines):
 
 - **Never ask users for information they've already provided**
 - **Reuse data intelligently** across form sections
@@ -33,7 +36,8 @@ With millions of annual users, every millisecond counts:
 
 Minimize operational costs through smart design decisions:
 
-- **Local-first data processing** - perform validations, calculations, and transformations client-side when possible
+- **Local-first data processing** - perform validations, calculations, and transformations
+  client-side when possible
 - **Batch API requests** - never make individual API calls in loops
 - **Cache aggressively** - use appropriate cache headers and strategies
 - **Optimize database operations** - minimize read/write operations, use efficient queries
@@ -73,27 +77,15 @@ const travelerData: any = {...};
 ```typescript
 // ✅ Good: Proper component organization
 export function PassportForm({ onDataChange }: PassportFormProps) {
-  const form = useForm({
+  const form = useForm<PassportData>({
+    resolver: zodResolver(passportSchema),
     defaultValues: getStoredPassportData(), // Reuse existing data
-    validators: {
-      onChange: passportSchema,
-    },
-    validatorAdapter: zodValidator,
-    onSubmit: async ({ value }) => {
-      onDataChange(value);
-    },
   });
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-    >
+    <Form {...form}>
       {/* Component JSX */}
-    </form>
+    </Form>
   );
 }
 
@@ -112,9 +104,9 @@ function BadForm() {
 const validatePassport = (passportNumber: string) => {
   // First: Local format validation
   if (!PASSPORT_FORMAT_REGEX.test(passportNumber)) {
-    return { valid: false, error: 'Invalid format' };
+    return { valid: false, error: "Invalid format" };
   }
-  
+
   // Only if absolutely necessary: External verification
   // return await externalPassportAPI.verify(passportNumber);
 };
@@ -135,7 +127,7 @@ const calculateStayDuration = (arrival: Date, departure: Date) => {
 
 // ✅ Good: Local country/city data
 const COUNTRIES_DATA = [
-  { code: 'US', name: 'United States', cities: ['New York', 'Los Angeles'] },
+  { code: "US", name: "United States", cities: ["New York", "Los Angeles"] },
   // ... other countries loaded locally
 ];
 ```
@@ -152,10 +144,8 @@ const useCountryData = () => {
 
 // ✅ Good: Session-based caching for form data
 const useFormPersistence = (formId: string) => {
-  const [data, setData] = useState(() => 
-    getSessionStorageData(formId) || {}
-  );
-  
+  const [data, setData] = useState(() => getSessionStorageData(formId) || {});
+
   useEffect(() => {
     saveToSessionStorage(formId, data);
   }, [data, formId]);
@@ -172,21 +162,17 @@ export function PersonalInfoForm({ previousData }: Props) {
   const form = useForm({
     defaultValues: {
       // Reuse passport OCR data if available
-      fullName: previousData?.ocrData?.name || '',
-      nationality: previousData?.ocrData?.nationality || '',
+      fullName: previousData?.ocrData?.name || "",
+      nationality: previousData?.ocrData?.nationality || "",
       // Reuse previous session data
-      email: previousData?.contactInfo?.email || '',
+      email: previousData?.contactInfo?.email || "",
     },
-    validators: {
-      onChange: personalInfoSchema,
-    },
-    validatorAdapter: zodValidator,
   });
 }
 
 // ✅ Good: Conditional field display
 const shouldShowCustomsDeclaration = (travelPurpose: string) => {
-  return travelPurpose === 'business' || travelPurpose === 'commercial';
+  return travelPurpose === "business" || travelPurpose === "commercial";
 };
 ```
 
@@ -195,14 +181,16 @@ const shouldShowCustomsDeclaration = (travelPurpose: string) => {
 ```typescript
 // ✅ Good: Comprehensive validation schema
 const travelerSchema = z.object({
-  passportNumber: z.string()
-    .min(6, 'Passport number too short')
-    .max(20, 'Passport number too long')
-    .regex(PASSPORT_REGEX, 'Invalid passport format'),
-  email: z.string().email('Invalid email format'),
-  arrivalDate: z.date()
-    .min(new Date(), 'Arrival date cannot be in the past')
-    .max(addYears(new Date(), 1), 'Arrival date too far in future'),
+  passportNumber: z
+    .string()
+    .min(6, "Passport number too short")
+    .max(20, "Passport number too long")
+    .regex(PASSPORT_REGEX, "Invalid passport format"),
+  email: z.string().email("Invalid email format"),
+  arrivalDate: z
+    .date()
+    .min(new Date(), "Arrival date cannot be in the past")
+    .max(addYears(new Date(), 1), "Arrival date too far in future"),
 });
 ```
 
@@ -215,7 +203,7 @@ const travelerSchema = z.object({
 const saveETicketData = async (ticketData: ETicketData) => {
   // Optimistic update
   updateLocalState(ticketData);
-  
+
   try {
     // Batch related operations
     await Promise.all([
@@ -232,8 +220,8 @@ const saveETicketData = async (ticketData: ETicketData) => {
 
 // ✅ Good: Offline support
 const initializeOfflineSupport = () => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
   }
 };
 ```
@@ -247,7 +235,7 @@ const initializeSession = async () => {
     const sessionId = await createAnonymousSession();
     return sessionId;
   } catch (error) {
-    console.error('Session creation failed:', error);
+    console.error("Session creation failed:", error);
     return crypto.randomUUID(); // Fallback to local UUID
   }
 };
@@ -259,10 +247,10 @@ const initializeSession = async () => {
 
 ```typescript
 // Required: Test all validation logic
-describe('PassportValidation', () => {
-  it('should validate passport number format', () => {
-    expect(validatePassportFormat('A1234567')).toBe(true);
-    expect(validatePassportFormat('invalid')).toBe(false);
+describe("PassportValidation", () => {
+  it("should validate passport number format", () => {
+    expect(validatePassportFormat("A1234567")).toBe(true);
+    expect(validatePassportFormat("invalid")).toBe(false);
   });
 });
 ```
@@ -289,13 +277,13 @@ test('should not have accessibility violations', async () => {
 ```typescript
 /**
  * PassportForm - Handles passport information collection with OCR support
- * 
+ *
  * @param onDataChange - Callback fired when form data changes
  * @param initialData - Previously collected data to pre-populate fields
  * @param enableOCR - Whether to show passport scanning option
- * 
+ *
  * @example
- * <PassportForm 
+ * <PassportForm
  *   onDataChange={(data) => updateFormData('passport', data)}
  *   initialData={existingPassportData}
  *   enableOCR={true}
@@ -311,12 +299,12 @@ export function PassportForm({ onDataChange, initialData, enableOCR }: Props) {
 ```typescript
 /**
  * POST /api/eticket/submit
- * 
+ *
  * Submits completed e-ticket form data
- * 
+ *
  * Cost Impact: Minimize database operations
  * Performance: < 500ms response time required
- * 
+ *
  * @param data - Validated e-ticket data (validated with eTicketSchema)
  * @returns QR code and confirmation details
  */
@@ -375,4 +363,5 @@ Every pull request must:
 - **Accessibility**: Use axe-core tools and test with screen readers
 - **Cost Optimization**: Analyze API usage patterns and implement local-first approaches
 
-**Remember**: Every line of code affects millions of travelers. Code with empathy, performance, and security in mind.
+**Remember**: Every line of code affects millions of travelers. Code with empathy, performance, and
+security in mind.

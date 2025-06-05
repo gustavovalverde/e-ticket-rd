@@ -43,25 +43,25 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue = context.payload.issue;
-            
+
             // Input validation and sanitization
             if (!issue || !issue.number) {
               core.setFailed('Invalid issue data received');
               return;
             }
-            
+
             // Use environment variables to prevent script injection
             const issueTitle = process.env.ISSUE_TITLE || '';
             const issueBody = process.env.ISSUE_BODY || '';
             const existingLabels = issue.labels ? issue.labels.map(label => label.name) : [];
-            
+
             // Validate issue number is actually a number
             const issueNumber = parseInt(issue.number);
             if (isNaN(issueNumber) || issueNumber <= 0) {
               core.setFailed('Invalid issue number');
               return;
             }
-            
+
             let labelsToAdd = [];
 
             // Theme detection based on keywords
@@ -121,7 +121,7 @@ jobs:
 
             // Filter out existing labels and add new ones
             const finalLabels = labelsToAdd.filter(label => !existingLabels.includes(label));
-            
+
             if (finalLabels.length > 0) {
               try {
                 await github.rest.issues.addLabels({
@@ -154,19 +154,19 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue = context.payload.issue;
-            
+
             // Input validation
             if (!issue || !issue.number) {
               core.setFailed('Invalid issue data received');
               return;
             }
-            
+
             const issueNumber = parseInt(issue.number);
             if (isNaN(issueNumber) || issueNumber <= 0) {
               core.setFailed('Invalid issue number');
               return;
             }
-            
+
             try {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,

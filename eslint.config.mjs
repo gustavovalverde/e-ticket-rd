@@ -4,6 +4,7 @@ import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import typescriptParser from "@typescript-eslint/parser";
+import prettierPlugin from "eslint-plugin-prettier";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -219,6 +220,18 @@ const eslintConfig = [
       "@typescript-eslint/no-non-null-assertion": "off",
       "no-console": "off",
       "import/no-extraneous-dependencies": "off",
+    },
+  },
+
+  // Prettier integration - must be last to override other formatting rules
+  ...compat.extends("prettier"),
+  {
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      prettier: prettierPlugin,
+    },
+    rules: {
+      "prettier/prettier": "error",
     },
   },
 ];
