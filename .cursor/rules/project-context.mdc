@@ -73,7 +73,7 @@ For detailed implementation guidance, see these specialized rules:
 
 - **[Technology Stack](mdc:.cursor/rules/technology-stack.mdc)** - Complete tech stack, dependencies, and architecture patterns
 - **[Development Guidelines](mdc:.cursor/rules/development-guidelines.mdc)** - Best practices, coding standards, and quality requirements
-- **[Firebase Integration](mdc:.cursor/rules/firebase-integration.mdc)** - Firebase setup, data structures, and integration patterns
+- **[Backend Integration](mdc:.cursor/rules/backend-integration.mdc)** - Backend setup, data structures, and integration patterns
 - **[UI Patterns](mdc:.cursor/rules/ui-patterns.mdc)** - Shadcn/ui components, form patterns, and accessibility guidelines
 - **[Development Plan](mdc:.cursor/rules/development-plan.mdc)** - 4-week prototype timeline and deliverables
 

@@ -33,10 +33,17 @@ The development will be guided by the following principles and best practices:
   - **Styling:** Tailwind CSS (via Shadcn/ui).
 - **Backend (for Prototype & Scalable Future):**
   - **API Layer:** Next.js API Routes (for the initial prototype, offering a unified codebase). For scaling, these can be migrated to dedicated microservices if needed.
-  - **Database:** Firebase (Firestore). This NoSQL, document-based database is excellent for rapid development, real-time capabilities (useful for status updates), scalability, and has a generous free tier.
-    - **Firebase SDK:** firebase npm package.
-    - **Firestore Rules:** For securing data access.
-  - **Authentication:** Firebase Authentication. For the prototype, this might be used for anonymous sessions to save draft applications or for future user accounts (e.g., for frequent travelers or family accounts).
+  - **Database:** To be determined based on requirements analysis. Considerations include:
+    - Real-time capabilities for status updates
+    - Scalability for millions of users
+    - Cost efficiency
+    - Data security and compliance
+    - Integration capabilities
+  - **Authentication:** To be determined. Requirements include:
+    - Anonymous sessions for draft applications
+    - Future support for user accounts
+    - Secure token management
+    - Session persistence
 - **Passport Scanning (OCR \- Optical Character Recognition):**
   - **Prototype (Web-based PoC):** A client-side JavaScript OCR library like Tesseract.js can be used for a proof-of-concept to parse the Machine-Readable Zone (MRZ) from an uploaded passport image.
   - **Production (Mobile):** For a production-grade mobile app, native SDKs (e.g., Google ML Kit, Apple Vision Framework, or commercial SDKs) would be more robust and allow for direct camera access and potentially NFC reading.
@@ -44,11 +51,11 @@ The development will be guided by the following principles and best practices:
   - A library like qrcode.react for generating QR codes on the client-side.
 - **DevOps & Collaboration:**
   - **Version Control:** Git (e.g., GitHub, GitLab).
-  - **Deployment (Prototype):** Vercel (seamless integration with Next.js) or Firebase Hosting.
+  - **Deployment (Prototype):** Vercel (seamless integration with Next.js).
   - **Project Management:** Trello, Jira, or Asana for task tracking.
   - **Communication:** Slack or Microsoft Teams.
 - **Email Notifications (Optional for Prototype):**
-  - Services like SendGrid, Resend, or Firebase Extensions for sending email confirmations.
+  - Services like SendGrid or Resend for sending email confirmations.
 
 ## 4. Architectural Considerations
 
@@ -56,20 +63,25 @@ The development will be guided by the following principles and best practices:
   - **Component-Based:** Leverage Next.js and React's component model. Organize components logically (e.g., by feature or using Atomic Design principles: Atoms, Molecules, Organisms, Templates, Pages).
   - **Directory Structure:** Use Next.js App Router conventions (app directory for routes, components directory for UI elements, lib for utilities, etc.).
   - **Server Components & Client Components:** Strategically use Next.js Server Components for parts of the UI that don't require interactivity to improve performance, and Client Components for interactive elements.
-- **Backend Architecture (using Next.js API Routes & Firebase):**
+- **Backend Architecture (using Next.js API Routes):**
   - **API Routes:** Define clear, RESTful API endpoints within the app/api directory.
-  - **Firebase Integration:**
-    - Initialize Firebase in a dedicated configuration file.
-    - Use global variables for Firebase config: const firebaseConfig \= JSON.parse(\_\_firebase_config || '{}'); and const appId \= typeof \_\_app_id \!== 'undefined' ? \_\_app_id : 'default-app-id';.
-    - Authentication: const auth \= getAuth(app); if (typeof \_\_initial_auth_token \!== 'undefined' && \_\_initial_auth_token) { await signInWithCustomToken(auth, \_\_initial_auth_token); } else { await signInAnonymously(auth); }.
-    - const userId \= auth.currentUser?.uid || crypto.randomUUID();.
-    - Firestore data structure:
-      - eTickets collection: Each document represents an e-ticket submission.
-        - Path for private data: /artifacts/${appId}/users/${userId}/eTickets/{ticketId}
-        - Consider a publicSubmissions collection if a portion of the data needs to be accessed by other systems (with appropriate security rules): /artifacts/${appId}/public/data/eTicketReferences/{ticketId} (storing minimal, non-sensitive reference data).
-      - Use onSnapshot for real-time updates if needed (e.g., application status changes), though for a simple submission, a direct write might suffice for the prototype.
-      - Remember to setLogLevel('Debug') for Firebase during development.
-    - **Security Rules:** Define strict Firestore security rules to ensure users can only access/modify their own data.
+  - **Data Layer:**
+    - Design for scalability and performance
+    - Implement proper caching strategies
+    - Use efficient data structures
+    - Consider offline capabilities
+    - Implement proper error handling
+  - **Security:**
+    - Implement proper authentication and authorization
+    - Use secure session management
+    - Follow OWASP security guidelines
+    - Implement rate limiting
+    - Use proper encryption for sensitive data
+  - **Data Structure:**
+    - Design for efficient querying
+    - Implement proper indexing
+    - Consider data partitioning strategies
+    - Plan for data archival
 - **API Design:**
   - Use Zod schemas for validating API request bodies and ensuring consistent response structures.
   - Handle errors gracefully and return meaningful error messages.

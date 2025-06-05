@@ -40,7 +40,7 @@ alwaysApply: false
 - Implement data encryption for sensitive information
 - Follow OWASP Top 10 security practices
 - Secure handling of Personally Identifiable Information (PII)
-- Use Firebase Security Rules for data access control
+- Use proper security rules and access control for data access
 
 ### Data Handling
 - **Data Minimization**: Collect only essential information
@@ -127,6 +127,6 @@ alwaysApply: false
 - Document known limitations and technical debt
 
 For specific implementation patterns, see:
-- [Firebase Integration Patterns](mdc:.cursor/rules/firebase-integration.mdc)
+- [Backend Integration Patterns](mdc:.cursor/rules/backend-integration.mdc)
 - [UI Component Patterns](mdc:.cursor/rules/ui-patterns.mdc)
 - [Technology Stack](mdc:.cursor/rules/technology-stack.mdc)

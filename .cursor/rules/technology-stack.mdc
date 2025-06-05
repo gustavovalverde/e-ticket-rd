@@ -32,22 +32,13 @@ alwaysApply: false
 
 ### API & Database
 - **Next.js API Routes** - Unified codebase for prototype (can migrate to microservices later)
-- **Firebase Firestore** - NoSQL document database with real-time capabilities
-- **Firebase Authentication** - Anonymous sessions and future user accounts
-- **Firebase SDK** - firebase npm package
+- **Database** - To be determined based on requirements analysis
+- **Authentication** - To be determined based on requirements analysis
 
 ### Data Structure Patterns
 ```typescript
-// Firestore data structure
-/artifacts/${appId}/users/${userId}/eTickets/{ticketId}
-/artifacts/${appId}/public/data/eTicketReferences/{ticketId}
-```
-
-### Global Variables (Firebase Config)
-```typescript
-const firebaseConfig = JSON.parse(__firebase_config || '{}');
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-const userId = auth.currentUser?.uid || crypto.randomUUID();
+// Data structure patterns to be determined based on selected backend
+// Will follow similar patterns for user data isolation and public references
 ```
 
 ## Specialized Features
@@ -59,13 +50,11 @@ const userId = auth.currentUser?.uid || crypto.randomUUID();
 
 ### Communication
 - **SendGrid / Resend** - Email confirmation services
-- **Firebase Extensions** - Email notifications
 
 ## Development Tools
 
 ### DevOps & Deployment
 - **Vercel** - Seamless Next.js deployment
-- **Firebase Hosting** - Alternative hosting option
 - **Git** - Version control (GitHub/GitLab)
 
 ## Architecture Considerations
