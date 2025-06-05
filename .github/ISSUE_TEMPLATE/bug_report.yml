@@ -1,0 +1,112 @@
+name: Bug Report
+description: Report any problem with the e-ticket system
+title: '[Bug]: '
+labels: ['bug', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an issue! This helps us improve the system for travelers.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Issue Category
+      description: What type of issue is this?
+      options:
+        - UI/UX Bug - Interface or user experience problem
+        - Performance - Slow loading or poor performance
+        - Security - Potential security concern
+        - Accessibility - WCAG compliance issue
+        - Mobile - Mobile-specific problem
+        - API/Backend - Server or data issue
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How critical is this bug?
+      options:
+        - 📝 Low - Minor inconvenience
+        - 📋 Medium - Affects user experience
+        - ⚡ High - Blocks important functionality
+        - 🔥 Critical - Security risk or system unusable
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Project Theme
+      description: Which part of the system does this affect?
+      options:
+        - Foundation - Core infrastructure
+        - Core Experience - Essential user flows
+        - Enhanced UX - User experience improvements
+        - Optimization - Performance/accessibility/security
+        - Integration - External system connections
+        - Advanced Features - Extended functionality
+        - Maintenance - Technical debt/refactoring
+        - Documentation - Docs, guides, examples
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex does this bug fix appear to be?
+      options:
+        - XS - Quick fix (< 2 hours)
+        - S - Simple fix (half day)
+        - M - Moderate fix (1-2 days)
+        - L - Complex fix (3-5 days)
+        - XL - Major investigation/refactor needed
+        - Unknown - Needs triage to determine
+      default: 5
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the problem
+      placeholder: Describe what you expected vs what actually happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce
+      description: Steps to reproduce the issue
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, device, and other relevant details
+      placeholder: |
+        - Browser: Chrome 120
+        - Device: iPhone 14 / Desktop
+        - URL: /specific-page
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Screenshots, console errors, or other helpful information
+    validations:
+      required: false
