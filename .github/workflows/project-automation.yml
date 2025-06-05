@@ -6,9 +6,9 @@ permissions:
 
 on:
   issues:
-    types: [opened, labeled]
+    types: [opened, reopened, labeled]
   pull_request:
-    types: [opened]
+    types: [opened, reopened]
 
 jobs:
   # Add new items to project
