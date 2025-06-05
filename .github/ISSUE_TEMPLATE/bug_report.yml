@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report any problem with the e-ticket system
-title: '[Bug]: '
+title: 'bug: '
 labels: ['bug', 'needs-triage']
 body:
   - type: markdown
