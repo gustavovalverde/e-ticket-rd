@@ -1,0 +1,107 @@
+name: Enhancement
+description: Suggest an improvement, new feature, or task
+title: 'feat: '
+labels: ['enhancement', 'needs-triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! This helps us build a better e-ticket system.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Enhancement Type
+      description: What kind of improvement is this?
+      options:
+        - New Feature - Add new functionality
+        - UI/UX Improvement - Design or user experience enhancement
+        - Performance Optimization - Speed or efficiency improvement
+        - Accessibility - WCAG compliance improvement
+        - Developer Experience - Tooling, docs, or workflow improvement
+        - Research/Investigation - Need to research options or approaches
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How important is this enhancement?
+      options:
+        - 📝 Low - Nice to have
+        - 📋 Medium - Should have
+        - ⚡ High - Important for user experience
+        - 🔥 Critical - Essential for core functionality
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Project Theme
+      description: Which part of the system would this enhance?
+      options:
+        - Foundation - Core infrastructure
+        - Core Experience - Essential user flows
+        - Enhanced UX - User experience improvements
+        - Optimization - Performance/accessibility/security
+        - Integration - External system connections
+        - Advanced Features - Extended functionality
+        - Maintenance - Technical debt/refactoring
+        - Documentation - Docs, guides, examples
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex does this enhancement appear to be?
+      options:
+        - XS - Small addition (< 2 hours)
+        - S - Simple feature (half day)
+        - M - Moderate feature (1-2 days)
+        - L - Complex feature (3-5 days)
+        - XL - Major feature requiring architectural changes
+        - Unknown - Needs research to determine
+      default: 5
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user problem or need
+      placeholder: What issue or pain point would this address?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe your idea
+      placeholder: How would you like this to work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative approaches
+      description: Are there other ways to solve this?
+      placeholder: What other options could work?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Mockups, examples, or other helpful information
+      placeholder: Screenshots, links to examples, user feedback, etc.
+    validations:
+      required: false

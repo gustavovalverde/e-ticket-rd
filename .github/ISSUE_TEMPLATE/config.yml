@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 Questions & Discussions
+    url: https://github.com/gustavovalverde/e-ticket-rd/discussions
+    about: Ask questions, get help, or discuss ideas before creating issues
+  - name: 📖 Documentation
+    url: https://github.com/gustavovalverde/e-ticket-rd/blob/main/docs/
+    about: Check our documentation first - many questions are answered there
+  - name: 🔒 Security Vulnerabilities
+    url: https://github.com/gustavovalverde/e-ticket-rd/security/advisories/new
+    about: Report security issues privately (never use public issues for security)
+  - name: 📋 Contributing Guide
+    url: https://github.com/gustavovalverde/e-ticket-rd/blob/main/CONTRIBUTING.md
+    about: Read this before contributing - includes setup instructions and guidelines
