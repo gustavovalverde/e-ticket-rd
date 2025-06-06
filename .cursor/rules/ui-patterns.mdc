@@ -182,7 +182,7 @@ function PersonalInfoStep() {
 
   const onSubmit = async (data: PersonalInfoForm) => {
     try {
-      // Save to Firebase or proceed to next step
+      // Save data or proceed to next step
       await saveFormData(data);
     } catch (error) {
       toast.error('Failed to save information. Please try again.');
@@ -424,5 +424,3 @@ function QRCodeDisplay({ data, size = 200 }) {
   );
 }
 ```
-
-For Firebase integration, see [Firebase Integration Patterns](mdc:.cursor/rules/firebase-integration.mdc).

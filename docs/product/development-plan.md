@@ -95,7 +95,7 @@ The development will be guided by the following principles and best practices:
 
 ## 5. 4-Week Prototype Development Plan
 
-**Goal:** A clickable web-based prototype demonstrating the core user flow for a single traveler submitting an e-ticket. This includes multi-step form entry (manual), basic "smart form" logic, data persistence to Firestore, and QR code generation upon successful submission. Focus on the "happy path" and mobile-first responsive design.
+**Goal:** A clickable web-based prototype demonstrating the core user flow for a single traveler submitting an e-ticket. This includes multi-step form entry (manual), basic "smart form" logic, data persistence, and QR code generation upon successful submission. Focus on the "happy path" and mobile-first responsive design.
 
 **Team (Illustrative):** 1-2 Frontend Developers (proficient in Next.js/React), 0.5 UX/UI Designer (part-time for guidance and assets).
 
@@ -103,32 +103,31 @@ The development will be guided by the following principles and best practices:
 
 - **Tasks:**
   - Project Setup: Initialize Next.js (App Router) project, integrate Shadcn/ui, setup Git repository.
-  - Firebase Setup: Create Firebase project, enable Firestore and Authentication (Anonymous). Configure Firebase SDK in the Next.js app using provided global variables (\_\_firebase_config, \_\_app_id, \_\_initial_auth_token).
   - Core UI & Layout: Design and implement the main application layout (header, footer, navigation placeholders) using Shadcn components. Ensure basic responsiveness.
   - Form Structure Definition: Define the data model/schema for the e-ticket using Zod.
   - First Form Sections: Implement the initial sections of the e-ticket form (e.g., Personal Information, Passport Details) using React Hook Form and Shadcn components.
   - Basic Navigation: Set up routing for different form steps.
   - Internationalization (i18n) Setup: Basic setup for English and Spanish using next-intl.
 - **Deliverables:**
-  - Working Next.js project with Firebase integration.
+  - Working Next.js project with initial backend integration setup.
   - Basic application shell and responsive layout.
   - Initial (non-functional submission) form sections with validation.
   - Project hosted on Vercel for easy review.
 
-## Week 2: Completing Form Logic, API Routes, and Firestore Integration
+## Week 2: Completing Form Logic, API Routes, and Data Persistence PoC
 
 - **Tasks:**
   - Remaining Form Sections: Implement all remaining sections of the e-ticket form (Travel Details, Customs Declaration, Health Declaration).
   - "Smart Form" Logic: Implement conditional logic to show/hide questions based on previous answers (e.g., if "carrying commercial goods" is yes, show related questions).
   - API Route for Submission: Create a Next.js API route to handle form submission.
-  - Firestore Data Persistence:
-    - Implement logic in the API route to validate data (using Zod schema) and save the complete e-ticket document to Firestore under the correct path (e.g., /artifacts/${appId}/users/${userId}/eTickets/{ticketId}).
+  - Data Persistence:
+    - Implement logic in the API route to validate data (using Zod schema) and save the complete e-ticket document. For the prototype, this can be a temporary solution like a local JSON file, proving the end-to-end flow.
     - Generate a unique ID for each submission.
   - Client-Side Submission Logic: Connect the frontend form to the submission API route.
   - User Feedback: Implement loading states and success/error messages for form submission (using Shadcn Toasts or custom alerts, no window.alert()).
 - **Deliverables:**
   - Fully interactive multi-step form with conditional logic.
-  - Successful submission and data persistence to Firestore.
+  - Successful submission and data persistence demonstrated with a proof-of-concept.
   - Clear user feedback on submission status.
 
 ## Week 3: QR Code, Confirmation, and Basic OCR PoC
@@ -136,7 +135,7 @@ The development will be guided by the following principles and best practices:
 - **Tasks:**
   - QR Code Generation: Upon successful form submission, generate a QR code containing essential information (e.g., submission ID, traveler name). Display this on a confirmation page and/or make it downloadable. Use qrcode.react.
   - Confirmation Page/Mechanism: Design and implement a clear confirmation page summarizing key submitted details and displaying the QR code.
-  - Basic Email Confirmation (Stretch Goal): If time permits, integrate a simple email notification (e.g., using Resend or Firebase Functions with an email provider) sending the QR code and confirmation.
+  - Basic Email Confirmation (Stretch Goal): If time permits, integrate a simple email notification (e.g., using Resend or another email provider) sending the QR code and confirmation.
   - Passport OCR Proof-of-Concept (Stretch Goal):
     - Add an "Upload Passport Photo" option.
     - Integrate Tesseract.js to attempt to extract MRZ data from the uploaded image on the client-side.
@@ -181,4 +180,4 @@ The development will be guided by the following principles and best practices:
 
 ## 7. Conclusion
 
-This development plan provides a roadmap for creating a significantly improved e-ticket system for the Dominican Republic. By leveraging Next.js, Shadcn/ui, and Firebase, and adhering to user-centric design principles, we can rapidly develop a prototype that showcases the potential for a world-class digital migration experience. The iterative approach will ensure that the final product is robust, user-friendly, and effectively meets the needs of both travelers and migration authorities.
+This development plan provides a roadmap for creating a significantly improved e-ticket system for the Dominican Republic. By leveraging Next.js and Shadcn/ui, and adhering to user-centric design principles, we can rapidly develop a prototype that showcases the potential for a world-class digital migration experience. The iterative approach will ensure that the final product is robust, user-friendly, and effectively meets the needs of both travelers and migration authorities.

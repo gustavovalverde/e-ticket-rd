@@ -6,7 +6,7 @@ alwaysApply: false
 # 4-Week Development Plan & Timeline
 
 ## Project Goal
-Create a clickable web-based prototype demonstrating the core user flow for a single traveler submitting an e-ticket. Focus on multi-step form entry, basic "smart form" logic, data persistence to Firestore, and QR code generation upon successful submission.
+Create a clickable web-based prototype demonstrating the core user flow for a single traveler submitting an e-ticket. Focus on multi-step form entry, basic "smart form" logic, data persistence, and QR code generation upon successful submission.
 
 ## Team Structure
 - **Frontend Developers**: 1-2 developers proficient in Next.js/React
@@ -23,15 +23,6 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Initialize Next.js App Router project
   - Integrate Shadcn/ui components
   - Setup Git repository and version control
-  
-- **Firebase Integration**
-  - Create Firebase project
-  - Enable Firestore and Authentication (Anonymous)
-  - Configure Firebase SDK with global variables:
-    ```typescript
-    const firebaseConfig = JSON.parse(__firebase_config || '{}');
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    ```
 
 - **Core UI Development**
   - Implement main application layout (header, footer, navigation)
@@ -49,7 +40,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Set up translation infrastructure
 
 #### Deliverables
-- ✅ Working Next.js project with Firebase integration
+- ✅ Working Next.js project with initial backend integration setup
 - ✅ Basic responsive application shell and layout
 - ✅ Initial form sections with validation (non-functional submission)
 - ✅ Project hosted on Vercel for easy review
@@ -74,14 +65,11 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Implement Zod schema validation on server-side
   - Error handling and response formatting
 
-- **Firestore Integration**
+- **Backend Integration**
   - Implement data persistence logic
-  - Save e-ticket documents to correct paths:
-    ```typescript
-    `/artifacts/${appId}/users/${userId}/eTickets/${ticketId}`
-    ```
+  - Save e-ticket documents (specific database and path to be determined).
   - Generate unique submission IDs
-  - Handle authentication state
+  - Handle authentication state (if applicable for anonymous/draft sessions)
 
 - **User Feedback Systems**
   - Loading states during form submission
@@ -90,7 +78,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 
 #### Deliverables
 - ✅ Fully interactive multi-step form with conditional logic
-- ✅ Successful form submission and Firestore data persistence
+- ✅ Successful form submission and data persistence
 - ✅ Clear user feedback mechanisms for all form states
 
 ### Week 3: QR Codes & Confirmation Flow
@@ -112,7 +100,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Clear instructions for travelers
 
 - **Email Confirmation (Stretch Goal)**
-  - Integrate email service (Resend or Firebase Functions)
+  - Integrate email service (e.g., Resend or other email provider services)
   - Send confirmation emails with QR code
   - Email template design for mobile readability
 
@@ -194,7 +182,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 5. **Integration Planning**: Prepare for airline and immigration system integrations
 
 ## Risk Mitigation
-- **Technical Risks**: Use proven technology stack (Next.js, Firebase, Shadcn/ui)
+- **Technical Risks**: Use proven technology stack (Next.js, Shadcn/ui, and a suitable backend solution)
 - **Scope Creep**: Focus on core functionality, mark stretch goals clearly
 - **Performance Issues**: Implement monitoring and optimization from Week 1
 - **Accessibility Gaps**: Conduct weekly accessibility reviews, not just final audit
@@ -202,5 +190,4 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 For detailed implementation patterns, see:
 - [Technology Stack](mdc:.cursor/rules/technology-stack.mdc)
 - [Development Guidelines](mdc:.cursor/rules/development-guidelines.mdc)
-- [Firebase Integration](mdc:.cursor/rules/firebase-integration.mdc)
 - [UI Patterns](mdc:.cursor/rules/ui-patterns.mdc)
