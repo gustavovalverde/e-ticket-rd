@@ -1,0 +1,113 @@
+name: Code Quality & Linting
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    name: Quality Checks & Linting
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check types
+        run: npm run type-check
+
+      - name: Lint code
+        run: npm run lint:strict
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Audit security
+        run: npm audit --audit-level=moderate
+
+  super-linter:
+    runs-on: ubuntu-latest
+    name: Multi-language Linting
+    permissions:
+      contents: read
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Lint files
+        uses: super-linter/super-linter@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_ESLINT: false
+          VALIDATE_PRETTIER: false
+
+  quality-gate:
+    runs-on: ubuntu-latest
+    name: Quality Gate
+    needs: [quality-checks, super-linter]
+    permissions:
+      contents: read
+      pull-requests: write # Allow PR comments
+
+    steps:
+      - name: Report results
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { context } = require('@actions/github');
+
+            // Create workflow summary (visible in Actions tab)
+            await core.summary
+              .addHeading('🎉 All Quality Checks Passed', 2)
+              .addList([
+                '✅ TypeScript types look good',
+                '✅ ESLint found no security or accessibility issues',
+                '✅ Code formatting matches project style',
+                '✅ No security vulnerabilities found',
+                '✅ All file formats checked'
+              ])
+              .addQuote('🚀 Ready for the Dominican Republic E-Ticket system!')
+              .write();
+
+            // Add PR comment for pull requests
+            if (context.eventName === 'pull_request') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: '## ✅ All Quality Checks Passed\\n\\n**Everything looks good:**\\n- 🔍 TypeScript types are clean\\n- 🛡️ No security or accessibility issues found\\n- 🎨 Code formatting matches our style\\n- 🔒 No security vulnerabilities detected\\n- 📝 All file formats checked\\n\\n*Ready for review and merge!* 🚀'
+              });
+            }
+
+            core.info('🎉 Quality checks all passed!');
