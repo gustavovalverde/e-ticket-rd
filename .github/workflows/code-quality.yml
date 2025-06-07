@@ -84,6 +84,8 @@ jobs:
           VALIDATE_JSON_PRETTIER: false
           VALIDATE_MARKDOWN_PRETTIER: false
           VALIDATE_YAML_PRETTIER: false
+          # Disable pedantic natural language linting
+          VALIDATE_NATURAL_LANGUAGE: false
 
   quality-gate:
     runs-on: ubuntu-latest
