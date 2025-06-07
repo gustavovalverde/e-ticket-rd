@@ -1,9 +1,20 @@
+//
+// VS Code Settings - Aligned with CI/CD Pipeline
+//
+// These settings ensure consistency between local development
+// and the CI/CD pipeline (GitHub Actions + Husky + lint-staged).
+//
+// Key alignments:
+// - ESLint handles import organization (not VS Code)
+// - Prettier handles all formatting
+// - Same order: ESLint fix → Prettier format → TypeScript check
+//
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit"
+    "source.organizeImports": "never"
   },
   "eslint.validate": [
     "javascript",
@@ -13,7 +24,44 @@
     "json"
   ],
   "prettier.requireConfig": true,
+  "prettier.useEditorConfig": false,
+  "editor.rulers": [
+    80
+  ],
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "typescript.preferences.organizeImports": false,
+  "typescript.format.enable": false,
+  "javascript.format.enable": false,
   "[markdown]": {
-    "editor.wordWrap": "wordWrapColumn"
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 200,
+    "editor.defaultFormatter": "davidanson.vscode-markdownlint",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.markdownlint": "explicit"
+    }
+  },
+  "[json]": {
+    "editor.rulers": [
+      200
+    ]
+  },
+  "[jsonc]": {
+    "editor.rulers": [
+      200
+    ]
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

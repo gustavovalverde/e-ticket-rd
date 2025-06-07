@@ -1,6 +1,11 @@
 {
   "recommendations": [
     "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "davidanson.vscode-markdownlint"
   ]
 }
