@@ -18,6 +18,7 @@
   "requirePragma": false,
   "vueIndentScriptAndStyle": false,
   "experimentalTernaries": false,
+  "plugins": ["prettier-plugin-tailwindcss"],
   "overrides": [
     {
       "files": "*.json",
