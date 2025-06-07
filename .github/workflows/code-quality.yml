@@ -44,6 +44,9 @@ jobs:
       - name: Lint code
         run: pnpm run lint:strict
 
+      - name: Lint CSS
+        run: pnpm run lint:css:check
+
       - name: Check formatting
         run: pnpm run format:check
 
@@ -66,13 +69,25 @@ jobs:
 
       - name: Lint files
         uses: super-linter/super-linter@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0
+        # TODO: We need a workaround for https://github.com/super-linter/super-linter/issues/6089
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
+          # Disable linters already handled by quality-checks job
           VALIDATE_JSON: false
           VALIDATE_JSCPD: false
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_TSX: false
+          VALIDATE_JSX: false
+          VALIDATE_CSS: false
+          # Disable Prettier linters to avoid plugin conflicts
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
+          # Disable pedantic natural language linting
+          VALIDATE_NATURAL_LANGUAGE: false
 
   quality-gate:
     runs-on: ubuntu-latest
