@@ -73,39 +73,35 @@ jobs:
     runs-on: ubuntu-latest
     name: Quality Gate
     needs: [quality-checks, super-linter]
+    if: always()
     permissions:
       contents: read
-      pull-requests: write # Allow PR comments
 
     steps:
-      - name: Report results
+      - name: Generate quality summary
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { context } = require('@actions/github');
+            // Get job results
+            const qualityResult = '${{ needs.quality-checks.result }}';
+            const linterResult = '${{ needs.super-linter.result }}';
 
-            // Create workflow summary (visible in Actions tab)
+            const allPassed = qualityResult === 'success' && linterResult === 'success';
+
+            // Create simple summary like Super-linter
             await core.summary
-              .addHeading('🎉 All Quality Checks Passed', 2)
-              .addList([
-                '✅ TypeScript types look good',
-                '✅ ESLint found no security or accessibility issues',
-                '✅ Code formatting matches project style',
-                '✅ No security vulnerabilities found',
-                '✅ All file formats checked'
+              .addHeading('🔍 Code Quality Summary', 2)
+              .addTable([
+                [{data: 'Check', header: true}, {data: 'Result', header: true}],
+                ['Node.js Quality Checks', qualityResult === 'success' ? '✅ Pass' : '❌ Fail'],
+                ['Multi-language Linting', linterResult === 'success' ? '✅ Pass' : '❌ Fail']
               ])
-              .addQuote('🚀 Ready for the Dominican Republic E-Ticket system!')
+              .addSeparator()
+              .addHeading(allPassed ? '✅ All Checks Passed' : '❌ Some Checks Failed', 3)
               .write();
 
-            // Add PR comment for pull requests
-            if (context.eventName === 'pull_request') {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                body: '## ✅ All Quality Checks Passed\\n\\n**Everything looks good:**\\n- 🔍 TypeScript types are clean\\n- 🛡️ No security or accessibility issues found\\n- 🎨 Code formatting matches our style\\n- 🔒 No security vulnerabilities detected\\n- 📝 All file formats checked\\n\\n*Ready for review and merge!* 🚀'
-              });
+            // Set exit code based on results
+            if (!allPassed) {
+              core.setFailed('Quality gate failed');
             }
-
-            core.info('🎉 Quality checks all passed!');
