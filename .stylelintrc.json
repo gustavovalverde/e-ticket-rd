@@ -1,0 +1,22 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "rules": {
+    "import-notation": null,
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["tailwind", "apply", "variants", "responsive", "screen", "theme", "custom-variant", "layer", "import"]
+      }
+    ],
+    "at-rule-no-deprecated": null,
+    "function-no-unknown": [
+      true,
+      {
+        "ignoreFunctions": ["theme", "screen"]
+      }
+    ],
+    "lightness-notation": null,
+    "hue-degree-notation": null,
+    "no-descending-specificity": null
+  }
+}

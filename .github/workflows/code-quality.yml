@@ -44,6 +44,9 @@ jobs:
       - name: Lint code
         run: pnpm run lint:strict
 
+      - name: Lint CSS
+        run: pnpm run lint:css:check
+
       - name: Check formatting
         run: pnpm run format:check
 
@@ -69,10 +72,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
+          # Disable linters already handled by quality-checks job
           VALIDATE_JSON: false
           VALIDATE_JSCPD: false
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_CSS: false
 
   quality-gate:
     runs-on: ubuntu-latest

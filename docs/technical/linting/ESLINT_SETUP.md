@@ -134,7 +134,7 @@ npm run type-check
 
 The configuration automatically ignores:
 
-```
+```text
 node_modules/     # Dependencies
 .next/           # Next.js build output
 out/             # Export output
@@ -289,5 +289,5 @@ and includes:
 
 ---
 
-**Last Updated**: June 2025  
+**Last Updated**: June 2025
 **Compatible with**: Next.js 15+, TypeScript 5+, React 19+
