@@ -3,19 +3,19 @@ description:
 globs: 
 alwaysApply: false
 ---
-# 4-Week Development Plan & Timeline
+# Development Plan & Implementation Guide
 
 ## Project Goal
-Create a clickable web-based prototype demonstrating the core user flow for a single traveler submitting an e-ticket. Focus on multi-step form entry, basic "smart form" logic, data persistence, and QR code generation upon successful submission.
+Create a clickable web-based prototype showing the core user flow for a single traveler submitting an e-ticket. Focus on multi-step form entry, basic "smart form" logic, data persistence, and QR code generation upon successful submission.
 
 ## Team Structure
-- **Frontend Developers**: 1-2 developers proficient in Next.js/React
+- **Frontend Developers**: 1-2 developers skilled in Next.js/React
 - **UX/UI Designer**: 0.5 (part-time for guidance and assets)
 - **Focus**: Mobile-first responsive design and "happy path" user experience
 
-## Weekly Breakdown
+## Implementation Phases
 
-### Week 1: Foundation & Core UI
+### Phase 1: Foundation & Core UI
 **Objective**: Establish project foundation and basic form structure
 
 #### Tasks
@@ -25,13 +25,13 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Setup Git repository and version control
 
 - **Core UI Development**
-  - Implement main application layout (header, footer, navigation)
+  - Build main application layout (header, footer, navigation)
   - Ensure basic responsiveness using Shadcn components
   - Create mobile-first design system
 
 - **Form Foundation**
   - Define e-ticket data model/schema using Zod
-  - Implement initial form sections (Personal Information, Passport Details)
+  - Build initial form sections (Personal Information, Passport Details)
   - Set up TanStack Form integration
   - Create basic routing for form steps
 
@@ -45,7 +45,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 - ✅ Initial form sections with validation (non-functional submission)
 - ✅ Project hosted on Vercel for easy review
 
-### Week 2: Form Logic & Backend Integration
+### Phase 2: Form Logic & Backend Integration
 **Objective**: Complete form functionality and data persistence
 
 #### Tasks
@@ -62,12 +62,12 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 
 - **API Development**
   - Create Next.js API route for form submission
-  - Implement Zod schema validation on server-side
+  - Add Zod schema validation on server-side
   - Error handling and response formatting
 
 - **Backend Integration**
-  - Implement data persistence logic
-  - Save e-ticket documents (specific database and path to be determined).
+  - Add data persistence logic
+  - Save e-ticket documents (specific database and path to be determined)
   - Generate unique submission IDs
   - Handle authentication state (if applicable for anonymous/draft sessions)
 
@@ -81,8 +81,8 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 - ✅ Successful form submission and data persistence
 - ✅ Clear user feedback mechanisms for all form states
 
-### Week 3: QR Codes & Confirmation Flow
-**Objective**: Generate QR codes and implement confirmation experience
+### Phase 3: QR Codes & Confirmation Flow
+**Objective**: Generate QR codes and build confirmation experience
 
 #### Tasks
 - **QR Code Generation**
@@ -94,17 +94,17 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Display QR code on confirmation page
 
 - **Confirmation Page Design**
-  - Create comprehensive confirmation page
+  - Create confirmation page
   - Summary of submitted information
   - QR code display and download functionality
   - Clear instructions for travelers
 
-- **Email Confirmation (Stretch Goal)**
+- **Email Confirmation (Optional)**
   - Integrate email service (e.g., Resend or other email provider services)
   - Send confirmation emails with QR code
   - Email template design for mobile readability
 
-- **Passport OCR Proof-of-Concept (Stretch Goal)**
+- **Passport OCR Proof-of-Concept (Optional)**
   - Add "Upload Passport Photo" functionality
   - Integrate Tesseract.js for client-side OCR
   - Extract MRZ (Machine Readable Zone) data
@@ -112,19 +112,19 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Handle OCR errors and edge cases
 
 - **Accessibility Review**
-  - Conduct accessibility audit using Axe DevTools
+  - Do accessibility audit using Axe DevTools
   - Test keyboard navigation throughout application
   - Verify screen reader compatibility
   - Ensure WCAG 2.1 AA compliance
 
 #### Deliverables
 - ✅ QR code generation and display system
-- ✅ Comprehensive confirmation page with user instructions
-- 🎯 (Stretch) Basic email confirmation functionality
-- 🎯 (Stretch) Client-side passport OCR for form pre-filling
+- ✅ Confirmation page with user instructions
+- 🎯 (Optional) Basic email confirmation functionality
+- 🎯 (Optional) Client-side passport OCR for form pre-filling
 
-### Week 4: Testing & Deployment
-**Objective**: Ensure production readiness and comprehensive testing
+### Phase 4: Testing & Deployment
+**Objective**: Ensure production readiness and testing
 
 #### Tasks
 - **Cross-Browser Testing**
@@ -140,7 +140,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 - **Performance Optimization**
   - Run Lighthouse performance audits
   - Optimize images and assets
-  - Implement proper caching strategies
+  - Use proper caching strategies
   - Minimize bundle sizes
 
 - **Bug Fixes & Polish**
@@ -150,7 +150,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
   - Improve error handling
 
 - **Final Accessibility Audit**
-  - Comprehensive accessibility testing
+  - Accessibility testing
   - Verify keyboard navigation paths
   - Test with screen readers
   - Ensure color contrast compliance
@@ -163,7 +163,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 
 #### Deliverables
 - ✅ Fully tested and deployed web-based e-ticket prototype
-- ✅ Comprehensive testing documentation
+- ✅ Testing documentation
 - ✅ User guide and demo materials
 - ✅ List of known issues and improvement areas
 
@@ -174,8 +174,8 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 - **Usability**: Successful completion by test users without assistance
 - **Mobile Experience**: Seamless experience on smartphones and tablets
 
-## Post-Prototype Next Steps
-1. **User Testing**: Conduct usability testing with diverse traveler groups
+## Next Steps
+1. **User Testing**: Do usability testing with diverse traveler groups
 2. **Iterative Improvements**: Refine based on user feedback
 3. **Native Mobile Apps**: Plan iOS and Android development
 4. **Backend Scalability**: Evaluate microservices architecture needs
@@ -183,9 +183,9 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 
 ## Risk Mitigation
 - **Technical Risks**: Use proven technology stack (Next.js, Shadcn/ui, and a suitable backend solution)
-- **Scope Creep**: Focus on core functionality, mark stretch goals clearly
-- **Performance Issues**: Implement monitoring and optimization from Week 1
-- **Accessibility Gaps**: Conduct weekly accessibility reviews, not just final audit
+- **Scope Creep**: Focus on core functionality, mark optional goals clearly
+- **Performance Issues**: Monitor and optimize from Phase 1
+- **Accessibility Gaps**: Do regular accessibility reviews, not just final audit
 
 For detailed implementation patterns, see:
 - [Technology Stack](mdc:.cursor/rules/technology-stack.mdc)
