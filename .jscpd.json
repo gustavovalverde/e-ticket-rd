@@ -1,0 +1,5 @@
+{
+  "threshold": 3,
+  "reporters": ["console"],
+  "ignore": [".github/ISSUE_TEMPLATE/**"]
+}

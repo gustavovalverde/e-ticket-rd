@@ -68,8 +68,6 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_JAVASCRIPT_ES: false
-          VALIDATE_ESLINT: false
-          VALIDATE_PRETTIER: false
 
   quality-gate:
     runs-on: ubuntu-latest
