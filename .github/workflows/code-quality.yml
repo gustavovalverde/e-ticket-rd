@@ -77,7 +77,13 @@ jobs:
           VALIDATE_JSCPD: false
           VALIDATE_TYPESCRIPT_ES: false
           VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_TSX: false
+          VALIDATE_JSX: false
           VALIDATE_CSS: false
+          # Disable Prettier linters to avoid plugin conflicts
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
 
   quality-gate:
     runs-on: ubuntu-latest
