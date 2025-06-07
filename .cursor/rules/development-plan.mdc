@@ -32,7 +32,7 @@ Create a clickable web-based prototype demonstrating the core user flow for a si
 - **Form Foundation**
   - Define e-ticket data model/schema using Zod
   - Implement initial form sections (Personal Information, Passport Details)
-  - Set up React Hook Form integration
+  - Set up TanStack Form integration
   - Create basic routing for form steps
 
 - **Internationalization Setup**

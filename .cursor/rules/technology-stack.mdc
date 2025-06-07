@@ -18,8 +18,8 @@ alwaysApply: false
 - **Radix UI** - Headless, accessible UI primitives (via Shadcn/ui)
 
 ### State & Form Management
-- **React Hook Form** - Performant, flexible form validation and handling
-- **Zod** - Schema validation for both client and server (integrates with React Hook Form)
+- **TanStack Form** - Performant, flexible form validation with advanced features like field dependencies and async validation
+- **Zod** - Schema validation for both client and server (integrates with TanStack Form via zodValidator)
 - **Zustand** - Simple, scalable state management (less boilerplate than Redux)
 - **React Context** - For simpler global state needs (theme, language)
 

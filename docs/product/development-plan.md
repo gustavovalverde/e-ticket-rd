@@ -26,8 +26,8 @@ The development will be guided by the following principles and best practices:
   - **Framework:** Next.js (using the App Router for modern features like Server Components, improved routing, and layouts).
   - **UI Components:** Shadcn/ui (leveraging its accessible and customizable components built on Tailwind CSS and Radix UI).
   - **State Management:** Zustand (simple, scalable, and less boilerplate than Redux) or React Context (for simpler global state needs in the prototype).
-  - **Form Handling:** React Hook Form (for performant, flexible, and easy-to-use form validation).
-  - **Schema Validation:** Zod (for robust data validation on both client and server, integrates well with React Hook Form).
+  - **Form Handling:** TanStack Form (for performant, flexible form validation with advanced features like field dependencies and async validation).
+- **Schema Validation:** Zod (for robust data validation on both client and server, integrates well with TanStack Form via zodValidator).
   - **Internationalization (i18n):** next-intl (specifically designed for Next.js App Router) or i18next with react-i18next.
   - **Accessibility Testing:** Axe DevTools browser extension, ESLint accessibility plugins (eslint-plugin-jsx-a11y).
   - **Styling:** Tailwind CSS (via Shadcn/ui).
@@ -90,7 +90,7 @@ The development will be guided by the following principles and best practices:
   - Use Zustand for more complex client-side state related to the form or user session if needed.
   - Leverage Next.js Server Components and Route Handlers for server-side data fetching and mutations as much as possible.
 - **"Smart Forms" Implementation:**
-  - Use conditional rendering in React based on form state (managed by React Hook Form) to show/hide questions dynamically.
+  - Use conditional rendering in React based on form state (managed by TanStack Form) to show/hide questions dynamically.
   - Structure form configuration in a way that makes it easy to define dependencies between questions.
 
 ## 5. 4-Week Prototype Development Plan
@@ -105,7 +105,7 @@ The development will be guided by the following principles and best practices:
   - Project Setup: Initialize Next.js (App Router) project, integrate Shadcn/ui, setup Git repository.
   - Core UI & Layout: Design and implement the main application layout (header, footer, navigation placeholders) using Shadcn components. Ensure basic responsiveness.
   - Form Structure Definition: Define the data model/schema for the e-ticket using Zod.
-  - First Form Sections: Implement the initial sections of the e-ticket form (e.g., Personal Information, Passport Details) using React Hook Form and Shadcn components.
+  - First Form Sections: Implement the initial sections of the e-ticket form (e.g., Personal Information, Passport Details) using TanStack Form and Shadcn components.
   - Basic Navigation: Set up routing for different form steps.
   - Internationalization (i18n) Setup: Basic setup for English and Spanish using next-intl.
 - **Deliverables:**

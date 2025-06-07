@@ -85,7 +85,7 @@ alwaysApply: false
 - Implement client-side validation for immediate feedback
 - Always validate on the server for security
 - Provide clear, actionable error messages
-- Use React Hook Form for performance and flexibility
+- Use TanStack Form for performance, flexibility, and advanced form features
 
 ## Internationalization & Communication
 

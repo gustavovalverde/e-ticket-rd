@@ -73,15 +73,27 @@ const travelerData: any = {...};
 ```typescript
 // ✅ Good: Proper component organization
 export function PassportForm({ onDataChange }: PassportFormProps) {
-  const form = useForm<PassportData>({
-    resolver: zodResolver(passportSchema),
+  const form = useForm({
     defaultValues: getStoredPassportData(), // Reuse existing data
+    validators: {
+      onChange: passportSchema,
+    },
+    validatorAdapter: zodValidator,
+    onSubmit: async ({ value }) => {
+      onDataChange(value);
+    },
   });
 
   return (
-    <Form {...form}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
       {/* Component JSX */}
-    </Form>
+    </form>
   );
 }
 
@@ -164,7 +176,11 @@ export function PersonalInfoForm({ previousData }: Props) {
       nationality: previousData?.ocrData?.nationality || '',
       // Reuse previous session data
       email: previousData?.contactInfo?.email || '',
-    }
+    },
+    validators: {
+      onChange: personalInfoSchema,
+    },
+    validatorAdapter: zodValidator,
   });
 }
 
