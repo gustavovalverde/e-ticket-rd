@@ -1,0 +1,31 @@
+name: Security Analysis
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/**']
+  pull_request:
+    branches: ['**']
+    paths: ['.github/workflows/**']
+
+jobs:
+  github-actions-security:
+    runs-on: ubuntu-latest
+    name: GitHub Actions Security Analysis
+    permissions:
+      security-events: write # For uploading SARIF results
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor analysis
+        uses: zizmorcore/zizmor-action@f52a838cfabf134edcbaa7c8b3677dde20045018 # v0.1.1
+        with:
+          # Use pedantic persona for government-grade security
+          persona: pedantic
