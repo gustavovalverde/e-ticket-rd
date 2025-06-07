@@ -36,6 +36,9 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3
         version: 3.3.1
+      '@eslint/js':
+        specifier: ^9.28.0
+        version: 9.28.0
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.8
