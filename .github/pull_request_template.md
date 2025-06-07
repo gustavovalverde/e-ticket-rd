@@ -21,9 +21,8 @@
 
 ## 📊 What This Changes
 
-**Performance Impact:** <!-- None/Minimal/Describe --> **Security Considerations:**
-
-<!-- None/Describe -->
+**Performance Impact:** <!-- None/Minimal/Describe -->
+**Security Considerations:** <!-- None/Describe -->
 
 ---
 
@@ -75,5 +74,4 @@ OPTIONAL SECTIONS - Uncomment sections below that apply to your changes:
 
 ---
 
-**Remember**: This system serves millions of travelers. Please make sure your changes focus on
-performance, security, and user experience.
+**Remember**: This system serves millions of travelers. Please make sure your changes focus on performance, security, and user experience.

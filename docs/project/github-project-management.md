@@ -1,22 +1,17 @@
 # GitHub Project Management System
 
-This document explains how we manage the Dominican Republic E-Ticket System project. Our system
-supports different development stages and welcomes various types of contributors in our open-source
-community.
+This document explains how we manage the Dominican Republic E-Ticket System project. Our system supports different development stages and welcomes various types of contributors in our open-source community.
 
 ## Overview
 
-We use **themes instead of sprints** to organize our work. This lets us work on different parts of
-the system at the same time. Our setup handles research, design, coding, and improvements through
-automated workflows that help sort and organize tasks.
+We use **themes instead of sprints** to organize our work. This lets us work on different parts of the system at the same time. Our setup handles research, design, coding, and improvements through automated workflows that help sort and organize tasks.
 
 ## Project Philosophy
 
 ### Open Source Collaboration
 
 - **Everything is public**: You can see all issues and our progress
-- **Everyone can contribute**: Researchers, designers, developers, testers, and subject matter
-  experts
+- **Everyone can contribute**: Researchers, designers, developers, testers, and subject matter experts
 - **Clear process**: Easy-to-follow stages that show what's happening and who's responsible
 - **Room for everyone**: Different ways to get involved based on your skills and time
 
@@ -294,7 +289,9 @@ Items are categorized by their primary focus area (see Theme-Based Organization 
 
 **File**: `.github/workflows/stale-issue-management.yml`
 
-**Purpose**: Automated cleanup of inactive issues **Schedule**: Weekly on Sundays **Actions**:
+**Purpose**: Automated cleanup of inactive issues
+**Schedule**: Weekly on Sundays
+**Actions**:
 
 - Marks stale issues after 60 days of inactivity
 - Closes stale issues after 14 additional days
@@ -406,8 +403,7 @@ Items are categorized by their primary focus area (see Theme-Based Organization 
 
 ## Making Things Better
 
-Our project management setup will change as we learn what works and what doesn't. We regularly check
-and adjust things to keep everything running smoothly.
+Our project management setup will change as we learn what works and what doesn't. We regularly check and adjust things to keep everything running smoothly.
 
 ### When we review things
 

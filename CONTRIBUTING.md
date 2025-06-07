@@ -2,16 +2,13 @@
 
 ## Overview
 
-This project modernizes the Dominican Republic's E-Ticket system for migration control, serving
-**millions of users annually**. Every contribution must prioritize **performance**, **security**,
-**cost efficiency**, and exceptional **user experience**.
+This project modernizes the Dominican Republic's E-Ticket system for migration control, serving **millions of users annually**. Every contribution must prioritize **performance**, **security**, **cost efficiency**, and exceptional **user experience**.
 
 ## 🎯 Core Principles
 
 ### 1. Only-Once Approach (OOTS Guidelines)
 
-Following the
-[EU Once-Only Technical System UX Guidelines](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines):
+Following the [EU Once-Only Technical System UX Guidelines](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines):
 
 - **Never ask users for information they've already provided**
 - **Reuse data intelligently** across form sections
@@ -36,8 +33,7 @@ With millions of annual users, every millisecond counts:
 
 Minimize operational costs through smart design decisions:
 
-- **Local-first data processing** - perform validations, calculations, and transformations
-  client-side when possible
+- **Local-first data processing** - perform validations, calculations, and transformations client-side when possible
 - **Batch API requests** - never make individual API calls in loops
 - **Cache aggressively** - use appropriate cache headers and strategies
 - **Optimize database operations** - minimize read/write operations, use efficient queries
@@ -77,15 +73,27 @@ const travelerData: any = {...};
 ```typescript
 // ✅ Good: Proper component organization
 export function PassportForm({ onDataChange }: PassportFormProps) {
-  const form = useForm<PassportData>({
-    resolver: zodResolver(passportSchema),
+  const form = useForm({
     defaultValues: getStoredPassportData(), // Reuse existing data
+    validators: {
+      onChange: passportSchema,
+    },
+    validatorAdapter: zodValidator,
+    onSubmit: async ({ value }) => {
+      onDataChange(value);
+    },
   });
 
   return (
-    <Form {...form}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+    >
       {/* Component JSX */}
-    </Form>
+    </form>
   );
 }
 
@@ -169,6 +177,10 @@ export function PersonalInfoForm({ previousData }: Props) {
       // Reuse previous session data
       email: previousData?.contactInfo?.email || "",
     },
+    validators: {
+      onChange: personalInfoSchema,
+    },
+    validatorAdapter: zodValidator,
   });
 }
 
@@ -365,5 +377,4 @@ Every pull request must:
 - **Accessibility**: Use axe-core tools and test with screen readers
 - **Cost Optimization**: Analyze API usage patterns and implement local-first approaches
 
-**Remember**: Every line of code affects millions of travelers. Code with empathy, performance, and
-security in mind.
+**Remember**: Every line of code affects millions of travelers. Code with empathy, performance, and security in mind.
