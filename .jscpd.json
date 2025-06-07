@@ -1,5 +1,0 @@
-{
-  "threshold": 3,
-  "reporters": ["console"],
-  "ignore": ["**/ISSUE_TEMPLATE/**"]
-}
