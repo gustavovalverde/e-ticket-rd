@@ -69,6 +69,8 @@ jobs:
 
       - name: Lint files
         uses: super-linter/super-linter@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0
+        # TODO: We need a workaround for https://github.com/super-linter/super-linter/issues/6089
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
