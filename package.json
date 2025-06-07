@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write --list-different .",
-    "check-all": "npm run type-check && npm run lint:strict && npm run format:check",
+    "check-all": "pnpm run type-check && pnpm run lint:strict && pnpm run format:check",
     "prepare": "husky"
   },
   "dependencies": {
@@ -25,9 +25,10 @@
     "react-dom": "^19.1.0",
     "tailwind-merge": "^3.3.0"
   },
+  "packageManager": "pnpm",
   "engines": {
     "node": ">=24.0.0",
-    "npm": ">=11.0.0"
+    "pnpm": ">=10.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
