@@ -7,7 +7,7 @@ We're working on modernizing the Dominican Republic's E-Ticket system to make tr
 ## Our Values
 
 - **Every traveler matters**: We care about all users, including those with disabilities, limited tech skills, or challenging situations
-- **Security comes first**: We handle personal information carefully and responsibly  
+- **Security comes first**: We handle personal information carefully and responsibly
 - **Quality matters**: We want to build fast, accessible software that works well
 - **Different views help**: Various perspectives make us build better things
 
@@ -34,7 +34,7 @@ We're working on modernizing the Dominican Republic's E-Ticket system to make tr
 ### What We Don't Want
 
 - **Ignoring security**: Adding vulnerabilities or bad security practices
-- **Ignoring accessibility**: Building features that exclude users with disabilities  
+- **Ignoring accessibility**: Building features that exclude users with disabilities
 - **Breaking performance**: Making the system slow
 - **Being disrespectful**: Personal attacks, trolling, or insulting language
 - **Discrimination**: Based on race, gender, disability, nationality, religion, or other personal traits

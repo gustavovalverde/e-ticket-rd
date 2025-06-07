@@ -112,9 +112,9 @@ function BadForm() {
 const validatePassport = (passportNumber: string) => {
   // First: Local format validation
   if (!PASSPORT_FORMAT_REGEX.test(passportNumber)) {
-    return { valid: false, error: 'Invalid format' };
+    return { valid: false, error: "Invalid format" };
   }
-  
+
   // Only if absolutely necessary: External verification
   // return await externalPassportAPI.verify(passportNumber);
 };
@@ -130,12 +130,14 @@ const validatePassport = async (passportNumber: string) => {
 ```typescript
 // ✅ Good: Process data locally when possible
 const calculateStayDuration = (arrival: Date, departure: Date) => {
-  return Math.ceil((departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.ceil(
+    (departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24)
+  );
 };
 
 // ✅ Good: Local country/city data
 const COUNTRIES_DATA = [
-  { code: 'US', name: 'United States', cities: ['New York', 'Los Angeles'] },
+  { code: "US", name: "United States", cities: ["New York", "Los Angeles"] },
   // ... other countries loaded locally
 ];
 ```
@@ -152,10 +154,8 @@ const useCountryData = () => {
 
 // ✅ Good: Session-based caching for form data
 const useFormPersistence = (formId: string) => {
-  const [data, setData] = useState(() => 
-    getSessionStorageData(formId) || {}
-  );
-  
+  const [data, setData] = useState(() => getSessionStorageData(formId) || {});
+
   useEffect(() => {
     saveToSessionStorage(formId, data);
   }, [data, formId]);
@@ -172,10 +172,10 @@ export function PersonalInfoForm({ previousData }: Props) {
   const form = useForm({
     defaultValues: {
       // Reuse passport OCR data if available
-      fullName: previousData?.ocrData?.name || '',
-      nationality: previousData?.ocrData?.nationality || '',
+      fullName: previousData?.ocrData?.name || "",
+      nationality: previousData?.ocrData?.nationality || "",
       // Reuse previous session data
-      email: previousData?.contactInfo?.email || '',
+      email: previousData?.contactInfo?.email || "",
     },
     validators: {
       onChange: personalInfoSchema,
@@ -186,7 +186,7 @@ export function PersonalInfoForm({ previousData }: Props) {
 
 // ✅ Good: Conditional field display
 const shouldShowCustomsDeclaration = (travelPurpose: string) => {
-  return travelPurpose === 'business' || travelPurpose === 'commercial';
+  return travelPurpose === "business" || travelPurpose === "commercial";
 };
 ```
 
@@ -195,14 +195,16 @@ const shouldShowCustomsDeclaration = (travelPurpose: string) => {
 ```typescript
 // ✅ Good: Comprehensive validation schema
 const travelerSchema = z.object({
-  passportNumber: z.string()
-    .min(6, 'Passport number too short')
-    .max(20, 'Passport number too long')
-    .regex(PASSPORT_REGEX, 'Invalid passport format'),
-  email: z.string().email('Invalid email format'),
-  arrivalDate: z.date()
-    .min(new Date(), 'Arrival date cannot be in the past')
-    .max(addYears(new Date(), 1), 'Arrival date too far in future'),
+  passportNumber: z
+    .string()
+    .min(6, "Passport number too short")
+    .max(20, "Passport number too long")
+    .regex(PASSPORT_REGEX, "Invalid passport format"),
+  email: z.string().email("Invalid email format"),
+  arrivalDate: z
+    .date()
+    .min(new Date(), "Arrival date cannot be in the past")
+    .max(addYears(new Date(), 1), "Arrival date too far in future"),
 });
 ```
 
@@ -215,7 +217,7 @@ const travelerSchema = z.object({
 const saveETicketData = async (ticketData: ETicketData) => {
   // Optimistic update
   updateLocalState(ticketData);
-  
+
   try {
     // Batch related operations
     await Promise.all([
@@ -232,8 +234,8 @@ const saveETicketData = async (ticketData: ETicketData) => {
 
 // ✅ Good: Offline support
 const initializeOfflineSupport = () => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
   }
 };
 ```
@@ -247,7 +249,7 @@ const initializeSession = async () => {
     const sessionId = await createAnonymousSession();
     return sessionId;
   } catch (error) {
-    console.error('Session creation failed:', error);
+    console.error("Session creation failed:", error);
     return crypto.randomUUID(); // Fallback to local UUID
   }
 };
@@ -259,10 +261,10 @@ const initializeSession = async () => {
 
 ```typescript
 // Required: Test all validation logic
-describe('PassportValidation', () => {
-  it('should validate passport number format', () => {
-    expect(validatePassportFormat('A1234567')).toBe(true);
-    expect(validatePassportFormat('invalid')).toBe(false);
+describe("PassportValidation", () => {
+  it("should validate passport number format", () => {
+    expect(validatePassportFormat("A1234567")).toBe(true);
+    expect(validatePassportFormat("invalid")).toBe(false);
   });
 });
 ```
@@ -289,13 +291,13 @@ test('should not have accessibility violations', async () => {
 ```typescript
 /**
  * PassportForm - Handles passport information collection with OCR support
- * 
+ *
  * @param onDataChange - Callback fired when form data changes
  * @param initialData - Previously collected data to pre-populate fields
  * @param enableOCR - Whether to show passport scanning option
- * 
+ *
  * @example
- * <PassportForm 
+ * <PassportForm
  *   onDataChange={(data) => updateFormData('passport', data)}
  *   initialData={existingPassportData}
  *   enableOCR={true}
@@ -311,12 +313,12 @@ export function PassportForm({ onDataChange, initialData, enableOCR }: Props) {
 ```typescript
 /**
  * POST /api/eticket/submit
- * 
+ *
  * Submits completed e-ticket form data
- * 
+ *
  * Cost Impact: Minimize database operations
  * Performance: < 500ms response time required
- * 
+ *
  * @param data - Validated e-ticket data (validated with eTicketSchema)
  * @returns QR code and confirmation details
  */

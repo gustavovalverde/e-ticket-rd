@@ -24,67 +24,67 @@ jobs:
         uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          
+
           # Issue configuration
           stale-issue-message: |
             This issue has been automatically marked as stale because it has not had recent activity. 
-            
+
             **For contributors:** If you're still working on this, please comment to keep it active.
             **For maintainers:** Please review and either:
             - Close if no longer relevant
             - Add "keep-open" label if should remain open
             - Update with current status
-            
+
             This issue will be closed in 7 days if no further activity occurs.
-          
+
           close-issue-message: |
             This issue has been automatically closed due to inactivity. 
-            
+
             If this issue is still relevant, please reopen it with updated information or create a new issue with current details.
-          
-          # PR configuration  
+
+          # PR configuration
           stale-pr-message: |
             This pull request has been automatically marked as stale because it has not had recent activity.
-            
+
             **For contributors:** If you're still working on this PR, please:
             - Comment to keep it active
             - Rebase if needed
             - Address any review feedback
-            
+
             This PR will be closed in 7 days if no further activity occurs.
-          
+
           close-pr-message: |
             This pull request has been automatically closed due to inactivity.
-            
+
             If you're still working on this, please reopen and update the PR.
-          
+
           # Labels and timing
           stale-issue-label: 'stale'
           stale-pr-label: 'stale'
           close-issue-label: 'auto-closed'
           close-pr-label: 'auto-closed'
-          
+
           # Exempt important issues from being marked stale
           exempt-issue-labels: 'keep-open,in-progress,critical,security,pinned,help-wanted,good-first-issue'
           exempt-pr-labels: 'keep-open,in-progress,critical,security,wip,work-in-progress'
-          
+
           # Timing configuration
-          days-before-stale: 180    # Mark as stale after 180 days
-          days-before-close: 7     # Close after 7 days of being stale
-          days-before-pr-close: 7  # Close PRs after 7 days of being stale
-          
+          days-before-stale: 180 # Mark as stale after 180 days
+          days-before-close: 7 # Close after 7 days of being stale
+          days-before-pr-close: 7 # Close PRs after 7 days of being stale
+
           # Only process issues/PRs in ascending order (oldest first)
           ascending: true
-          
+
           # Operation limits to prevent API rate limiting
           operations-per-run: 100
-          
+
           # Remove stale label when activity resumes
           remove-stale-when-updated: true
-          
+
           # Additional configuration
-          enable-statistics: true  # Log statistics about stale items
-          
+          enable-statistics: true # Log statistics about stale items
+
           # Only mark issues/PRs as stale, don't close them automatically
           # Set to false if you want more aggressive cleanup
           only-labels: false
@@ -99,7 +99,7 @@ jobs:
               core.setFailed('Invalid workflow context received');
               return;
             }
-            
+
             try {
               // Get repository statistics with error handling
               const { data: issues } = await github.rest.issues.listForRepo({
@@ -165,4 +165,4 @@ jobs:
               console.log('Stale cleanup statistics reported successfully');
             } catch (error) {
               core.setFailed(`Failed to generate stale cleanup report: ${error.message}`);
-            } 
+            }

@@ -23,6 +23,7 @@ The development will follow these principles:
 ## 3. Technology Stack & Tools
 
 - **Frontend:**
+
   - **Framework:** Next.js (using App Router for Server Components, better routing, and layouts)
   - **UI Components:** Shadcn/ui (accessible and customizable components built on Tailwind CSS and Radix UI)
   - **State Management:** Zustand (simple and less complex than Redux) or React Context (for simpler global state needs)
@@ -33,6 +34,7 @@ The development will follow these principles:
   - **Styling:** Tailwind CSS (via Shadcn/ui)
 
 - **Backend:**
+
   - **API Layer:** Next.js API Routes (for the initial prototype, unified codebase). For scaling, these can move to dedicated microservices if needed.
   - **Database:** To be determined based on requirements. Considerations include:
     - Real-time capabilities for status updates
@@ -47,12 +49,14 @@ The development will follow these principles:
     - Session persistence
 
 - **Passport Scanning (OCR):**
+
   - **Prototype (Web-based):** Client-side JavaScript OCR library like Tesseract.js for proof-of-concept to parse Machine-Readable Zone (MRZ) from uploaded passport images
   - **Production (Mobile):** For production mobile app, native SDKs (Google ML Kit, Apple Vision Framework, or commercial SDKs) would be more reliable and allow direct camera access and potentially NFC reading
 
 - **QR Code Generation:** Library like qrcode.react for generating QR codes on the client-side
 
 - **DevOps & Collaboration:**
+
   - **Version Control:** Git (GitHub, GitLab)
   - **Deployment:** Vercel (seamless integration with Next.js)
   - **Project Management:** Trello, Jira, or Asana for task tracking
@@ -63,11 +67,13 @@ The development will follow these principles:
 ## 4. Architecture Considerations
 
 - **Frontend Architecture:**
+
   - **Component-Based:** Use Next.js and React's component model. Organize components logically (by feature or using Atomic Design principles: Atoms, Molecules, Organisms, Templates, Pages)
   - **Directory Structure:** Follow Next.js App Router conventions (app directory for routes, components directory for UI elements, lib for utilities)
   - **Server Components & Client Components:** Use Next.js Server Components for non-interactive UI parts to improve performance, and Client Components for interactive elements
 
 - **Backend Architecture (using Next.js API Routes):**
+
   - **API Routes:** Define clear, RESTful API endpoints within the app/api directory
   - **Data Layer:**
     - Design for scalability and performance
@@ -88,10 +94,12 @@ The development will follow these principles:
     - Plan for data archival
 
 - **API Design:**
+
   - Use Zod schemas for validating API request bodies and ensuring consistent response structures
   - Handle errors gracefully and return meaningful error messages
 
 - **State Management Strategy:**
+
   - Use React Context for simple global state (theme, user language)
   - Use Zustand for more complex client-side state related to the form or user session if needed
   - Use Next.js Server Components and Route Handlers for server-side data fetching and mutations as much as possible
@@ -109,6 +117,7 @@ The development will follow these principles:
 ## Phase 1: Foundation, Core UI, and Initial Form Sections
 
 - **Tasks:**
+
   - Project Setup: Initialize Next.js (App Router) project, integrate Shadcn/ui, setup Git repository
   - Core UI & Layout: Design and build the main application layout (header, footer, navigation placeholders) using Shadcn components. Ensure basic responsiveness
   - Form Structure Definition: Define the data model/schema for the e-ticket using Zod
@@ -125,6 +134,7 @@ The development will follow these principles:
 ## Phase 2: Completing Form Logic, API Routes, and Data Persistence
 
 - **Tasks:**
+
   - Remaining Form Sections: Build all remaining sections of the e-ticket form (Travel Details, Customs Declaration, Health Declaration)
   - "Smart Form" Logic: Add conditional logic to show/hide questions based on previous answers (e.g., if "carrying commercial goods" is yes, show related questions)
   - API Route for Submission: Create a Next.js API route to handle form submission
@@ -142,6 +152,7 @@ The development will follow these principles:
 ## Phase 3: QR Code, Confirmation, and Basic OCR
 
 - **Tasks:**
+
   - QR Code Generation: Upon successful form submission, generate a QR code containing essential information (submission ID, traveler name). Display this on a confirmation page and/or make it downloadable. Use qrcode.react
   - Confirmation Page: Design and build a clear confirmation page summarizing key submitted details and displaying the QR code
   - Basic Email Confirmation (Optional): If time permits, integrate a simple email notification (using Resend or another email provider) sending the QR code and confirmation
@@ -159,6 +170,7 @@ The development will follow these principles:
 ## Phase 4: Testing, Refinement, Deployment, and Documentation
 
 - **Tasks:**
+
   - End-to-End Testing: Test the entire user flow on different browsers (Chrome, Firefox, Safari, Edge) and mobile devices/emulators
   - Bug Fixing & UI Polishing: Address any identified bugs and refine the UI/UX based on internal reviews
   - Performance Checks: Basic performance review (Lighthouse)

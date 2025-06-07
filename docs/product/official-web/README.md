@@ -193,7 +193,7 @@ This document provides detailed documentation of the existing Dominican Republic
 | 6. Customs Info                            | ¿Trae/Lleva... más de US$10,000?         | Toggle Switch         | Yes      | -                | Defaults to NO.                                                                            |
 | 6. Customs Info                            | ¿Trae... animales, plantas, alimentos?   | Toggle Switch         | Yes      | -                | Defaults to NO.                                                                            |
 | 6. Customs Info                            | ¿Trae... mercancías sujetas a impuestos? | Toggle Switch         | Yes      | -                | Defaults to NO.                                                                            |
-| *To be populated based on screen analysis* |                                          |                       |          |                  |                                                                                            |
+| _To be populated based on screen analysis_ |                                          |                       |          |                  |                                                                                            |
 
 ## Form Elements Catalog
 
@@ -223,4 +223,4 @@ This document provides detailed documentation of the existing Dominican Republic
 
 ### Validation Messages
 
-*[To be documented based on visual analysis]*
+_[To be documented based on visual analysis]_
