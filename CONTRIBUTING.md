@@ -122,7 +122,9 @@ const validatePassport = async (passportNumber: string) => {
 ```typescript
 // ✅ Good: Process data locally when possible
 const calculateStayDuration = (arrival: Date, departure: Date) => {
-  return Math.ceil((departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.ceil(
+    (departure.getTime() - arrival.getTime()) / (1000 * 60 * 60 * 24)
+  );
 };
 
 // ✅ Good: Local country/city data
