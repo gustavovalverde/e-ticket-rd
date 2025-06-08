@@ -6,10 +6,10 @@ The primary goal is to strategically refactor the Dominican Republic's current e
 
 **2\. Benchmark Selection: Why New Zealand and Singapore?**
 
-New Zealand's Traveller Declaration (NZTD) and Singapore's Arrival Card (SGAC) were selected as benchmarks due to their global recognition as leading examples of effective and user-centric digital migration systems.
+[New Zealand's Traveller Declaration (NZTD)](https://www.travellerdeclaration.govt.nz/) and [Singapore's Arrival Card (SGAC)](https://eservices.ica.gov.sg/sgarrivalcard/) were selected as benchmarks due to their global recognition as leading examples of effective and user-centric digital migration systems.
 
-- **New Zealand Traveller Declaration (NZTD):** Chosen for its comprehensive approach, strong mobile-first strategy (including a dedicated app with passport scanning and offline capabilities), clear communication, commitment to accessibility and multilingualism, and its phased, iterative development that incorporates "smart questions" to minimize data entry. Its electronic linkage to passports for seamless eGate processing is a key strength.
-- **Singapore Arrival Card (SGAC):** Selected for its highly streamlined and efficient process, primarily facilitated through the "MyICA" mobile application. Strengths include passport bio-data scanning, efficient group submission features, and clear, reliable communication with travelers (e.g., QR code and email confirmations).
+- **[New Zealand Traveller Declaration (NZTD)](https://www.travellerdeclaration.govt.nz/):** Chosen for its comprehensive approach, strong mobile-first strategy (including a dedicated app with passport scanning and offline capabilities), clear communication, commitment to accessibility and multilingualism, and its phased, iterative development that incorporates "smart questions" to minimize data entry. Its electronic linkage to passports for seamless eGate processing is a key strength.
+- **[Singapore Arrival Card (SGAC)](https://eservices.ica.gov.sg/sgarrivalcard/):** Selected for its highly streamlined and efficient process, primarily facilitated through the "MyICA" mobile application. Strengths include passport bio-data scanning, efficient group submission features, and clear, reliable communication with travelers (e.g., QR code and email confirmations).
 
 These systems exemplify best practices in areas crucial for the Dominican Republic's refactoring project: intuitive UX/UI, mobile optimization, efficient and accurate data capture (like passport scanning), robust backend integration, multilingual support, and accessibility.
 
@@ -27,13 +27,13 @@ Analysis of user feedback and official guides for the current eticket.migracion.
 Drawing lessons from the benchmark systems and addressing current deficiencies, the refactored Dominican Republic e-ticket system should focus on the following improvements:
 
 - **Radically Improved User Experience (UX) and User Interface (UI):**
-  - Adopt a user-centric design (UCD) methodology throughout the project.
+  - Adopt a [user-centric design (UCD)](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines) methodology throughout the project.
   - Develop a **mobile-first native application** (iOS and Android) featuring passport scanning (OCR/NFC), offline data entry, profile saving for repeat travelers, and streamlined group/family submissions.
   - Overhaul the web portal to be fully responsive, cross-browser compatible, and highly accessible (WCAG 2.1/2.2 AA).
 - **Streamlined and Intelligent Data Collection:**
   - Implement **"smart forms"** with extensive conditional logic to dynamically tailor the form to each user, only asking relevant questions.
   - Break down the form into clear, manageable steps with progress indicators.
-  - Prioritize **data minimization**, collecting only essential information.
+  - Prioritize **[data minimization](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines)**, collecting only essential information.
 - **Robust Multilingual and Accessibility Support:**
   - Provide comprehensive and high-quality translations in key tourist languages.
   - Ensure persistent language selection and adherence to accessibility standards from the outset.
@@ -43,7 +43,7 @@ Drawing lessons from the benchmark systems and addressing current deficiencies, 
 - **Technical Excellence and Security:**
   - Build a stable, scalable, and secure backend architecture (potentially cloud-native) to prevent data loss and ensure high availability.
   - Implement an API-driven architecture to facilitate integrations with airline systems, eGates, and other government services.
-  - Adhere to stringent data security (e.g., GDPR principles, ISO 27001\) and ICAO standards.
+  - Adhere to stringent data security (e.g., [GDPR principles](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines), ISO 27001\) and ICAO standards.
 - **Strategic Use of Technology:**
   - Consider a hybrid approach for technology, potentially leveraging well-supported, government-focused open-source components (like GOV.UK Forms for frontend principles) combined with robust backend workflow engines (like Camunda or Flowable) and custom development where necessary.
 

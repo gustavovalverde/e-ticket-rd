@@ -8,12 +8,12 @@ This document outlines a development plan to refactor the Dominican Republic's e
 
 The development will follow these principles:
 
-- **User-Centric Design:** Traveler needs come first in all design and development decisions. We'll gather user feedback regularly.
+- **[User-Centric Design](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines):** Traveler needs come first in all design and development decisions. We'll gather user feedback regularly.
 - **Mobile-First Approach:** Since most travelers use mobile devices, we'll design for mobile first, then adapt for desktop.
 - **Accessibility (WCAG 2.1/2.2 AA):** The application will meet Web Content Accessibility Guidelines to work for people with disabilities.
 - **Performance Optimization:** Fast loading and smooth interactions matter. This includes clean code, smart data handling, and optimized images.
 - **Security by Design:** Security starts from day one, including data encryption, secure authentication, protection against web vulnerabilities, and safe handling of personal information.
-- **Data Minimization & Privacy:** We'll only collect necessary data, following GDPR principles and local data protection rules. Users will know how their data is used.
+- **Data Minimization & Privacy:** We'll only collect necessary data, following [GDPR principles](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines) and local data protection rules. Users will know how their data is used.
 - **Iterative Development:** An agile approach allows flexibility, quick prototyping, and ongoing improvements based on feedback.
 - **Clear Communication:** Users get clear instructions, real-time validation, and confirmation at each step.
 - **Scalability & Maintainability:** The system will handle future growth in users and features, with clean, well-documented code.

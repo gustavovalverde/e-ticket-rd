@@ -1,26 +1,71 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
 # Dominican Republic E-Ticket System Modernization Project
 
 ## Project Overview
 
-This project is focused on modernizing the Dominican Republic's E-Ticket system for migration control, currently available at <https://eticket.migracion.gob.do/>. The goal is to create a modern, secure, and user-friendly digital platform for travelers entering or departing the country.
+This project modernizes the Dominican Republic's E-Ticket system for migration control, currently at <https://eticket.migracion.gob.do/>. We're building a modern, secure, and user-friendly digital platform for travelers entering or departing the country.
 
 For detailed project context, see [executive-summary.md](mdc:docs/product/executive-summary.md).
 
 ## Key Objectives
 
-- **User Experience Enhancement**: Develop a mobile-first application with passport scanning capabilities, offline data entry, and streamlined user flows
-- **Technical Modernization**: Build a stable, scalable, and secure backend architecture with API-driven design
-- **Accessibility & Internationalization**: Provide multilingual support and ensure WCAG 2.1/2.2 AA compliance
-- **Integration**: Facilitate seamless integration with airline systems, eGates, and government services
+- **User Experience Enhancement**: Mobile-first application with passport scanning, offline data entry, and streamlined user flows
+- **Technical Modernization**: Build a stable, scalable, and secure backend with API-driven design
+- **Accessibility & Internationalization**: Multilingual support and WCAG 2.1/2.2 AA compliance
+- **Integration**: Connect with airline systems, eGates, and government services
 
-## Benchmark Systems
+## Current System Problems
 
-The project uses New Zealand's Traveller Declaration (NZTD) and Singapore's Arrival Card (SGAC) as benchmarks for best practices in digital migration systems.
+Based on user feedback and system analysis:
+
+- **Poor mobile experience** - No dedicated mobile app, difficult mobile web experience
+- **Complex and lengthy forms** - 15+ minute completion time with high abandonment
+- **Technical glitches and data loss** - Forms get lost, email confirmations fail
+- **Third-party scam websites** - Fake sites charge for the free service
+- **No progress saving** - Users must complete everything in one session
+- **Late validation** - Errors only show after completing all steps
+
+## Data Simplification Opportunities
+
+We identified **7 main areas** where we can reduce user input by **~60% overall**:
+
+### Smart Data Sharing
+- **Address Sharing**: "Do all travelers share the same address?" → auto-populate for families
+- **Flight Information**: Enter flight number → auto-fill airline, airports, schedules
+- **Contact Information**: Choose main family contact, share across group
+- **Customs Declarations**: "Are you traveling as a family unit?" → shared declarations
+
+### Smart Form Logic
+- **Purpose-Based Forms**: Tourism gets simple form, business gets additional questions
+- **Relationship Intelligence**: Children inherit parent nationality, spouses share addresses
+- **Return Visitor Recognition**: "Welcome back! Use your previous information?"
+
+### Real-Time Help
+- **Check As You Go**: Immediate feedback as users type
+- **Auto-Format**: Passport numbers, phone numbers format automatically
+- **Typo Detection**: "Did you mean Miami (MIA) instead of MAI?"
+
+**Impact**: 70% faster completion, 80% less abandonment, 80% fewer errors
+
+## Current System Architecture
+
+### Data Structure (From ERD Analysis)
+The existing system uses:
+- **Application-centric design** - Everything revolves around application code
+- **Flat relationships** - Mostly one-to-one, minimal normalization
+- **Group support** - Basic group functionality
+- **No draft support** - Assumes completion in single session
+- **Data redundancy** - Flight details duplicated across group members
+
+### User Flow Issues (From Flow Analysis)
+- **Linear progression** - Sequential with minimal branching
+- **High abandonment risk** - Long form with no saves
+- **Manual data entry** - No automation features
+- **Limited error recovery** - Must navigate back through multiple sections
 
 ## Technology Stack
 
@@ -28,10 +73,12 @@ This is a **Next.js** project using:
 - App Router architecture (`src/app/`)
 - TypeScript for type safety
 - Modern React patterns and components
+- TanStack Form for advanced form handling
+- Shadcn/ui for accessible components
 
 ## File Structure Patterns
 
-When working with this codebase, focus on these key areas:
+Focus on these key areas:
 
 ### Frontend Components & Pages
 - `src/app/**/*.{ts,tsx,js,jsx}` - App Router pages and layouts
@@ -47,25 +94,46 @@ When working with this codebase, focus on these key areas:
 - `docs/**/*.md` - Project documentation
 - `README.md` - Main project documentation
 
+### Product Documentation
+- `docs/product/new-web/` - Data simplification analysis and quick reference
+- `docs/product/official-web/` - Current system screenshots and diagrams
+- `docs/decisions/core/` - Architecture decision records
+
 ## Development Guidelines
 
-When contributing to this project, keep in mind:
+When contributing to this project:
 
 1. **Mobile-First Design**: Prioritize mobile user experience
 2. **Accessibility**: Ensure all components meet WCAG standards
 3. **Internationalization**: Design with multilingual support in mind
 4. **Performance**: Optimize for users with varying internet connectivity
 5. **Security**: Handle sensitive traveler data with appropriate security measures
+6. **Smart Forms**: Implement conditional logic to reduce redundant data entry
+7. **Real-Time Validation**: Check data as users type, not just at submission
 
-## Current Focus Areas
+## Implementation Roadmap
 
-Based on the executive summary, the project addresses these critical pain points from the current system:
-- Browser compatibility issues
-- Poor mobile experience
-- Complex and lengthy forms
-- Inconsistent QR code usage
-- Technical glitches and data loss
-- Third-party scam websites
+### Phase 1: Foundation
+- Flight number auto-fill
+- Address sharing for families
+- Basic real-time checking
+- Multi-step form with progress saving
+
+### Phase 2: Smart Logic
+- Smart customs declarations
+- Travel purpose-based forms
+- Family/group intelligence
+- Real-time validation
+
+### Phase 3: Advanced Features
+- Return visitor recognition
+
+## Benchmark Systems
+
+The project uses these systems as benchmarks for best practices in digital migration systems:
+
+- **[New Zealand Traveller Declaration (NZTD)](https:/www.travellerdeclaration.govt.nz)** - Mobile-first strategy with passport scanning, offline capabilities, and smart questions to minimize data entry
+- **[Singapore Arrival Card (SGAC)](https:/eservices.ica.gov.sg/sgarrivalcard)** - Streamlined process via MyICA mobile app with passport bio-data scanning and efficient group submissions
 
 ## Additional Resources
 
@@ -75,6 +143,15 @@ For detailed implementation guidance, see these specialized rules:
 - **[Development Guidelines](mdc:.cursor/rules/development-guidelines.mdc)** - Best practices, coding standards, and quality requirements
 - **[Backend Integration](mdc:.cursor/rules/backend-integration.mdc)** - Backend setup, data structures, and integration patterns
 - **[UI Patterns](mdc:.cursor/rules/ui-patterns.mdc)** - Shadcn/ui components, form patterns, and accessibility guidelines
-- **[Development Plan](mdc:.cursor/rules/development-plan.mdc)** - 4-week prototype timeline and deliverables
+- **[Development Plan](mdc:.cursor/rules/development-plan.mdc)** - Prototype timeline and deliverables
 
-Each rule provides specific implementation details and code examples for its respective domain.
+### Product Documentation
+- **[Executive Summary](mdc:docs/product/executive-summary.md)** - Project overview and objectives
+- **[Development Plan](mdc:docs/product/development-plan.md)** - Technical strategy and timeline
+- **[Data Simplification](mdc:docs/product/new-web/data-simplification-opportunities.md)** - Detailed analysis of user input reduction
+- **[Quick Reference](mdc:docs/product/new-web/simplification-quick-reference.md)** - Summary of simplification opportunities
+- **[Entity Relationship Diagram](mdc:docs/product/official-web/diagram-entity-relationship.md)** - Current system data structure
+- **[User Flow Diagram](mdc:docs/product/official-web/diagram-user-flow.md)** - Current system user journey
+- **[Form Library Decision](mdc:docs/decisions/core/001-form-library-selection.md)** - TanStack Form adoption rationale
+
+Each resource provides specific implementation details and analysis for its respective domain.

@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs: **/*.ts,**/*.tsx,**/*.js,**/*.jsx,package.json,tsconfig.json,eslint.config.*,components.json,postcss.config.*,tailwind.config.*,next.config.*,**/*.css,**/*.scss,**/globals.css,**/components/**,**/ui/**,**/app/**,**/lib/**,**/api/**,docs/decisions/**/*.md,docs/product/development-plan.md
 alwaysApply: false
 ---
 # Technology Stack & Dependencies
@@ -8,69 +8,113 @@ alwaysApply: false
 ## Frontend Stack
 
 ### Core Framework
-- **Next.js App Router** - Modern Next.js with Server Components, improved routing, and layouts
-- **TypeScript** - Type safety throughout the application
-- **React 18+** - Latest React features and patterns
+- **Next.js 15.3.3 App Router** - Server Components, routing, and layouts
+- **TypeScript 5** - Type safety with consistent type imports
+- **React 19.1.0** - Component library and hooks
+- **Node.js 22+** - Runtime environment
 
 ### UI & Styling
-- **Shadcn/ui** - Accessible and customizable components built on Tailwind CSS and Radix UI
-- **Tailwind CSS** - Utility-first CSS framework (via Shadcn/ui)
-- **Radix UI** - Headless, accessible UI primitives (via Shadcn/ui)
+- **Shadcn/ui** - Accessible components built on Tailwind CSS and Radix UI
+  - "new-york" style configuration
+  - React Server Components support (`rsc: true`)
+  - CSS variables for theming (`cssVariables: true`)
+- **Tailwind CSS v4** - Utility-first CSS with new `@import "tailwindcss"` syntax
+- **Radix UI** - Headless, accessible UI primitives
+- **Lucide React v0.513.0** - Icon library
+- **tw-animate-css v1.3.4** - Animation utilities for Tailwind
+- **clsx v2.1.1** - Conditional className utility
+- **tailwind-merge v3.3.0** - Merge Tailwind classes without conflicts
 
-### State & Form Management
-- **TanStack Form** - Performant, flexible form validation with advanced features like field dependencies and async validation
-- **Zod** - Schema validation for both client and server (integrates with TanStack Form via zodValidator)
-- **Zustand** - Simple, scalable state management (less boilerplate than Redux)
-- **React Context** - For simpler global state needs (theme, language)
+### Form Management & Validation
+- **TanStack Form v1.12.2** - Form validation with field dependencies and async validation (selected via ADR 001)
+- **Zod v3.25.56** - Schema validation for client and server
+- **class-variance-authority v0.7.1** - Component variant management
 
-### Internationalization & Accessibility
-- **next-intl** - i18n specifically designed for Next.js App Router
-- **eslint-plugin-jsx-a11y** - ESLint accessibility plugins
-- **Axe DevTools** - Browser extension for accessibility testing
+### Internationalization
+- **next-intl v4.1.0** - i18n for Next.js App Router
 
-## Backend Stack
+### State Management
+- **React Context** - Global state (theme, language)
+- **Built-in React state** - useState, useReducer for component state
+- Note: Zustand mentioned in development plan but not yet implemented
 
-### API & Database
-- **Next.js API Routes** - Unified codebase for prototype (can migrate to microservices later)
-- **Database** - To be determined based on requirements analysis
-- **Authentication** - To be determined based on requirements analysis
+## Development Tools & Code Quality
 
-### Data Structure Patterns
-```typescript
-// Data structure patterns to be determined based on selected backend
-// Will follow similar patterns for user data isolation and public references
-```
+### Linting & Formatting
+- **ESLint v9** with configuration:
+  - **@typescript-eslint** - TypeScript linting rules
+  - **eslint-plugin-jsx-a11y v6.10.2** - Accessibility linting (required for government projects)
+  - **eslint-plugin-security v3.0.1** - Security vulnerability detection
+  - **eslint-plugin-sonarjs v3.0.2** - Code quality and bug detection
+  - **eslint-plugin-react v7.37.5** - React rules
+  - **eslint-plugin-react-hooks v5.2.0** - React Hooks rules
+  - **eslint-plugin-import v2.31.0** - Import/export organization
+- **Prettier v3.5.3** - Code formatting with Tailwind plugin
+- **Stylelint v16.20.0** - CSS linting
+- **Markdownlint** - Documentation linting
 
-## Specialized Features
+### Development Workflow
+- **Husky v9.1.7** - Git hooks management
+- **lint-staged v16.1.0** - Pre-commit linting
+- **pnpm 10.10.0** - Package manager
+- **Turbopack** - Fast bundler for development (`next dev --turbopack`)
 
-### OCR & QR Codes
-- **Tesseract.js** - Client-side OCR for passport MRZ reading (prototype)
-- **qrcode.react** - QR code generation for confirmations
-- **Google ML Kit / Apple Vision** - Production-grade mobile OCR (future)
+## Backend & API Layer
 
-### Communication
-- **SendGrid / Resend** - Email confirmation services
+### Current Implementation
+- **Next.js API Routes** - Unified codebase for prototype development
+- **Server Components** - Next.js App Router for server-side rendering
 
-## Development Tools
+### Future Considerations (TBD)
+- **Database** - To be determined based on requirements
+- **Authentication** - To be determined based on requirements
+- **Email Service** - SendGrid/Resend mentioned in development plan (not yet implemented)
 
-### DevOps & Deployment
-- **Vercel** - Seamless Next.js deployment
-- **Git** - Version control (GitHub/GitLab)
+## Specialized Features (Future)
 
-## Architecture Considerations
+### OCR & Document Processing
+- **Client-side OCR** - Tesseract.js for passport MRZ reading (prototype phase)
+- **QR Code Generation** - qrcode.react for confirmations
+- **Production OCR** - Native mobile SDKs (Google ML Kit, Apple Vision) for production mobile apps
 
-### Component Organization
-- Use Atomic Design principles: Atoms, Molecules, Organisms, Templates, Pages
-- Leverage Server Components for non-interactive UI (performance)
-- Use Client Components for interactive elements
+## Deployment & Infrastructure
+
+### Current Setup
+- **Vercel** - Next.js deployment platform
+- **Git** - Version control with automation workflows
+
+### Development Environment
+- **PostCSS** - CSS processing with `@tailwindcss/postcss` plugin
+- **TypeScript path aliases** - `@/*` pointing to `src/*`
+- **ES2017 target** - JavaScript features support
+
+## Architecture Patterns
 
 ### Directory Structure (Next.js App Router)
 ```
 src/
-├── app/           # App Router pages and layouts
+├── app/           # App Router pages, layouts, and API routes
+│   ├── globals.css # Tailwind v4 configuration and CSS variables
+│   └── layout.tsx  # Root layout with font configuration
 ├── components/    # Reusable UI components
-├── lib/          # Utilities and shared logic
-└── styles/       # Global styles and themes
+│   └── ui/        # Shadcn/ui components (Button, Card, Navigation, etc.)
+└── lib/          # Utilities and shared logic
+    └── utils.ts   # Utility functions (cn for className merging)
 ```
 
-For detailed development guidelines, see [development-guidelines.md](mdc:.cursor/rules/development-guidelines.mdc).
+### Component Organization
+- **Atomic Design principles** - Atoms, Molecules, Organisms, Templates, Pages
+- **Server Components first** - SSR for non-interactive UI (performance)
+- **Client Components** - Used sparingly for interactive elements (`'use client'` directive)
+- **Accessibility-first** - WCAG 2.1/2.2 AA compliance enforced through linting
+
+### Configuration Files
+- [components.json](mdc:components.json) - Shadcn/ui configuration
+- [package.json](mdc:package.json) - Dependencies and scripts
+- [eslint.config.mjs](mdc:eslint.config.mjs) - Linting rules
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript configuration
+- [postcss.config.mjs](mdc:postcss.config.mjs) - Tailwind v4 setup
+
+### Decision Documents
+- [001-form-library-selection.md](mdc:docs/decisions/core/001-form-library-selection.md) - TanStack Form adoption rationale
+- [development-plan.md](mdc:docs/product/development-plan.md) - Technical strategy

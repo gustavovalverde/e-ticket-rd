@@ -27,8 +27,8 @@ This project modernizes the Dominican Republic's current e-ticket system for mig
 
 We're learning from the best migration systems in the world:
 
-- **🇳🇿 New Zealand Traveller Declaration (NZTD)** - Mobile-first with passport scanning
-- **🇸🇬 Singapore Arrival Card (SGAC)** - Fast and clear
+- **🇳🇿 [New Zealand Traveller Declaration (NZTD)](https://www.travellerdeclaration.govt.nz/)** - Mobile-first with passport scanning
+- **🇸🇬 [Singapore Arrival Card (SGAC)](https://eservices.ica.gov.sg/sgarrivalcard/)** - Fast and clear
 
 ## 🛠 Technology Stack
 
@@ -189,9 +189,9 @@ Every pull request runs:
 
 We're learning from:
 
-- **🇳🇿 New Zealand** - Traveller Declaration system
+- **🇳🇿 [New Zealand](https://www.travellerdeclaration.govt.nz/)** - Traveller Declaration system
 - **🇸🇬 Singapore** - Digital arrival processes
-- **🇪🇺 EU Guidelines** - Once-Only Technical System UX principles
+- **🇪🇺 [EU Guidelines](https://ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines)** - Once-Only Technical System UX principles
 
 ## 📄 License
 

@@ -1,0 +1,100 @@
+---
+description:
+globs: **/components/**/*.ts,**/components/**/*.tsx,**/components/**/*.js,**/components/**/*.jsx,**/components/ui/**,**/*.css,**/*.scss,components.json,tailwind.config.*,postcss.config.*,**/styles/**,**/globals.css
+alwaysApply: false
+---
+# shadcn/ui Best Practices & Tailwind v4 Integration
+
+This rule covers best practices for using shadcn/ui and Tailwind v4 integration for optimal code generation and design system management.
+
+## Best Practices for Code Generation
+
+### Layer Naming Conventions
+
+Use these specific frame names in Figma for optimal code generation:
+
+- **"Container"** - For main wrappers that should use TailwindCSS "container" class
+- **"Flex"** - For frames with horizontal auto layout applied
+- **"Flex Vertical"** - For frames with vertical auto layout applied
+- **"Grid"** - For grid layouts
+- **"Video"** - For video elements
+- **"Image"** - For image elements
+- **Aspect Ratio component** - Use for images and videos to get desired ratio in generated code
+
+### Spacing Guidelines
+
+1. **Use spacing variables** from the shadcn/ui kit for Figma
+2. **Use size variables** from the shadcn/ui kit for Figma
+3. **Avoid fixed widths** when possible to ensure responsiveness
+4. Leverage the design system's spacing tokens for consistent layouts
+
+### Color System
+
+- **Use color variables** from the shadcn/ui theme
+- **"base/background"** for backgrounds
+- **"base/foreground"** for text
+- Stick to the defined color palette for theme consistency
+
+### Typography Standards
+
+1. **Use typography styles** defined in the UI kit
+2. **Use typography variables** defined in the UI kit
+3. Maintain consistency with the design system's type scale
+4. Ensure proper hierarchy and readability
+
+### Icon Usage
+
+- **Use Lucide icons** available in the UI kit for best plugin compatibility
+- Maintain consistent icon sizing and styling
+- Follow the established icon naming conventions
+
+### Component Limitations
+
+- **Charts are not supported yet** - this feature is in development
+- Break larger components into smaller, manageable pieces
+- Consider token limits when designing complex components
+
+## Development Integration
+
+### Code Generation Workflow
+
+1. Select frame or component instance in Figma
+2. Use "+" icon to add desktop variant
+3. Optionally add mobile variant
+4. Monitor token count (Tier 1: 40,000 tokens, Tier 2: 80,000 tokens)
+5. Generate code and choose appropriate output:
+   - **Copy Code** - Get component code directly
+   - **Copy CLI** - Get shadcn/ui CLI command
+   - **Open in v0** - Further customize in v0
+
+### Project Integration
+
+When implementing generated code in this project:
+
+1. **Follow existing patterns** in `src/components/ui/`
+2. **Maintain TypeScript compliance** with existing interfaces
+3. **Ensure accessibility standards** (WCAG 2.1/2.2 AA compliance)
+4. **Test mobile responsiveness** given the mobile-first approach
+5. **Validate internationalization support** for multilingual requirements
+
+### Troubleshooting
+
+If encountering issues:
+
+- Verify API key validity
+- Ensure design follows shadcn/ui patterns
+- Check token limits compliance
+- Break large components into smaller pieces
+- Verify Figma variables are properly set up
+- Follow the naming conventions strictly
+
+## File References
+
+When working with generated components, ensure they integrate properly with:
+
+- [components.json](mdc:components.json) - Component configuration
+- [src/components/ui/](mdc:src/components/ui) - UI component directory
+- [src/lib/](mdc:src/lib) - Utility functions and shared logic
+- [globals.css](mdc:src/styles/globals.css) - Global styles and CSS variables
+
+This approach ensures generated components align with the project's architecture and design system requirements.

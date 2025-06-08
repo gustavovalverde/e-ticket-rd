@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: false
 ---
 # Development Guidelines & Best Practices
@@ -44,7 +44,7 @@ alwaysApply: false
 
 ### Data Handling
 - **Data Minimization**: Collect only essential information
-- Follow GDPR principles and local data protection regulations
+- Follow [GDPR principles](https:/ec.europa.eu/digital-building-blocks/sites/display/OOTS/Welcome+to+the+OOTS+UX+guidelines) and local data protection regulations
 - Clearly communicate data usage to users
 - Implement proper data validation using Zod schemas
 - Handle errors gracefully with meaningful messages
