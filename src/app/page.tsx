@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -5,10 +7,12 @@ export default function Home() {
     <div className="min-h-screen bg-[#16385d]">
       <header className="">
         <div className="container mx-auto flex flex-col items-center justify-center py-10 text-center">
-          <img
+          <Image
             src="/logo.png"
             alt="Dominican Republic E-Ticket System"
             className="w-[200px]"
+            width={250}
+            height={250}
           />
           <h1 className="mt-4 text-3xl font-bold text-gray-200 md:text-4xl">
             Dominican Republic <br /> E-Ticket System
