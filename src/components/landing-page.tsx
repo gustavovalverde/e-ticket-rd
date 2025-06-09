@@ -44,7 +44,7 @@ export function LandingPage() {
                   className="w-full bg-blue-600 px-6 py-8 text-lg text-white hover:bg-blue-700 md:w-auto md:text-xl"
                   asChild
                 >
-                  <Link href="#">E-Ticket Application</Link>
+                  <Link href="/form">E-Ticket Application</Link>
                 </Button>
                 <Button
                   size="lg"
