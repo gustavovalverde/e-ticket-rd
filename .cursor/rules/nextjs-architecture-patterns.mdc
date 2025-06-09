@@ -1,0 +1,277 @@
+---
+description:
+globs: **/app/**/*.ts,**/app/**/*.tsx,**/app/**/*.js,**/app/**/*.jsx,**/components/**/*.ts,**/components/**/*.tsx,**/components/**/*.js,**/components/**/*.jsx,**/lib/**/*.ts,**/lib/**/*.tsx,**/page.tsx,**/layout.tsx,**/loading.tsx,**/error.tsx,**/not-found.tsx,**/template.tsx,**/default.tsx,next.config.*,tsconfig.json,components.json,**/*.css,**/globals.css
+alwaysApply: false
+---
+---
+title: Next.js App Router Architecture Patterns
+globs: **/app/**/*.ts,**/app/**/*.tsx,**/app/**/*.js,**/app/**/*.jsx,**/components/**/*.ts,**/components/**/*.tsx,**/components/**/*.js,**/components/**/*.jsx,**/lib/**/*.ts,**/lib/**/*.tsx,**/page.tsx,**/layout.tsx,**/loading.tsx,**/error.tsx,**/not-found.tsx,**/template.tsx,**/default.tsx,next.config.*,tsconfig.json,components.json,**/*.css,**/globals.css,
+---
+
+# Next.js App Router Architecture Patterns
+
+## Page vs Component Separation
+
+### Core Principle
+In Next.js App Router, `page.tsx` files should be thin routing controllers that delegate all UI logic to dedicated components. This separation creates clear boundaries between routing concerns and presentation logic.
+
+### Page File Pattern
+```typescript
+// src/app/page.tsx - ✅ CORRECT: Thin controller
+import { LandingPage } from "@/components/landing-page";
+
+export default function Home() {
+  return <LandingPage />;
+}
+
+// ❌ AVOID: Fat page files with embedded UI logic
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-[#16385d]">
+      {/* Hundreds of lines of UI code... */}
+    </div>
+  );
+}
+```
+
+### Benefits of This Pattern
+- **Clear separation of concerns**: Routing vs presentation
+- **Better testability**: Components can be tested in isolation
+- **Improved reusability**: Components can be used in different contexts
+- **Server/Client boundary control**: Precise control over what becomes a Client Component
+- **Maintainability**: Easier to refactor and modify UI logic
+
+## Component Composition Hierarchy
+
+### Page-Level Components
+Page-level components should be comprehensive layouts that compose smaller sections:
+
+```typescript
+// src/components/landing-page.tsx
+export function LandingPage() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <PageHeader />
+      <main className="flex-1">
+        <HeroSection />
+        <FeaturesSection />
+        <TestimonialsSection />
+      </main>
+      <PageFooter />
+    </div>
+  );
+}
+```
+
+### Section Components
+Break down page-level components into focused sections:
+
+```typescript
+// src/components/sections/hero-section.tsx
+export function HeroSection() {
+  return (
+    <section className="relative w-full border-b">
+      <div className="container relative py-16 md:py-24 lg:py-32">
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+          <HeroContent />
+          <HeroVisual />
+        </div>
+      </div>
+    </section>
+  );
+}
+```
+
+### File Organization Pattern
+```
+src/components/
+├── landing-page.tsx         # Page-level component
+├── sections/                # Section-level components (organisms)
+│   ├── hero-section.tsx
+│   ├── features-section.tsx
+│   └── testimonials-section.tsx
+├── shared/                  # Shared components across pages
+│   ├── page-header.tsx
+│   ├── page-footer.tsx
+│   └── navigation.tsx
+└── ui/                      # Atomic shadcn/ui components
+    ├── button.tsx
+    ├── card.tsx
+    └── ...
+```
+
+## Server vs Client Component Strategy
+
+### Default to Server Components
+All components should be Server Components by default. Only use Client Components when necessary for:
+- User interactions (onClick, form submissions)
+- Browser APIs (localStorage, geolocation)
+- State management (useState, useEffect)
+- Third-party libraries that require client-side execution
+
+### Strategic Client Component Placement
+```typescript
+// ✅ CORRECT: Minimal Client Component scope
+export function LandingPage() { // Server Component
+  return (
+    <div className="flex min-h-screen flex-col">
+      <PageHeader /> {/* Server Component */}
+      <main className="flex-1">
+        <HeroSection /> {/* Server Component */}
+        <InteractiveSection /> {/* Client Component only where needed */}
+      </main>
+      <PageFooter /> {/* Server Component */}
+    </div>
+  );
+}
+
+// src/components/sections/interactive-section.tsx
+'use client'; // Only this component needs client-side execution
+
+export function InteractiveSection() {
+  const [isOpen, setIsOpen] = useState(false);
+  // ... interactive logic
+}
+```
+
+### Client Component Boundaries
+- **Minimize Client Components**: Keep them as small and focused as possible
+- **Prop drilling considerations**: Pass data down rather than making parent components client-side
+- **Performance implications**: Client Components increase bundle size and reduce server-side optimization
+
+## Data Fetching Patterns
+
+### Page-Level Data Fetching
+Data fetching should happen at the page level and be passed down to components:
+
+```typescript
+// src/app/applications/page.tsx
+import { getApplications } from "@/lib/api";
+import { ApplicationsList } from "@/components/applications-list";
+
+export default async function ApplicationsPage() {
+  const applications = await getApplications();
+
+  return <ApplicationsList applications={applications} />;
+}
+```
+
+### Component Props Pattern
+Components should receive data as props rather than fetching internally:
+
+```typescript
+// ✅ CORRECT: Component receives data as props
+interface ApplicationsListProps {
+  applications: Application[];
+}
+
+export function ApplicationsList({ applications }: ApplicationsListProps) {
+  return (
+    <div className="space-y-4">
+      {applications.map((app) => (
+        <ApplicationCard key={app.id} application={app} />
+      ))}
+    </div>
+  );
+}
+
+// ❌ AVOID: Component fetches its own data
+export function ApplicationsList() {
+  const [applications, setApplications] = useState([]);
+
+  useEffect(() => {
+    fetchApplications().then(setApplications);
+  }, []);
+  // ...
+}
+```
+
+## Form Page Architecture
+
+### Multi-Step Form Pattern
+For complex forms like the E-Ticket application:
+
+```typescript
+// src/app/application/page.tsx
+export default function ApplicationPage() {
+  return <ETicketApplicationForm />;
+}
+
+// src/components/forms/e-ticket-application-form.tsx
+export function ETicketApplicationForm() {
+  return (
+    <FormLayout>
+      <FormWizard steps={FORM_STEPS} />
+    </FormLayout>
+  );
+}
+
+// src/components/forms/form-wizard.tsx
+'use client'; // Client Component for form state management
+
+export function FormWizard({ steps }: FormWizardProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+  // Form logic here...
+}
+```
+
+## Error Handling Architecture
+
+### Error Boundaries at Page Level
+Implement error boundaries at strategic points:
+
+```typescript
+// src/app/error.tsx - Global error boundary
+'use client';
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return <ErrorPage error={error} onReset={reset} />;
+}
+
+// src/components/error-page.tsx
+export function ErrorPage({ error, onReset }: ErrorPageProps) {
+  // Error UI implementation
+}
+```
+
+## Performance Considerations
+
+### Component Lazy Loading
+For large page components that aren't immediately visible:
+
+```typescript
+import { lazy, Suspense } from 'react';
+
+const TestimonialsSection = lazy(() => import('@/components/sections/testimonials-section'));
+
+export function LandingPage() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <HeroSection />
+      <FeaturesSection />
+      <Suspense fallback={<div>Loading testimonials...</div>}>
+        <TestimonialsSection />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### Bundle Size Optimization
+- Keep Client Components small and focused
+- Use dynamic imports for non-critical interactive components
+- Leverage Server Components for static content
+
+## Related Patterns
+
+For specific implementation details, see:
+- [UI Component Patterns](mdc:.cursor/rules/ui-patterns.mdc) - Component structure and form patterns
+- [Development Guidelines](mdc:.cursor/rules/development-guidelines.mdc) - General architecture principles
+- [Technology Stack](mdc:.cursor/rules/technology-stack.mdc) - Next.js configuration details
+- [Backend Integration](mdc:.cursor/rules/backend-integration.mdc) - Data fetching patterns

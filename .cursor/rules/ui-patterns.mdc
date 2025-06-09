@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs: **/components/**/*.ts,**/components/**/*.tsx,**/components/**/*.js,**/components/**/*.jsx,**/components/ui/**,**/forms/**/*.ts,**/forms/**/*.tsx,**/sections/**/*.ts,**/sections/**/*.tsx,**/layouts/**/*.ts,**/layouts/**/*.tsx,**/*.css,**/*.scss,**/styles/**,**/globals.css,components.json,tailwind.config.*,postcss.config.*,**/schemas/**/*.ts,**/lib/validations/**/*.ts,**/lib/utils.ts,**/lib/cn.ts,package.json
 alwaysApply: false
 ---
 # UI Component & Form Patterns
@@ -317,7 +317,7 @@ function FormStep({ title, isActive, stepNumber, totalSteps }) {
       aria-hidden={!isActive}
       tabIndex={isActive ? 0 : -1}
     >
-      <h2 
+      <h2
         id={`step-${stepNumber}-heading`}
         className="sr-only"
       >
@@ -339,7 +339,7 @@ function FormField({ name, label, description, required, error }) {
 
   return (
     <div className="space-y-2">
-      <Label 
+      <Label
         htmlFor={fieldId}
         className={required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""}
       >
@@ -361,8 +361,8 @@ function FormField({ name, label, description, required, error }) {
       />
 
       {error && (
-        <p 
-          id={errorId} 
+        <p
+          id={errorId}
           role="alert"
           className="text-sm text-red-600"
         >
