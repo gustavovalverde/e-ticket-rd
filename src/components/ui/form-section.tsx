@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface FormSectionProps {
   title: string;
@@ -24,9 +18,9 @@ export function FormSection({
   className,
 }: FormSectionProps) {
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <div className={cn("space-y-6", className)}>
+      <div className="space-y-2">
+        <h3 className="flex items-center gap-2 text-lg leading-none font-semibold tracking-tight">
           {title}
           {required && (
             <span
@@ -36,10 +30,12 @@ export function FormSection({
               *
             </span>
           )}
-        </CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
-      </CardHeader>
-      <CardContent className="section-title-gap-lg">{children}</CardContent>
-    </Card>
+        </h3>
+        {description && (
+          <p className="text-muted-foreground text-sm">{description}</p>
+        )}
+      </div>
+      <div>{children}</div>
+    </div>
   );
 }

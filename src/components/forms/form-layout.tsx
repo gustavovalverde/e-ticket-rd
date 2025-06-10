@@ -4,7 +4,14 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { Steps } from "@/components/pro-blocks/application/buttons/button-9";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
@@ -63,58 +70,42 @@ export function FormLayout({
           />
         )}
 
-        {/* Main Content Card */}
-        <Card className="bg-card border-border">
-          {/* Header using design system classes */}
-          <div className="border-border bg-card container-padding-x border-b py-6">
-            <div className="section-title-gap-sm">
-              <h1 className="heading-md text-card-foreground">{title}</h1>
-              {subtitle && (
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {subtitle}
-                </p>
-              )}
-            </div>
-          </div>
+        {/* Main Content Card - Following shadcn pro-block pattern */}
+        <Card className="mx-auto w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            {subtitle && <CardDescription>{subtitle}</CardDescription>}
+          </CardHeader>
 
-          {/* Form Content */}
-          <CardContent className="container-padding-x section-padding-y">
-            {children}
-          </CardContent>
+          <CardContent className="space-y-8">{children}</CardContent>
 
-          {/* Navigation Footer */}
-          <div className="border-border bg-muted/20 container-padding-x border-t py-6">
-            <div className="flex items-center justify-between">
-              {/* Back Button */}
-              <div>
-                {onBack ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={onBack}
-                    className="text-muted-foreground hover:text-foreground gap-2"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    {backLabel}
-                  </Button>
-                ) : (
-                  <div /> // Spacer for alignment
-                )}
-              </div>
-
-              {/* Continue Button */}
+          <CardFooter className="flex items-center justify-between">
+            {/* Back Button */}
+            {onBack ? (
               <Button
-                type="submit"
-                onClick={onContinue}
-                disabled={!canContinue}
-                className="min-w-32 gap-2"
-                size="lg"
+                type="button"
+                variant="ghost"
+                onClick={onBack}
+                className="gap-2"
               >
-                {continueLabel}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" />
+                {backLabel}
               </Button>
-            </div>
-          </div>
+            ) : (
+              <div /> // Spacer for alignment
+            )}
+
+            {/* Continue Button */}
+            <Button
+              type="submit"
+              onClick={onContinue}
+              disabled={!canContinue}
+              className="gap-2"
+            >
+              {continueLabel}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </CardFooter>
         </Card>
       </div>
     </div>

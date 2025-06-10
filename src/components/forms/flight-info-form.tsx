@@ -17,7 +17,7 @@ export function FlightInfoForm({ form }: FlightInfoFormProps) {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <form.AppField name="flightNumber">
           {(field: AnyFieldApi) => (
-            <div className="section-title-gap-sm">
+            <div className="grid w-full items-center gap-1.5">
               <Label htmlFor="flightNumber">Flight Number</Label>
               <Input
                 id="flightNumber"
@@ -38,7 +38,7 @@ export function FlightInfoForm({ form }: FlightInfoFormProps) {
 
         <form.AppField name="arrivalDate">
           {(field: AnyFieldApi) => (
-            <div className="section-title-gap-sm">
+            <div className="grid w-full items-center gap-1.5">
               <Label htmlFor="arrivalDate">Arrival Date</Label>
               <Input
                 id="arrivalDate"

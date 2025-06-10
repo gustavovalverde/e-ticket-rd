@@ -1,5 +1,4 @@
 import { formOptions } from "@tanstack/react-form";
-import { zodValidator } from "@tanstack/zod-form-adapter";
 
 // Define form shape using TanStack Form's formOptions pattern
 export const applicationFormOptions = formOptions({
@@ -8,7 +7,8 @@ export const applicationFormOptions = formOptions({
     travelType: {
       tripDirection: "" as "entry" | "exit" | "",
       transportMethod: "" as "air" | "sea" | "land" | "",
-      groupType: "" as "individual" | "family" | "group" | "",
+      travelingAlone: "" as "alone" | "with-others" | "",
+      groupType: "" as "friends" | "coworkers" | "family" | "couple" | "",
     },
     // Personal information
     firstName: "",
@@ -31,7 +31,6 @@ export const applicationFormOptions = formOptions({
     countryOfBirth: "",
     additionalInfo: "",
   },
-  validatorAdapter: zodValidator(),
 });
 
 // Export the inferred type from TanStack Form

@@ -96,7 +96,7 @@ export function ApplicationForm() {
         continueLabel="Continue"
         canContinue={form.state.canSubmit}
       >
-        <form onSubmit={handleSubmit} className="section-title-gap-lg">
+        <form onSubmit={handleSubmit} id="travel-application-form">
           {renderStep()}
         </form>
       </FormLayout>

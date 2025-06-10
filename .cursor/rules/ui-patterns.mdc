@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # UI Component & Form Patterns
 
-## Design System Compliance (CRITICAL)
+## Design System Compliance
 
 ### Use Existing Components, Never Create Custom Ones
 ```typescript
@@ -85,6 +85,134 @@ const FORM_STEPS = [
 // ❌ AVOID: Custom step navigation components
 function StepNavigation({ steps, currentStep }) {
   // Custom implementation - don't do this
+}
+```
+
+## Pro-Block Template Pattern
+
+### Always Use Pro-Block Examples as Templates
+When users provide working shadcn pro-block examples, use them as the foundation rather than creating custom solutions. This ensures consistency with the design system.
+
+```typescript
+// ✅ CORRECT: Follow pro-block examples like FormExample6 for form structure
+// From src/components/FormExample6.tsx - use this as the template
+<Card className="mx-auto w-full max-w-lg">
+  <CardHeader>
+    <CardTitle>Contact Us</CardTitle>
+    <CardDescription>
+      Please fill out the form below and we'll get back to you.
+    </CardDescription>
+  </CardHeader>
+  <form onSubmit={handleSubmit} id="contactFormExample6">
+    <CardContent className="space-y-6">
+      <div className="grid w-full items-center gap-1.5">
+        <Label htmlFor="name">Name</Label>
+        <Input id="name" name="name" placeholder="Enter your full name" />
+      </div>
+      <div className="grid w-full items-center gap-1.5">
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" name="email" type="email" placeholder="you@example.com" />
+      </div>
+    </CardContent>
+    <CardFooter className="flex justify-end">
+      <Button type="submit" form="contactFormExample6">
+        Send Message
+      </Button>
+    </CardFooter>
+  </form>
+</Card>
+
+// ❌ AVOID: Complex custom card structures with nested divs
+<Card className="bg-card border-border">
+  <div className="border-border bg-card container-padding-x border-b py-6">
+    <div className="section-title-gap-sm">
+      <h1 className="heading-md text-card-foreground">{title}</h1>
+      {/* Complex custom structure - don't do this */}
+    </div>
+  </div>
+  <div className="container-padding-x section-padding-y">
+    {/* Custom content structure */}
+  </div>
+</Card>
+```
+
+### Form Field Pattern from Pro-Blocks
+```typescript
+// ✅ CORRECT: Use exact field pattern from pro-block examples
+<div className="grid w-full items-center gap-1.5">
+  <Label htmlFor="fieldName">Field Label</Label>
+  <Input
+    id="fieldName"
+    name="fieldName"
+    type="text"
+    placeholder="Enter value"
+    value={field.state.value}
+    onChange={(e) => field.handleChange(e.target.value)}
+  />
+  {field.state.meta.errors.length > 0 && (
+    <p className="text-destructive text-sm">
+      {field.state.meta.errors[0]}
+    </p>
+  )}
+</div>
+
+// ❌ AVOID: Custom field layouts with design system classes
+<div className="section-title-gap-sm">
+  <Label htmlFor="fieldName">Field Label</Label>
+  <Input /* ... */ />
+  {/* Custom spacing pattern - avoid this */}
+</div>
+```
+
+### Consistent Spacing from Pro-Blocks
+```typescript
+// ✅ CORRECT: Use spacing patterns from pro-block examples
+<CardContent className="space-y-6">
+  {/* Multiple form sections */}
+</CardContent>
+
+<div className="space-y-3">
+  {/* Radio group items */}
+</div>
+
+<div className="grid w-full items-center gap-1.5">
+  {/* Individual form fields */}
+</div>
+
+// ❌ AVOID: Mixing design system spacing classes
+<CardContent className="section-title-gap-lg">
+  <div className="section-title-gap-sm">
+    {/* Inconsistent with pro-block patterns */}
+  </div>
+</CardContent>
+```
+
+### Multi-Step Form Adaptation
+```typescript
+// ✅ CORRECT: Adapt pro-block single form to multi-step while keeping structure
+export function ApplicationForm() {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  return (
+    <form.AppForm>
+      <Card className="mx-auto w-full max-w-2xl"> {/* Slightly larger for multi-step */}
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{subtitle}</CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-8"> {/* Increased spacing for sections */}
+          <form onSubmit={handleSubmit} id="travel-application-form">
+            {renderStep()}
+          </form>
+        </CardContent>
+
+        <CardFooter className="flex items-center justify-between">
+          {/* Navigation buttons following pro-block button patterns */}
+        </CardFooter>
+      </Card>
+    </form.AppForm>
+  );
 }
 ```
 
@@ -293,12 +421,12 @@ function PersonalInfoStep() {
         <CardTitle>Personal Information</CardTitle>
         <CardDescription>Please provide your basic personal details</CardDescription>
       </CardHeader>
-      <CardContent className="section-title-gap-lg">
-        <form onSubmit={handleSubmit} className="section-title-gap-lg">
+      <CardContent className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <form.AppField name="firstName">
               {(field: AnyFieldApi) => (
-                <div className="section-title-gap-sm">
+                <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input
                     id="firstName"
@@ -317,7 +445,7 @@ function PersonalInfoStep() {
 
             <form.AppField name="lastName">
               {(field: AnyFieldApi) => (
-                <div className="section-title-gap-sm">
+                <div className="grid w-full items-center gap-1.5">
                   <Label htmlFor="lastName">Last Name</Label>
                   <Input
                     id="lastName"
@@ -341,7 +469,7 @@ function PersonalInfoStep() {
 }
 ```
 
-### TanStack Form TypeScript Patterns (CRITICAL)
+### TanStack Form TypeScript Patterns
 
 #### Pragmatic Type Safety Approach
 ```typescript
@@ -350,7 +478,7 @@ import type { AnyFieldApi } from "@tanstack/react-form";
 
 <form.AppField name="email">
   {(field: AnyFieldApi) => (
-    <div className="section-title-gap-sm">
+    <div className="grid w-full items-center gap-1.5">
       <Label htmlFor="email">Email</Label>
       <Input
         id="email"
@@ -660,10 +788,11 @@ function QRCodeDisplay({ data, size = 200 }) {
 
 ## Key Principles Summary
 
-1. **Always use existing shadcn components** - Never create custom UI components
-2. **Use design system variables** from [globals.css](mdc:src/app/globals.css) - Never custom colors or spacing
+1. **Use pro-block examples as templates** - When users provide working shadcn examples (like [FormExample6](mdc:src/components/FormExample6.tsx)), adapt them rather than creating custom solutions
+2. **Always use existing shadcn components** - Never create custom UI components
 3. **Use pro-blocks when available** - Check [src/components/pro-blocks/](mdc:src/components/pro-blocks) first
-4. **Follow design system spacing** - Use `.section-title-gap-*` instead of `.space-y-*`
-5. **Use design system typography** - Use `.heading-*` classes instead of custom font sizes
-6. **Card-based form sections** - Use `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`
+4. **Follow pro-block spacing patterns** - Use `space-y-*` consistently (from examples) instead of mixing custom design system classes
+5. **Use pro-block field layout** - Use `grid w-full items-center gap-1.5` for form fields to match shadcn examples
+6. **Card structure from examples** - Use `Card` → `CardHeader` → `CardContent` → `CardFooter` pattern from pro-blocks
 7. **Design system colors only** - Use `text-destructive`, `text-muted-foreground`, `bg-background`, etc.
+8. **TanStack Form pragmatism** - Use `AnyFieldApi` for field typing instead of complex generics
