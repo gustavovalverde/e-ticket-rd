@@ -1,9 +1,16 @@
 "use client";
 
+import { User, Plane, FileText, CheckCircle, Info } from "lucide-react";
 import { useCallback, useState } from "react";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -17,9 +24,7 @@ import {
 import { useAppForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 
-import { FormFieldGrid, FormField } from "./form-field-grid";
-import { FormSection } from "./form-section";
-import { FormStepHeader } from "./form-step-header";
+import { FormLayout } from "./form-layout";
 
 // E-ticket form validation schema
 const formSchema = z.object({
@@ -59,11 +64,25 @@ const formSchema = z.object({
   countryOfBirth: z
     .string()
     .min(1, { message: "Country of birth is required" }),
+
+  // Flight Information
+  flightNumber: z.string().min(1, { message: "Flight number is required" }),
+  arrivalDate: z.string().min(1, { message: "Arrival date is required" }),
+
   additionalInfo: z.string(),
 });
 
+// Define form steps using proper icons
+const FORM_STEPS = [
+  { icon: Info, label: "Travel Type" },
+  { icon: User, label: "Personal Info" },
+  { icon: FileText, label: "Passport Details" },
+  { icon: Plane, label: "Flight Info" },
+  { icon: CheckCircle, label: "Review" },
+];
+
 export function ETicketForm() {
-  const [currentStep] = useState(6);
+  const [currentStep] = useState(1); // 0-indexed for button-9
 
   const form = useAppForm({
     validators: {
@@ -83,6 +102,8 @@ export function ETicketForm() {
       passportExpiryDate: "",
       nationality: "dominican",
       countryOfBirth: "dominican",
+      flightNumber: "",
+      arrivalDate: "",
       additionalInfo: "",
     },
     onSubmit: ({ value: _value }) => {
@@ -101,68 +122,69 @@ export function ETicketForm() {
 
   const handleBack = () => {
     // TODO: Implement navigation to previous step
+    console.log("Navigate to previous step");
   };
 
-  const handleCancel = () => {
-    form.reset();
+  const handleContinue = () => {
+    // TODO: Implement navigation to next step
+    console.log("Navigate to next step");
+    form.handleSubmit();
   };
 
-  return (
-    <form.AppForm>
-      <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-6 p-6">
-        {/* Form Header */}
-        <FormStepHeader
-          currentStep={currentStep}
-          title="Contact and Passport Information"
-          onBack={handleBack}
-        />
+  const handleStepChange = (step: number) => {
+    // TODO: Implement step navigation
+    console.log("Navigate to step:", step);
+  };
 
-        {/* Contact Information Section */}
-        <FormSection
-          title="Contact Information"
-          description="Please enter your preferred name and contact details. Your preferred name will be used in our communications with you, and it can be different from your passport name."
-        >
-          <FormFieldGrid>
-            {/* Preferred Name */}
-            <FormField>
-              <form.AppField name="preferredName">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>
-                      Your preferred name (optional)
-                    </field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        placeholder="Juan Perez"
-                        value={field.state.value || ""}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
-
-            {/* Radio Options */}
-            <FormField>
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Travel Type Selection
+                <span
+                  className="text-destructive text-sm"
+                  aria-label="Required section"
+                >
+                  *
+                </span>
+              </CardTitle>
+              <CardDescription>
+                Please select your travel type and destination
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="section-title-gap-lg">
               <form.AppField name="radioOption">
                 {(field) => (
                   <field.FormItem>
-                    <field.FormLabel>Radio Options</field.FormLabel>
+                    <field.FormLabel className="heading-sm text-foreground">
+                      How are you traveling?
+                    </field.FormLabel>
                     <field.FormControl>
                       <RadioGroup
                         value={field.state.value}
                         onValueChange={field.handleChange}
+                        className="section-title-gap-sm"
                       >
-                        <div className="flex items-center space-x-2">
+                        <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
                           <RadioGroupItem value="option-1" id="option-1" />
-                          <Label htmlFor="option-1">Radio Button Text</Label>
+                          <Label
+                            htmlFor="option-1"
+                            className="flex-1 cursor-pointer"
+                          >
+                            Individual Travel
+                          </Label>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
                           <RadioGroupItem value="option-2" id="option-2" />
-                          <Label htmlFor="option-2">Radio Button Text</Label>
+                          <Label
+                            htmlFor="option-2"
+                            className="flex-1 cursor-pointer"
+                          >
+                            Family/Group Travel
+                          </Label>
                         </div>
                       </RadioGroup>
                     </field.FormControl>
@@ -170,279 +192,275 @@ export function ETicketForm() {
                   </field.FormItem>
                 )}
               </form.AppField>
-            </FormField>
+            </CardContent>
+          </Card>
+        );
 
-            {/* Email */}
-            <FormField>
-              <form.AppField name="email">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Your email address</field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        type="email"
-                        placeholder="juan.perez@gmail.com"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormDescription>
-                      This is where we&apos;ll send your e-ticket confirmation.
-                    </field.FormDescription>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
+      case 1:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Personal Information
+                <span
+                  className="text-destructive text-sm"
+                  aria-label="Required section"
+                >
+                  *
+                </span>
+              </CardTitle>
+              <CardDescription>
+                Please provide your basic personal details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="section-title-gap-lg">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <form.AppField name="firstName">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>First Name</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          type="text"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
 
-            {/* Country Code */}
-            <FormField>
-              <form.AppField name="countryCode">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Country</field.FormLabel>
-                    <field.FormControl>
-                      <Select
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select country" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="+1">United States (+1)</SelectItem>
-                          <SelectItem value="+1-ca">Canada (+1)</SelectItem>
-                          <SelectItem value="+52">Mexico (+52)</SelectItem>
-                          <SelectItem value="+1-do">
-                            Dominican Republic (+1)
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </field.FormControl>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
+                <form.AppField name="lastName">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>Last Name</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          type="text"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
 
-            {/* Phone Number */}
-            <FormField>
-              <form.AppField name="phone">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Phone Number</field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        type="tel"
-                        placeholder="(829) 688-6552"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormDescription>
-                      Include area code for your phone number.
-                    </field.FormDescription>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
+                <form.AppField name="email">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>Email Address</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          type="email"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
 
-            {/* Date of Birth */}
-            <FormField>
-              <form.AppField name="dateOfBirth">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Date of Birth</field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        type="date"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
-          </FormFieldGrid>
-        </FormSection>
+                <form.AppField name="phone">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>Phone Number</field.FormLabel>
+                      <div className="flex gap-2">
+                        <Select defaultValue="+1">
+                          <SelectTrigger className="w-[120px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="+1">
+                              United States (+1)
+                            </SelectItem>
+                            <SelectItem value="+1-ca">Canada (+1)</SelectItem>
+                            <SelectItem value="+52">Mexico (+52)</SelectItem>
+                            <SelectItem value="+1-809">
+                              Dominican Republic (+1-809)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <field.FormControl>
+                          <Input
+                            type="tel"
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            className="flex-1"
+                          />
+                        </field.FormControl>
+                      </div>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-        {/* Passport Details Section */}
-        <FormSection
-          title="Passport Details"
-          description="Enter your details as they appear on the passport you are using to enter the Dominican Republic."
-        >
-          <FormFieldGrid>
-            {/* First Name */}
-            <FormField>
-              <form.AppField name="firstName">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Given or first name(s)</field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        placeholder="JOSE"
-                        value={field.state.value}
-                        onChange={(e) =>
-                          field.handleChange(e.target.value.toUpperCase())
-                        }
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormDescription>
-                      Enter exactly as shown on your passport.
-                    </field.FormDescription>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
+      case 2:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Passport & Travel Details
+                <span
+                  className="text-destructive text-sm"
+                  aria-label="Required section"
+                >
+                  *
+                </span>
+              </CardTitle>
+              <CardDescription>
+                Please provide your passport and nationality information
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="section-title-gap-lg">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <form.AppField name="passportNumber">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>Passport Number</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          type="text"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
 
-            {/* Last Name */}
-            <FormField>
-              <form.AppField name="lastName">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Surname or family name</field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        placeholder="PEREZ"
-                        value={field.state.value}
-                        onChange={(e) =>
-                          field.handleChange(e.target.value.toUpperCase())
-                        }
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormDescription>
-                      Enter exactly as shown on your passport.
-                    </field.FormDescription>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
+                <form.AppField name="nationality">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>Nationality</field.FormLabel>
+                      <field.FormControl>
+                        <RadioGroup
+                          value={field.state.value}
+                          onValueChange={field.handleChange}
+                          className="section-title-gap-sm"
+                        >
+                          <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
+                            <RadioGroupItem value="dominican" id="dominican" />
+                            <Label
+                              htmlFor="dominican"
+                              className="flex-1 cursor-pointer"
+                            >
+                              Dominican Republic
+                            </Label>
+                          </div>
+                          <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
+                            <RadioGroupItem value="other" id="other" />
+                            <Label
+                              htmlFor="other"
+                              className="flex-1 cursor-pointer"
+                            >
+                              Other
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-            {/* Passport Number */}
-            <FormField>
-              <form.AppField name="passportNumber">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Passport number</field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        placeholder="RD900891"
-                        value={field.state.value}
-                        onChange={(e) =>
-                          field.handleChange(e.target.value.toUpperCase())
-                        }
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
+      case 3:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                Flight Information
+                <span
+                  className="text-destructive text-sm"
+                  aria-label="Required section"
+                >
+                  *
+                </span>
+              </CardTitle>
+              <CardDescription>
+                Please provide your flight details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="section-title-gap-lg">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <form.AppField name="flightNumber">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>Flight Number</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          type="text"
+                          placeholder="e.g., AA1234"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
 
-            {/* Passport Issue Date */}
-            <FormField>
-              <form.AppField name="passportIssueDate">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Passport Issue Date</field.FormLabel>
-                    <field.FormControl>
-                      <Input
-                        type="date"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        onBlur={field.handleBlur}
-                      />
-                    </field.FormControl>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
+                <form.AppField name="arrivalDate">
+                  {(field) => (
+                    <div className="section-title-gap-sm">
+                      <field.FormLabel>Arrival Date</field.FormLabel>
+                      <field.FormControl>
+                        <Input
+                          type="date"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.FormControl>
+                      <field.FormMessage />
+                    </div>
+                  )}
+                </form.AppField>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-            {/* Nationality Radio */}
-            <FormField>
-              <form.AppField name="nationality">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Nationality</field.FormLabel>
-                    <field.FormControl>
-                      <RadioGroup
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="dominican" id="dominican" />
-                          <Label htmlFor="dominican">Dominican Republic</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="other" id="other" />
-                          <Label htmlFor="other">Other</Label>
-                        </div>
-                      </RadioGroup>
-                    </field.FormControl>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
-
-            {/* Country of Birth */}
-            <FormField>
-              <form.AppField name="countryOfBirth">
-                {(field) => (
-                  <field.FormItem>
-                    <field.FormLabel>Country of Birth</field.FormLabel>
-                    <field.FormControl>
-                      <Select
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select country of birth" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dominican">
-                            Dominican Republic
-                          </SelectItem>
-                          <SelectItem value="us">United States</SelectItem>
-                          <SelectItem value="ca">Canada</SelectItem>
-                          <SelectItem value="mx">Mexico</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </field.FormControl>
-                    <field.FormMessage />
-                  </field.FormItem>
-                )}
-              </form.AppField>
-            </FormField>
-
-            {/* Additional Information */}
-            <FormField fullWidth>
+      case 4:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Review & Additional Information</CardTitle>
+              <CardDescription>
+                Review your information and provide any additional details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="section-title-gap-lg">
               <form.AppField name="additionalInfo">
                 {(field) => (
-                  <field.FormItem>
+                  <div className="section-title-gap-sm">
                     <field.FormLabel>
                       Additional Information (Optional)
                     </field.FormLabel>
                     <field.FormControl>
                       <Textarea
-                        placeholder="Enter any additional information..."
-                        rows={4}
-                        value={field.state.value || ""}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Any additional information..."
+                        value={field.state.value}
                         onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        rows={4}
                       />
                     </field.FormControl>
                     <field.FormDescription>
@@ -450,23 +468,35 @@ export function ETicketForm() {
                       application.
                     </field.FormDescription>
                     <field.FormMessage />
-                  </field.FormItem>
+                  </div>
                 )}
               </form.AppField>
-            </FormField>
-          </FormFieldGrid>
-        </FormSection>
+            </CardContent>
+          </Card>
+        );
 
-        {/* Form Actions */}
-        <div className="flex justify-end gap-3 pt-6">
-          <Button type="button" variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={!form.state.canSubmit}>
-            Submit Application
-          </Button>
-        </div>
-      </form>
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <form.AppForm>
+      <FormLayout
+        steps={FORM_STEPS}
+        currentStep={currentStep}
+        title="Contact and Passport Information"
+        subtitle="Please provide your contact details and passport information as they appear on your travel document."
+        onBack={handleBack}
+        onContinue={handleContinue}
+        onStepChange={handleStepChange}
+        continueLabel="Continue"
+        canContinue={form.state.canSubmit}
+      >
+        <form onSubmit={handleSubmit} className="section-title-gap-lg">
+          {renderStep()}
+        </form>
+      </FormLayout>
     </form.AppForm>
   );
 }
