@@ -34,7 +34,7 @@ export const numberOfCompanionsSchema = z
   .max(20, "Maximum 20 companions allowed")
   .optional();
 export const groupNatureSchema = z
-  .enum(["Familia", "Amigos", "Compañeros de trabajo", "Pareja"])
+  .enum(["Family", "Friends", "Work_Colleagues", "Partner"])
   .optional();
 
 // Group travel schema
@@ -69,7 +69,7 @@ export const citySchema = z.string().min(1, "City is required");
 export const stateSchema = z.string().optional();
 export const postalCodeSchema = z.string().optional();
 export const hasStopsSchema = z.boolean().default(false);
-export const entryOrExitSchema = z.enum(["ENTRADA", "SALIDA"], {
+export const entryOrExitSchema = z.enum(["ENTRY", "EXIT"], {
   required_error: "Please select entry or exit",
 });
 export const purposeOfTravelSchema = z
@@ -112,7 +112,7 @@ export const lastNameSchema = z
   .min(2, "Last name must be at least 2 characters")
   .max(50, "Last name is too long")
   .regex(/^[a-zA-ZÀ-ÿ\s]+$/, "Last name must contain only letters");
-export const genderSchema = z.enum(["MASCULINO", "FEMENINO", "OTRO"], {
+export const genderSchema = z.enum(["MALE", "FEMALE", "OTHER"], {
   required_error: "Gender is required",
 });
 export const passportNumberSchema = z
@@ -141,7 +141,7 @@ export const personalInfoSchema = z.object({
   gender: genderSchema,
   birthCountry: z.string().min(1, "Country of birth is required"),
   maritalStatus: z.enum(
-    ["SOLTERO", "CASADO", "DIVORCIADO", "VIUDO", "UNION_LIBRE"],
+    ["SINGLE", "MARRIED", "DIVORCED", "WIDOWED", "COMMON_LAW"],
     {
       required_error: "Marital status is required",
     }

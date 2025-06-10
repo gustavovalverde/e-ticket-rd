@@ -110,6 +110,7 @@ export function MultiStepETicketForm({
     STEP_IDS.GROUP_TRAVEL
   );
   const [stepErrors, setStepErrors] = useState<Record<string, boolean>>({});
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
 
   // Handle responsive design
@@ -138,19 +139,19 @@ export function MultiStepETicketForm({
         state: "",
         postalCode: "",
         hasStops: false,
-        entryOrExit: "ENTRADA" as const,
+        entryOrExit: "ENTRY" as const,
       },
       personalInfo: {
         firstName: "",
         lastName: "",
         birthDate: {
-          year: new Date().getFullYear() - 25,
+          year: 1990,
           month: 1,
           day: 1,
         },
-        gender: "MASCULINO" as const,
+        gender: "MALE" as const,
         birthCountry: "",
-        maritalStatus: "SOLTERO" as const,
+        maritalStatus: "SINGLE" as const,
         occupation: "",
         passport: {
           number: "",
@@ -221,45 +222,61 @@ export function MultiStepETicketForm({
     }
   }, [form, initialData]);
 
-  // Step validation and progress tracking
-  const steps = FORM_STEPS.map((step) => {
-    let isCompleted = false;
-    const hasError = stepErrors[step.id] || false;
-
-    // Check if step is completed based on form data
+  // Helper function to check if a step has valid data
+  const isStepDataValid = (stepId: string): boolean => {
     const values = form.state.values;
-    switch (step.id) {
+    switch (stepId) {
       case STEP_IDS.GROUP_TRAVEL:
-        isCompleted = values.groupTravel?.isGroupTravel !== undefined;
-        break;
+        return values.groupTravel?.isGroupTravel !== undefined;
       case STEP_IDS.GENERAL_INFO:
-        isCompleted = Boolean(
+        return Boolean(
           values.generalInfo?.permanentAddress &&
             values.generalInfo?.residenceCountry &&
             values.generalInfo?.city
         );
-        break;
       case STEP_IDS.PERSONAL_INFO:
-        isCompleted = Boolean(
+        return Boolean(
           values.personalInfo?.firstName &&
             values.personalInfo?.lastName &&
             values.personalInfo?.passport?.number
         );
-        break;
-      case STEP_IDS.CONTACT_INFO:
-        isCompleted = true; // Optional step
-        break;
+      case STEP_IDS.CONTACT_INFO: {
+        // Contact info is optional, but if user entered email or phone, it should be valid
+        const hasEmail = values.contactInfo?.email?.trim();
+        const hasPhone = values.contactInfo?.phone?.number?.trim();
+        return !hasEmail && !hasPhone ? true : Boolean(hasEmail || hasPhone);
+      }
       case STEP_IDS.FLIGHT_INFO:
-        isCompleted = Boolean(
+        return Boolean(
           values.flightInfo?.flightNumber &&
             values.flightInfo?.airline &&
             values.flightInfo?.departurePort
         );
-        break;
       case STEP_IDS.CUSTOMS_DECLARATION:
-        isCompleted = currentStepId !== STEP_IDS.CUSTOMS_DECLARATION; // Completed when user moves past it
-        break;
+        return (
+          values.customsDeclaration?.carriesOverTenThousand !== undefined &&
+          values.customsDeclaration?.carriesAnimalsOrFood !== undefined &&
+          values.customsDeclaration?.carriesTaxableGoods !== undefined
+        );
+      default:
+        return false;
     }
+  };
+
+  // Step validation and progress tracking
+  const steps = FORM_STEPS.map((step) => {
+    // A step is completed if:
+    // 1. User has explicitly completed it (tracked in completedSteps), OR
+    // 2. The step has valid data AND user has moved past it
+    const hasValidData = isStepDataValid(step.id);
+    const userCompletedStep = completedSteps.has(step.id);
+    const userMovedPastStep =
+      FORM_STEPS.findIndex((s) => s.id === step.id) <
+      FORM_STEPS.findIndex((s) => s.id === currentStepId);
+
+    const isCompleted =
+      userCompletedStep || (hasValidData && userMovedPastStep);
+    const hasError = stepErrors[step.id] || false;
 
     return { ...step, isCompleted, hasError };
   });
@@ -294,6 +311,7 @@ export function MultiStepETicketForm({
       setStepErrors((prev) => ({ ...prev, [currentStepId]: false }));
       return true;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Validation error for step", currentStepId, ":", error);
       setStepErrors((prev) => ({ ...prev, [currentStepId]: true }));
       return false;
@@ -303,6 +321,8 @@ export function MultiStepETicketForm({
   const goToNextStep = async () => {
     const isValid = await validateCurrentStep();
     if (isValid && stepProgress.canGoNext && stepProgress.nextStep) {
+      // Mark current step as completed when moving to next
+      setCompletedSteps((prev) => new Set(prev).add(currentStepId));
       setCurrentStepId(stepProgress.nextStep.id);
     }
   };
@@ -406,29 +426,6 @@ export function MultiStepETicketForm({
                 >
                   Clear Draft
                 </Button>
-              </div>
-
-              {/* Steps Overview */}
-              <div className="mt-6">
-                <h4 className="mb-3 text-sm font-medium text-gray-900">
-                  Steps Overview
-                </h4>
-                <div className="space-y-2">
-                  {steps.map((step) => (
-                    <div
-                      key={step.id}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="text-gray-600">{step.title}</span>
-                      <Badge
-                        variant={step.isCompleted ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {step.isCompleted ? "Complete" : "Pending"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
               </div>
             </CardContent>
           </Card>
