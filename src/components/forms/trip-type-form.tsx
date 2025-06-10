@@ -20,51 +20,53 @@ export function TripTypeForm({ form }: TripTypeFormProps) {
       >
         <form.AppField name="travelType.tripDirection">
           {(field: AnyFieldApi) => (
-            <form.FormItem>
-              <form.FormControl>
-                <RadioGroup
-                  value={field.state.value}
-                  onValueChange={field.handleChange}
-                  className="section-title-gap-sm"
-                >
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="entry" id="entry" />
-                    <div className="flex flex-1 items-center gap-3">
-                      <ArrowRight className="h-5 w-5 text-green-600" />
-                      <div>
-                        <Label
-                          htmlFor="entry"
-                          className="cursor-pointer text-base font-medium"
-                        >
-                          Entrada a la República Dominicana
-                        </Label>
-                        <p className="text-muted-foreground text-sm">
-                          Entering the Dominican Republic
-                        </p>
-                      </div>
+            <div className="section-title-gap-sm">
+              <RadioGroup
+                value={field.state.value}
+                onValueChange={field.handleChange}
+                className="section-title-gap-sm"
+              >
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="entry" id="entry" />
+                  <div className="flex flex-1 items-center gap-3">
+                    <ArrowRight className="h-5 w-5 text-green-600" />
+                    <div>
+                      <Label
+                        htmlFor="entry"
+                        className="cursor-pointer text-base font-medium"
+                      >
+                        Entrada a la República Dominicana
+                      </Label>
+                      <p className="text-muted-foreground text-sm">
+                        Entering the Dominican Republic
+                      </p>
                     </div>
                   </div>
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="exit" id="exit" />
-                    <div className="flex flex-1 items-center gap-3">
-                      <ArrowLeft className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <Label
-                          htmlFor="exit"
-                          className="cursor-pointer text-base font-medium"
-                        >
-                          Salida de la República Dominicana
-                        </Label>
-                        <p className="text-muted-foreground text-sm">
-                          Leaving the Dominican Republic
-                        </p>
-                      </div>
+                </div>
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="exit" id="exit" />
+                  <div className="flex flex-1 items-center gap-3">
+                    <ArrowLeft className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <Label
+                        htmlFor="exit"
+                        className="cursor-pointer text-base font-medium"
+                      >
+                        Salida de la República Dominicana
+                      </Label>
+                      <p className="text-muted-foreground text-sm">
+                        Leaving the Dominican Republic
+                      </p>
                     </div>
                   </div>
-                </RadioGroup>
-              </form.FormControl>
-              <form.FormMessage />
-            </form.FormItem>
+                </div>
+              </RadioGroup>
+              {field.state.meta.errors.length > 0 && (
+                <p className="text-destructive text-sm">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
           )}
         </form.AppField>
       </FormSection>
@@ -77,68 +79,70 @@ export function TripTypeForm({ form }: TripTypeFormProps) {
       >
         <form.AppField name="travelType.transportMethod">
           {(field: AnyFieldApi) => (
-            <form.FormItem>
-              <form.FormControl>
-                <RadioGroup
-                  value={field.state.value}
-                  onValueChange={field.handleChange}
-                  className="section-title-gap-sm"
-                >
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="air" id="air" />
-                    <div className="flex flex-1 items-center gap-3">
-                      <PlaneIcon className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <Label
-                          htmlFor="air"
-                          className="cursor-pointer text-base font-medium"
-                        >
-                          Aéreo
-                        </Label>
-                        <p className="text-muted-foreground text-sm">
-                          By airplane
-                        </p>
-                      </div>
+            <div className="section-title-gap-sm">
+              <RadioGroup
+                value={field.state.value}
+                onValueChange={field.handleChange}
+                className="section-title-gap-sm"
+              >
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="air" id="air" />
+                  <div className="flex flex-1 items-center gap-3">
+                    <PlaneIcon className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <Label
+                        htmlFor="air"
+                        className="cursor-pointer text-base font-medium"
+                      >
+                        Aéreo
+                      </Label>
+                      <p className="text-muted-foreground text-sm">
+                        By airplane
+                      </p>
                     </div>
                   </div>
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="sea" id="sea" />
-                    <div className="flex flex-1 items-center gap-3">
-                      <Ship className="h-5 w-5 text-cyan-600" />
-                      <div>
-                        <Label
-                          htmlFor="sea"
-                          className="cursor-pointer text-base font-medium"
-                        >
-                          Marítimo
-                        </Label>
-                        <p className="text-muted-foreground text-sm">
-                          By ship or boat
-                        </p>
-                      </div>
+                </div>
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="sea" id="sea" />
+                  <div className="flex flex-1 items-center gap-3">
+                    <Ship className="h-5 w-5 text-cyan-600" />
+                    <div>
+                      <Label
+                        htmlFor="sea"
+                        className="cursor-pointer text-base font-medium"
+                      >
+                        Marítimo
+                      </Label>
+                      <p className="text-muted-foreground text-sm">
+                        By ship or boat
+                      </p>
                     </div>
                   </div>
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="land" id="land" />
-                    <div className="flex flex-1 items-center gap-3">
-                      <Car className="h-5 w-5 text-green-600" />
-                      <div>
-                        <Label
-                          htmlFor="land"
-                          className="cursor-pointer text-base font-medium"
-                        >
-                          Terrestre
-                        </Label>
-                        <p className="text-muted-foreground text-sm">
-                          By land (car, bus, etc.)
-                        </p>
-                      </div>
+                </div>
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="land" id="land" />
+                  <div className="flex flex-1 items-center gap-3">
+                    <Car className="h-5 w-5 text-green-600" />
+                    <div>
+                      <Label
+                        htmlFor="land"
+                        className="cursor-pointer text-base font-medium"
+                      >
+                        Terrestre
+                      </Label>
+                      <p className="text-muted-foreground text-sm">
+                        By land (car, bus, etc.)
+                      </p>
                     </div>
                   </div>
-                </RadioGroup>
-              </form.FormControl>
-              <form.FormMessage />
-            </form.FormItem>
+                </div>
+              </RadioGroup>
+              {field.state.meta.errors.length > 0 && (
+                <p className="text-destructive text-sm">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
           )}
         </form.AppField>
       </FormSection>
@@ -151,44 +155,46 @@ export function TripTypeForm({ form }: TripTypeFormProps) {
       >
         <form.AppField name="travelType.groupType">
           {(field: AnyFieldApi) => (
-            <form.FormItem>
-              <form.FormControl>
-                <RadioGroup
-                  value={field.state.value}
-                  onValueChange={field.handleChange}
-                  className="section-title-gap-sm"
-                >
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="individual" id="individual" />
-                    <Label
-                      htmlFor="individual"
-                      className="flex-1 cursor-pointer text-base font-medium"
-                    >
-                      Individual Travel
-                    </Label>
-                  </div>
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="family" id="family" />
-                    <Label
-                      htmlFor="family"
-                      className="flex-1 cursor-pointer text-base font-medium"
-                    >
-                      Family Travel
-                    </Label>
-                  </div>
-                  <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                    <RadioGroupItem value="group" id="group" />
-                    <Label
-                      htmlFor="group"
-                      className="flex-1 cursor-pointer text-base font-medium"
-                    >
-                      Group Travel
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </form.FormControl>
-              <form.FormMessage />
-            </form.FormItem>
+            <div className="section-title-gap-sm">
+              <RadioGroup
+                value={field.state.value}
+                onValueChange={field.handleChange}
+                className="section-title-gap-sm"
+              >
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="individual" id="individual" />
+                  <Label
+                    htmlFor="individual"
+                    className="flex-1 cursor-pointer text-base font-medium"
+                  >
+                    Individual Travel
+                  </Label>
+                </div>
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="family" id="family" />
+                  <Label
+                    htmlFor="family"
+                    className="flex-1 cursor-pointer text-base font-medium"
+                  >
+                    Family Travel
+                  </Label>
+                </div>
+                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                  <RadioGroupItem value="group" id="group" />
+                  <Label
+                    htmlFor="group"
+                    className="flex-1 cursor-pointer text-base font-medium"
+                  >
+                    Group Travel
+                  </Label>
+                </div>
+              </RadioGroup>
+              {field.state.meta.errors.length > 0 && (
+                <p className="text-destructive text-sm">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
           )}
         </form.AppField>
       </FormSection>
