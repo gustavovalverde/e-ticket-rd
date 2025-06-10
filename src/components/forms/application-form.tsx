@@ -1,6 +1,6 @@
 "use client";
 
-import { User, Plane, FileText, CheckCircle, Info } from "lucide-react";
+import { User, FileText, CheckCircle, Plane } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { useAppForm } from "@/components/ui/tanstack-form";
@@ -13,20 +13,55 @@ import { FlightInfoForm } from "./flight-info-form";
 import { FormLayout } from "./form-layout";
 import { PassportDetailsForm } from "./passport-details-form";
 import { ReviewForm } from "./review-form";
+import { TravelInfoForm } from "./travel-info-form";
 import { TravellerInfoForm } from "./traveller-info-form";
-import { TripTypeForm } from "./trip-type-form";
 
-// Define form steps using proper icons
+// Define form steps for navigation
 const FORM_STEPS = [
-  { icon: Info, label: "Travel Type" },
+  { icon: Plane, label: "Travel Info" },
   { icon: User, label: "Personal Info" },
   { icon: FileText, label: "Passport Details" },
-  { icon: Plane, label: "Flight Info" },
   { icon: CheckCircle, label: "Review" },
 ];
 
 export function ApplicationForm() {
   const [currentStep] = useState(0); // 0-indexed for button-9, start with trip type
+
+  // Helper function to get current step data safely using explicit cases
+  const getCurrentStepData = () => {
+    switch (currentStep) {
+      case 0:
+        return {
+          title: "Travel Information",
+          subtitle: "Tell us about your travel plans",
+        };
+      case 1:
+        return {
+          title: "Personal Information",
+          subtitle: "Please provide your basic personal details",
+        };
+      case 2:
+        return {
+          title: "Passport Information",
+          subtitle: "Enter your passport and nationality details",
+        };
+      case 3:
+        return {
+          title: "Flight Information",
+          subtitle: "Provide your flight details and arrival information",
+        };
+      case 4:
+        return {
+          title: "Review & Submit",
+          subtitle: "Please review your information before submitting",
+        };
+      default:
+        return {
+          title: "Travel Application",
+          subtitle: "",
+        };
+    }
+  };
 
   const form = useAppForm({
     ...applicationFormOptions,
@@ -64,7 +99,7 @@ export function ApplicationForm() {
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <TripTypeForm form={form} />;
+        return <TravelInfoForm form={form} />;
 
       case 1:
         return <TravellerInfoForm form={form} />;
@@ -88,8 +123,8 @@ export function ApplicationForm() {
       <FormLayout
         steps={FORM_STEPS}
         currentStep={currentStep}
-        title="Dominican Republic Travel Application"
-        subtitle="Please provide your travel details and personal information to complete your travel application."
+        title={getCurrentStepData().title}
+        subtitle={getCurrentStepData().subtitle}
         onBack={handleBack}
         onContinue={handleContinue}
         onStepChange={handleStepChange}

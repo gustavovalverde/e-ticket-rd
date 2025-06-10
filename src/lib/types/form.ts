@@ -3,7 +3,7 @@
 export type AppFormInstance = any;
 
 // Form component interfaces for each step
-export interface TripTypeFormProps {
+export interface TravelInfoFormProps {
   form: AppFormInstance;
 }
 

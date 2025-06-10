@@ -10,6 +10,11 @@ export const applicationFormOptions = formOptions({
       travelingAlone: "" as "alone" | "with-others" | "",
       groupType: "" as "friends" | "coworkers" | "family" | "couple" | "",
     },
+    // Flight information (now part of travel info step)
+    flightInfo: {
+      flightNumber: "",
+      travelDate: "",
+    },
     // Personal information
     firstName: "",
     lastName: "",

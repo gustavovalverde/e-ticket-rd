@@ -15,13 +15,19 @@ export function ReviewForm({ form, onSubmit }: ReviewFormProps) {
       required
     >
       <div className="space-y-6">
-        {/* Trip Type */}
+        {/* Travel Information */}
         <div className="bg-muted/50 rounded-lg p-4">
-          <h4 className="mb-2 font-medium">Trip Type</h4>
+          <h4 className="mb-2 font-medium">Travel Information</h4>
           <div className="text-muted-foreground space-y-1 text-sm">
             <p>Direction: {values.travelType?.tripDirection}</p>
             <p>Transport: {values.travelType?.transportMethod}</p>
             <p>Group Type: {values.travelType?.groupType}</p>
+            {values.flightInfo?.flightNumber && (
+              <p>Flight: {values.flightInfo.flightNumber}</p>
+            )}
+            {values.flightInfo?.travelDate && (
+              <p>Travel Date: {values.flightInfo.travelDate}</p>
+            )}
           </div>
         </div>
 
@@ -43,15 +49,6 @@ export function ReviewForm({ form, onSubmit }: ReviewFormProps) {
           <div className="text-muted-foreground space-y-1 text-sm">
             <p>Passport Number: {values.passportNumber}</p>
             <p>Nationality: {values.nationality}</p>
-          </div>
-        </div>
-
-        {/* Flight Information */}
-        <div className="bg-muted/50 rounded-lg p-4">
-          <h4 className="mb-2 font-medium">Flight Information</h4>
-          <div className="text-muted-foreground space-y-1 text-sm">
-            <p>Flight Number: {values.flightNumber}</p>
-            <p>Arrival Date: {values.arrivalDate}</p>
           </div>
         </div>
 
