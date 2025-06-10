@@ -265,6 +265,7 @@ type PersonalInfoForm = z.infer<typeof personalInfoSchema>;
 ### TanStack Form Integration with Design System
 ```typescript
 import { useAppForm } from '@/components/ui/tanstack-form';
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 function PersonalInfoStep() {
   const form = useAppForm({
@@ -296,40 +297,148 @@ function PersonalInfoStep() {
         <form onSubmit={handleSubmit} className="section-title-gap-lg">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <form.AppField name="firstName">
-              {(field) => (
-                <field.FormItem>
-                  <field.FormLabel>First Name</field.FormLabel>
-                  <field.FormControl>
-                    <Input
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  </field.FormControl>
-                  <field.FormMessage />
-                </field.FormItem>
+              {(field: AnyFieldApi) => (
+                <div className="section-title-gap-sm">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-destructive">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
               )}
             </form.AppField>
 
             <form.AppField name="lastName">
-              {(field) => (
-                <field.FormItem>
-                  <field.FormLabel>Last Name</field.FormLabel>
-                  <field.FormControl>
-                    <Input
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  </field.FormControl>
-                  <field.FormMessage />
-                </field.FormItem>
+              {(field: AnyFieldApi) => (
+                <div className="section-title-gap-sm">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-destructive">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
               )}
             </form.AppField>
           </div>
         </form>
       </CardContent>
     </Card>
+  );
+}
+```
+
+### TanStack Form TypeScript Patterns (CRITICAL)
+
+#### Pragmatic Type Safety Approach
+```typescript
+// ✅ CORRECT: Use AnyFieldApi for field typing - simple and effective
+import type { AnyFieldApi } from "@tanstack/react-form";
+
+<form.AppField name="email">
+  {(field: AnyFieldApi) => (
+    <div className="section-title-gap-sm">
+      <Label htmlFor="email">Email</Label>
+      <Input
+        id="email"
+        type="email"
+        value={field.state.value}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+      />
+      {field.state.meta.errors.length > 0 && (
+        <p className="text-sm text-destructive">
+          {field.state.meta.errors[0]}
+        </p>
+      )}
+    </div>
+  )}
+</form.AppField>
+
+// ❌ AVOID: Complex TanStack Form generic types (requires 9-19 type arguments)
+type ComplexFieldApi<
+  TParentData,
+  TName extends DeepKeys<TParentData>,
+  TFieldValidator extends Validator<DeepValue<TParentData, TName>, unknown> | undefined = undefined,
+  TFormValidator extends Validator<TParentData, unknown> | undefined = undefined,
+  TData extends DeepValue<TParentData, TName> = DeepValue<TParentData, TName>
+> = FieldApi<TParentData, TName, TFieldValidator, TFormValidator, TData>;
+```
+
+#### Form Instance Types
+```typescript
+// ✅ CORRECT: Use any for form instances due to TanStack Form complexity
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AppFormInstance = any;
+
+export interface TripTypeFormProps {
+  form: AppFormInstance;
+}
+
+// ❌ AVOID: Trying to fully type TanStack Form instances
+// TanStack Form's typing system is extremely complex and not practical for real-world use
+```
+
+#### Multi-Step Form Architecture Pattern
+```typescript
+// ✅ CORRECT: Separate step components from container
+// Container handles navigation, steps handle form fields
+export function ApplicationForm() {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const form = useAppForm({
+    defaultValues: { /* ... */ },
+    onSubmit: async ({ value }) => {
+      console.log("Form submitted:", value);
+    },
+  });
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0: return <TripTypeForm form={form} />;
+      case 1: return <TravellerInfoForm form={form} />;
+      case 2: return <PassportDetailsForm form={form} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <form.AppForm>
+      <FormLayout>
+        {renderStep()}
+      </FormLayout>
+    </form.AppForm>
+  );
+}
+
+// Individual step components handle their specific fields
+export function TripTypeForm({ form }: TripTypeFormProps) {
+  return (
+    <FormSection title="Travel Type" required>
+      <form.AppField name="travelType.tripDirection">
+        {(field: AnyFieldApi) => (
+          <RadioGroup
+            value={field.state.value}
+            onValueChange={field.handleChange}
+          >
+            {/* radio options */}
+          </RadioGroup>
+        )}
+      </form.AppField>
+    </FormSection>
   );
 }
 ```

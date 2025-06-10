@@ -1,0 +1,327 @@
+---
+description:
+globs: **/components/**/*.ts,**/components/**/*.tsx,**/components/**/*.js,**/components/**/*.jsx,**/components/ui/**,**/forms/**/*.ts,**/forms/**/*.tsx,**/sections/**/*.ts,**/sections/**/*.tsx,**/layouts/**/*.ts,**/layouts/**/*.tsx,**/*.css,**/*.scss,**/styles/**,**/globals.css,components.json,tailwind.config.*,postcss.config.*,**/schemas/**/*.ts,**/lib/validations/**/*.ts,**/lib/utils.ts,**/lib/cn.ts,package.json
+alwaysApply: false
+---
+# TanStack Form Implementation Patterns
+
+## TypeScript Strategy (CRITICAL)
+
+### Pragmatic Type Safety Approach
+TanStack Form's TypeScript system is extremely complex, requiring 9-19 generic type arguments for full typing. We adopt a pragmatic approach that balances type safety with developer productivity.
+
+```typescript
+// ✅ CORRECT: Use AnyFieldApi for field typing
+import type { AnyFieldApi } from "@tanstack/react-form";
+
+export function TripTypeForm({ form }: TripTypeFormProps) {
+  return (
+    <form.AppField name="travelType.tripDirection">
+      {(field: AnyFieldApi) => (
+        <RadioGroup
+          value={field.state.value}
+          onValueChange={field.handleChange}
+        >
+          {/* radio options */}
+        </RadioGroup>
+      )}
+    </form.AppField>
+  );
+}
+
+// ❌ AVOID: Complex generic typing (impractical for real-world use)
+type FieldApi<
+  TParentData,
+  TName extends DeepKeys<TParentData>,
+  TFieldValidator extends Validator<DeepValue<TParentData, TName>, unknown> | undefined = undefined,
+  TFormValidator extends Validator<TParentData, unknown> | undefined = undefined,
+  TData extends DeepValue<TParentData, TName> = DeepValue<TParentData, TName>
+> = /* ... extremely complex type definition */
+```
+
+### Form Instance Types
+```typescript
+// Use simplified typing for form instances
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AppFormInstance = any;
+
+// Form component interfaces
+export interface TripTypeFormProps {
+  form: AppFormInstance;
+}
+
+export interface TravellerInfoFormProps {
+  form: AppFormInstance;
+}
+```
+
+## Multi-Step Form Architecture
+
+### Container vs Step Component Separation
+```typescript
+// ✅ CORRECT: Container component handles navigation and state
+export function ApplicationForm() {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const form = useAppForm({
+    defaultValues: {
+      travelType: { tripDirection: '', transportMethod: '', groupType: '' },
+      personalInfo: { firstName: '', lastName: '', email: '', phone: '' },
+      passportDetails: { passportNumber: '', nationality: '' },
+      flightInfo: { flightNumber: '', arrivalDate: '' }
+    },
+    onSubmit: async ({ value }) => {
+      console.log("Form submitted:", value);
+    },
+  });
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0: return <TripTypeForm form={form} />;
+      case 1: return <TravellerInfoForm form={form} />;
+      case 2: return <PassportDetailsForm form={form} />;
+      case 3: return <FlightInfoForm form={form} />;
+      case 4: return <ReviewForm form={form} onSubmit={() => form.handleSubmit()} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <form.AppForm>
+      <FormLayout
+        steps={FORM_STEPS}
+        currentStep={currentStep}
+        onStepChange={handleStepChange}
+      >
+        {renderStep()}
+      </FormLayout>
+    </form.AppForm>
+  );
+}
+
+// ❌ AVOID: Mixing navigation logic with form fields in same component
+export function BadApplicationForm() {
+  return (
+    <form.AppForm>
+      {/* Step navigation logic mixed with form fields */}
+      <form.AppField name="firstName">...</form.AppField>
+      <form.AppField name="lastName">...</form.AppField>
+      {/* This violates separation of concerns */}
+    </form.AppForm>
+  );
+}
+```
+
+### Step Component Pattern
+```typescript
+// ✅ CORRECT: Individual step components handle specific form sections
+export function TripTypeForm({ form }: TripTypeFormProps) {
+  return (
+    <div className="section-title-gap-lg">
+      <FormSection title="Travel Direction" required>
+        <form.AppField name="travelType.tripDirection">
+          {(field: AnyFieldApi) => (
+            <RadioGroup
+              value={field.state.value}
+              onValueChange={field.handleChange}
+              className="section-title-gap-sm"
+            >
+              <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                <RadioGroupItem value="entry" id="entry" />
+                <Label htmlFor="entry">Entry to Dominican Republic</Label>
+              </div>
+              <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+                <RadioGroupItem value="exit" id="exit" />
+                <Label htmlFor="exit">Exit from Dominican Republic</Label>
+              </div>
+            </RadioGroup>
+          )}
+        </form.AppField>
+      </FormSection>
+
+      <FormSection title="Transport Method" required>
+        <form.AppField name="travelType.transportMethod">
+          {(field: AnyFieldApi) => (
+            <RadioGroup
+              value={field.state.value}
+              onValueChange={field.handleChange}
+            >
+              {/* transport options */}
+            </RadioGroup>
+          )}
+        </form.AppField>
+      </FormSection>
+    </div>
+  );
+}
+```
+
+## Field Implementation Patterns
+
+### Standard Field Pattern
+```typescript
+// Consistent pattern for all form fields
+<form.AppField name="fieldName">
+  {(field: AnyFieldApi) => (
+    <div className="section-title-gap-sm">
+      <Label htmlFor="fieldName">Field Label</Label>
+      <Input
+        id="fieldName"
+        type="text"
+        value={field.state.value}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+      />
+      {field.state.meta.errors.length > 0 && (
+        <p className="text-sm text-destructive">
+          {field.state.meta.errors[0]}
+        </p>
+      )}
+    </div>
+  )}
+</form.AppField>
+```
+
+### Radio Group Pattern
+```typescript
+// Enhanced radio groups with proper accessibility
+<form.AppField name="groupType">
+  {(field: AnyFieldApi) => (
+    <RadioGroup
+      value={field.state.value}
+      onValueChange={field.handleChange}
+      className="section-title-gap-sm"
+    >
+      <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
+        <RadioGroupItem value="individual" id="individual" />
+        <div className="flex flex-1 items-center gap-3">
+          <div>
+            <Label htmlFor="individual" className="cursor-pointer text-base font-medium">
+              Individual Travel
+            </Label>
+            <p className="text-muted-foreground text-sm">
+              Traveling alone
+            </p>
+          </div>
+        </div>
+      </div>
+      {/* Additional options */}
+    </RadioGroup>
+  )}
+</form.AppField>
+```
+
+### Error Handling Pattern
+```typescript
+// Consistent error display across all fields
+{field.state.meta.errors.length > 0 && (
+  <p className="text-sm text-destructive" role="alert">
+    {field.state.meta.errors[0]}
+  </p>
+)}
+
+// For multiple errors (rare cases)
+{field.state.meta.errors.length > 0 && (
+  <div className="section-title-gap-sm">
+    {field.state.meta.errors.map((error, index) => (
+      <p key={index} className="text-sm text-destructive" role="alert">
+        {error}
+      </p>
+    ))}
+  </div>
+)}
+```
+
+## Form Validation Integration
+
+### Zod Schema Integration
+```typescript
+import { z } from 'zod';
+
+const tripTypeSchema = z.object({
+  tripDirection: z.enum(['entry', 'exit'], {
+    required_error: 'Please select travel direction',
+  }),
+  transportMethod: z.enum(['air', 'sea', 'land'], {
+    required_error: 'Please select transport method',
+  }),
+  groupType: z.enum(['individual', 'family', 'group'], {
+    required_error: 'Please select travel type',
+  }),
+});
+
+// Use in form options
+export const applicationFormOptions = {
+  defaultValues: {
+    travelType: {
+      tripDirection: '',
+      transportMethod: '',
+      groupType: '',
+    },
+  },
+  validators: {
+    onChange: combinedSchema, // Validate on change
+    onSubmit: combinedSchema, // Validate on submit
+  },
+};
+```
+
+## Import Patterns
+
+### Required Imports for Form Components
+```typescript
+"use client";
+
+// Form-specific imports
+import type { AnyFieldApi } from "@tanstack/react-form";
+import type { TripTypeFormProps } from "@/lib/types/form";
+
+// UI component imports
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FormSection } from "@/components/ui/form-section";
+
+// Icon imports (if needed)
+import { PlaneIcon, Ship, Car, ArrowRight, ArrowLeft } from "lucide-react";
+```
+
+## File Organization
+
+### Recommended File Structure
+```
+src/
+├── components/
+│   └── forms/
+│       ├── application-form.tsx       # Container component
+│       ├── trip-type-form.tsx         # Step 0: Travel type
+│       ├── traveller-info-form.tsx    # Step 1: Personal info
+│       ├── passport-details-form.tsx  # Step 2: Passport
+│       ├── flight-info-form.tsx       # Step 3: Flight details
+│       ├── review-form.tsx            # Step 4: Review & submit
+│       └── form-layout.tsx            # Layout wrapper
+├── lib/
+│   ├── types/
+│   │   └── form.ts                    # Form interface types
+│   └── schemas/
+│       └── form-options.ts            # Zod schemas and form options
+└── components/ui/
+    ├── tanstack-form.tsx              # TanStack Form wrapper
+    └── form-section.tsx               # Reusable form section
+```
+
+## Key Principles
+
+1. **TypeScript Pragmatism**: Use `AnyFieldApi` instead of complex generics
+2. **Separation of Concerns**: Container handles navigation, steps handle fields
+3. **Consistent Patterns**: Same field structure across all components
+4. **Design System Compliance**: Use shadcn/ui components and design tokens
+5. **Accessibility First**: Proper labels, ARIA attributes, and error handling
+6. **Mobile Optimization**: Touch-friendly controls and responsive layouts
+
+## Common Pitfalls to Avoid
+
+1. **Don't mix navigation with form fields** in the same component
+2. **Don't try to fully type TanStack Form** - it's impractically complex
+3. **Don't create custom form components** - use existing shadcn/ui patterns
+4. **Don't forget error handling** - always display validation errors
+5. **Don't skip accessibility** - proper labels and ARIA attributes are required

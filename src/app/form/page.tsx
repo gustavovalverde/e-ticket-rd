@@ -1,5 +1,5 @@
-import { ETicketForm } from "@/components/forms/e-ticket-form";
+import { ApplicationForm } from "@/components/forms/application-form";
 
 export default function FormPage() {
-  return <ETicketForm />;
+  return <ApplicationForm />;
 }
