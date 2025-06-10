@@ -2,7 +2,7 @@
 
 import { CheckCircle, FileText, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { MultiStepETicketForm } from "@/components/forms/multi-step-eticket-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -23,9 +23,15 @@ export default function ETicketFormPage() {
   const [submittedData, setSubmittedData] = useState<ETicketFormData | null>(
     null
   );
-  const [applicationCode] = useState(
-    `ETK${Math.random().toString(36).substr(2, 6).toUpperCase()}`
-  );
+  const [applicationCode, setApplicationCode] = useState<string>("");
+
+  // Generate application code on client side to avoid hydration mismatch
+  useEffect(() => {
+    const generateApplicationCode = () => {
+      return `ETK${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    };
+    setApplicationCode(generateApplicationCode());
+  }, []);
 
   const handleFormSubmit = (data: ETicketFormData) => {
     setSubmittedData(data);
@@ -99,7 +105,7 @@ export default function ETicketFormPage() {
                 <div className="space-y-1 text-sm">
                   <p>
                     <span className="text-muted-foreground">Direction:</span>{" "}
-                    {submittedData.generalInfo.entryOrExit === "ENTRADA"
+                    {submittedData.generalInfo.entryOrExit === "ENTRY"
                       ? "Entry to Dominican Republic"
                       : "Exit from Dominican Republic"}
                   </p>
@@ -215,32 +221,6 @@ export default function ETicketFormPage() {
           onSubmit={handleFormSubmit}
           applicationCode={applicationCode}
         />
-      </div>
-
-      {/* Features Notice */}
-      <div className="border-t bg-white">
-        <div className="container mx-auto max-w-6xl p-4">
-          <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-3">
-            <div>
-              <h3 className="mb-2 font-medium">Smart Forms</h3>
-              <p className="text-muted-foreground text-sm">
-                Auto-fill flight details, share information for group travel
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-2 font-medium">Auto-Save</h3>
-              <p className="text-muted-foreground text-sm">
-                Your progress is saved automatically every 30 seconds
-              </p>
-            </div>
-            <div>
-              <h3 className="mb-2 font-medium">Mobile Optimized</h3>
-              <p className="text-muted-foreground text-sm">
-                Works perfectly on phones, tablets, and desktop computers
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

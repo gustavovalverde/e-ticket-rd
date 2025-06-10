@@ -80,7 +80,25 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   // Simulate flight lookup
                   const flightData = getFlightData(value);
                   if (flightData) {
+                    // Auto-fill the other fields
+                    form.setFieldValue(
+                      "flightInfo.airline",
+                      flightData.airline
+                    );
+                    form.setFieldValue(
+                      "flightInfo.departurePort",
+                      flightData.departure
+                    );
+                    form.setFieldValue(
+                      "flightInfo.arrivalPort",
+                      flightData.arrival
+                    );
                     return undefined; // Valid
+                  } else {
+                    // Clear the auto-filled fields if flight not found
+                    form.setFieldValue("flightInfo.airline", "");
+                    form.setFieldValue("flightInfo.departurePort", "");
+                    form.setFieldValue("flightInfo.arrivalPort", "");
                   }
                 }
                 return "Invalid flight number";
@@ -131,10 +149,8 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                 <Input
                   id="airline"
                   placeholder="Will auto-fill when you enter flight number"
-                  value={field.state.value}
+                  value={field.state.value || ""}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  readOnly
-                  className="bg-muted"
                 />
                 {field.state.meta.errors.length > 0 && (
                   <p className="text-destructive text-sm">
@@ -159,10 +175,8 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   <Input
                     id="departure-port"
                     placeholder="Will auto-fill"
-                    value={field.state.value}
+                    value={field.state.value || ""}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    readOnly
-                    className="bg-muted"
                   />
                   {field.state.meta.errors.length > 0 && (
                     <p className="text-destructive text-sm">
@@ -186,10 +200,8 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   <Input
                     id="arrival-port"
                     placeholder="Will auto-fill"
-                    value={field.state.value}
+                    value={field.state.value || ""}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    readOnly
-                    className="bg-muted"
                   />
                   {field.state.meta.errors.length > 0 && (
                     <p className="text-destructive text-sm">

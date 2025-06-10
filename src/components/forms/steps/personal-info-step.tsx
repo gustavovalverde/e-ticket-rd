@@ -14,6 +14,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getErrorMessage } from "@/lib/utils";
 import {
   firstNameSchema,
@@ -22,7 +30,12 @@ import {
   nationalitySchema,
   dateOfBirthSchema,
   passportExpiryDateSchema,
+  genderSchema,
 } from "@/lib/validations/eticket-schemas";
+
+// Simple validation schemas for fields that don't have individual exports
+const occupationSchema = nationalitySchema; // Same validation as nationality (just required string)
+const maritalStatusSchema = nationalitySchema; // Same validation (just required string)
 
 interface PersonalInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -226,6 +239,101 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
               </div>
             )}
           </form.Field>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <form.Field
+              name="personalInfo.gender"
+              validators={{ onChange: genderSchema }}
+              validatorAdapter={zodValidator}
+            >
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
+                <div className="space-y-2">
+                  <Label>Gender *</Label>
+                  <RadioGroup
+                    value={field.state.value || ""}
+                    onValueChange={(value) => field.handleChange(value)}
+                    className="flex flex-col space-y-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="MALE" id="male" />
+                      <Label htmlFor="male">Male</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="FEMALE" id="female" />
+                      <Label htmlFor="female">Female</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="OTHER" id="other" />
+                      <Label htmlFor="other">Other</Label>
+                    </div>
+                  </RadioGroup>
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-destructive text-sm">
+                      {getErrorMessage(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.Field>
+
+            <form.Field
+              name="personalInfo.maritalStatus"
+              validators={{ onChange: maritalStatusSchema }}
+              validatorAdapter={zodValidator}
+            >
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
+                <div className="space-y-2">
+                  <Label htmlFor="marital-status">Marital Status *</Label>
+                  <Select
+                    value={field.state.value || ""}
+                    onValueChange={(value) => field.handleChange(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select marital status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SINGLE">Single</SelectItem>
+                      <SelectItem value="MARRIED">Married</SelectItem>
+                      <SelectItem value="DIVORCED">Divorced</SelectItem>
+                      <SelectItem value="WIDOWED">Widowed</SelectItem>
+                      <SelectItem value="COMMON_LAW">Common Law</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-destructive text-sm">
+                      {getErrorMessage(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.Field>
+          </div>
+
+          <form.Field
+            name="personalInfo.occupation"
+            validators={{ onChange: occupationSchema }}
+            validatorAdapter={zodValidator}
+          >
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {(field: any) => (
+              <div className="space-y-2">
+                <Label htmlFor="occupation">Occupation *</Label>
+                <Input
+                  id="occupation"
+                  placeholder="Enter your occupation/profession"
+                  value={field.state.value || ""}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-destructive text-sm">
+                    {getErrorMessage(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </div>
+            )}
+          </form.Field>
         </CardContent>
       </Card>
 
@@ -241,32 +349,61 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form.Field
-            name="personalInfo.passport.number"
-            validators={{ onChange: passportNumberSchema }}
-            validatorAdapter={zodValidator}
-          >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="passport-number">Passport Number *</Label>
-                <Input
-                  id="passport-number"
-                  placeholder="Enter your passport number"
-                  value={field.state.value || ""}
-                  onChange={(e) =>
-                    field.handleChange(e.target.value.toUpperCase())
-                  }
-                  className="max-w-xs"
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </div>
-            )}
-          </form.Field>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <form.Field
+              name="personalInfo.passport.number"
+              validators={{ onChange: passportNumberSchema }}
+              validatorAdapter={zodValidator}
+            >
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
+                <div className="space-y-2">
+                  <Label htmlFor="passport-number">Passport Number *</Label>
+                  <Input
+                    id="passport-number"
+                    placeholder="Enter your passport number"
+                    value={field.state.value || ""}
+                    onChange={(e) =>
+                      field.handleChange(e.target.value.toUpperCase())
+                    }
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-destructive text-sm">
+                      {getErrorMessage(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.Field>
+
+            <form.Field
+              name="personalInfo.passport.confirmNumber"
+              validators={{ onChange: passportNumberSchema }}
+              validatorAdapter={zodValidator}
+            >
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
+                <div className="space-y-2">
+                  <Label htmlFor="passport-confirm">
+                    Confirm Passport Number *
+                  </Label>
+                  <Input
+                    id="passport-confirm"
+                    placeholder="Re-enter your passport number"
+                    value={field.state.value || ""}
+                    onChange={(e) =>
+                      field.handleChange(e.target.value.toUpperCase())
+                    }
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-destructive text-sm">
+                      {getErrorMessage(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.Field>
+          </div>
 
           <form.Field
             name="personalInfo.passport.nationality"

@@ -178,7 +178,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                           className="grid grid-cols-1 gap-4 md:grid-cols-2"
                         >
                           <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                            <RadioGroupItem value="Familia" id="family" />
+                            <RadioGroupItem value="Family" id="family" />
                             <Label
                               htmlFor="family"
                               className="flex-1 cursor-pointer"
@@ -193,7 +193,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                             </Label>
                           </div>
                           <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                            <RadioGroupItem value="Amigos" id="friends" />
+                            <RadioGroupItem value="Friends" id="friends" />
                             <Label
                               htmlFor="friends"
                               className="flex-1 cursor-pointer"
@@ -209,7 +209,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                           </div>
                           <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
                             <RadioGroupItem
-                              value="Compañeros de trabajo"
+                              value="Work_Colleagues"
                               id="colleagues"
                             />
                             <Label
@@ -228,7 +228,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                             </Label>
                           </div>
                           <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                            <RadioGroupItem value="Pareja" id="couple" />
+                            <RadioGroupItem value="Partner" id="couple" />
                             <Label
                               htmlFor="couple"
                               className="flex-1 cursor-pointer"

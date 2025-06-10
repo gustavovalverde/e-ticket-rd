@@ -1,7 +1,7 @@
 "use client";
 
 import { zodValidator } from "@tanstack/zod-form-adapter";
-import { MapPin, Users, InfoIcon } from "lucide-react";
+import { MapPin, InfoIcon } from "lucide-react";
 import React from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -75,21 +75,15 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                   className="grid grid-cols-1 gap-4 md:grid-cols-2"
                 >
                   <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="ENTRADA" id="entry" />
+                    <RadioGroupItem value="ENTRY" id="entry" />
                     <Label htmlFor="entry" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Entry (Entrada)</div>
-                      <div className="text-muted-foreground text-sm">
-                        Entering Dominican Republic
-                      </div>
+                      Entering Dominican Republic
                     </Label>
                   </div>
                   <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="SALIDA" id="exit" />
+                    <RadioGroupItem value="EXIT" id="exit" />
                     <Label htmlFor="exit" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Exit (Salida)</div>
-                      <div className="text-muted-foreground text-sm">
-                        Leaving Dominican Republic
-                      </div>
+                      Leaving Dominican Republic
                     </Label>
                   </div>
                 </RadioGroup>
@@ -314,16 +308,6 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
           );
         }}
       </form.Field>
-
-      {/* Smart Features Notice */}
-      <Alert>
-        <Users className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Smart auto-fill:</strong> We&apos;ll use this address
-          information to help speed up forms for any travel companions
-          you&apos;re with.
-        </AlertDescription>
-      </Alert>
     </div>
   );
 }
