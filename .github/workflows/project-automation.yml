@@ -1,4 +1,4 @@
-name: Simplified Project Automation
+name: Project Automation
 
 # Set default permissions to read-only for security
 permissions:
@@ -181,7 +181,7 @@ jobs:
                 issue_number: issueNumber,
                 body: '🔒 **Critical Security Issue Detected**\n\nThis has been flagged for immediate review. Please use private disclosure for sensitive security issues.'
               });
-              
+
               console.log(`Security alert processed for issue #${issueNumber}`);
             } catch (error) {
               core.setFailed(`Failed to process security alert: ${error.message}`);
