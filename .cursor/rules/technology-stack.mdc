@@ -27,6 +27,10 @@ alwaysApply: false
 
 ### Form Management & Validation
 - **TanStack Form v1.12.2** - Form validation with field dependencies and async validation (selected via ADR 001)
+  - **Pragmatic TypeScript approach**: Use `AnyFieldApi` from `@tanstack/react-form` for field typing instead of complex generics
+  - **Simplified type safety**: Use `any` for form instances due to TanStack Form's complex typing (9-19 type arguments required)
+  - **Multi-step architecture**: Separate form step components from container components for better separation of concerns
+  - **Field pattern**: `form.AppField` with `AnyFieldApi` typing for consistent field handling
 - **Zod v3.25.56** - Schema validation for client and server
 - **class-variance-authority v0.7.1** - Component variant management
 

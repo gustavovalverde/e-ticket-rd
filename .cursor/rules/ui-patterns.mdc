@@ -5,6 +5,217 @@ alwaysApply: false
 ---
 # UI Component & Form Patterns
 
+## Design System Compliance
+
+### Use Existing Components, Never Create Custom Ones
+```typescript
+// ✅ CORRECT: Use shadcn Card components for form sections
+<Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      Personal Information
+      {required && <span className="text-destructive text-sm">*</span>}
+    </CardTitle>
+    <CardDescription>Please provide your basic personal details</CardDescription>
+  </CardHeader>
+  <CardContent className="section-title-gap-lg">
+    {/* form fields */}
+  </CardContent>
+</Card>
+
+// ❌ AVOID: Custom form section components
+function FormSectionModern({ title, description, children }) {
+  return <div className="custom-section">...</div>; // Don't create custom components
+}
+```
+
+### Use Design System Variables, Never Custom Colors/Spacing
+```typescript
+// ✅ CORRECT: Use design system variables and classes
+<div className="bg-background text-foreground">
+  <h1 className="heading-lg text-card-foreground">Title</h1>
+  <p className="text-muted-foreground">Description</p>
+  <div className="section-title-gap-lg">Content</div>
+</div>
+
+// ❌ AVOID: Custom colors and spacing
+<div className="bg-slate-50/50 text-slate-900">
+  <h1 className="text-3xl font-bold">Title</h1>
+  <p className="text-gray-600">Description</p>
+  <div className="space-y-6">Content</div>
+</div>
+```
+
+### Design System Classes Reference
+```css
+/* Typography Classes (from globals.css) */
+.heading-xl    /* 3rem, font-weight: 700 */
+.heading-lg    /* 2.25rem, font-weight: 700 */
+.heading-md    /* 1.875rem, font-weight: 700 */
+.heading-sm    /* 1.5rem, font-weight: 700 */
+
+/* Spacing Classes (from globals.css) */
+.container-padding-x      /* padding-inline: 1.5rem */
+.section-padding-y        /* padding-block: 6rem, 4rem on mobile */
+.section-title-gap-xl     /* gap: 4rem, 3rem on mobile */
+.section-title-gap-lg     /* gap: 3rem, 2rem on mobile */
+.section-title-gap-md     /* gap: 2rem, 1.5rem on mobile */
+.section-title-gap-sm     /* gap: 1.5rem, 1rem on mobile */
+
+/* Color Variables (from globals.css) */
+--background, --foreground
+--card, --card-foreground
+--muted, --muted-foreground
+--primary, --border, --destructive
+```
+
+### Use Pro-Blocks for Complex Components
+```typescript
+// ✅ CORRECT: Use pro-blocks like button-9 for step navigation
+import { Steps } from "@/components/ui/pro-blocks/buttons/button-9";
+
+const FORM_STEPS = [
+  { icon: Info, label: "Travel Type" },
+  { icon: User, label: "Personal Info" },
+  { icon: FileText, label: "Passport Details" },
+];
+
+<Steps steps={FORM_STEPS} activeStep={currentStep} onStepChange={handleStepChange} />
+
+// ❌ AVOID: Custom step navigation components
+function StepNavigation({ steps, currentStep }) {
+  // Custom implementation - don't do this
+}
+```
+
+## Pro-Block Template Pattern
+
+### Always Use Pro-Block Examples as Templates
+When users provide working shadcn pro-block examples, use them as the foundation rather than creating custom solutions. This ensures consistency with the design system.
+
+```typescript
+// ✅ CORRECT: Follow pro-block examples like FormExample6 for form structure
+// From src/components/FormExample6.tsx - use this as the template
+<Card className="mx-auto w-full max-w-lg">
+  <CardHeader>
+    <CardTitle>Contact Us</CardTitle>
+    <CardDescription>
+      Please fill out the form below and we'll get back to you.
+    </CardDescription>
+  </CardHeader>
+  <form onSubmit={handleSubmit} id="contactFormExample6">
+    <CardContent className="space-y-6">
+      <div className="grid w-full items-center gap-1.5">
+        <Label htmlFor="name">Name</Label>
+        <Input id="name" name="name" placeholder="Enter your full name" />
+      </div>
+      <div className="grid w-full items-center gap-1.5">
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" name="email" type="email" placeholder="you@example.com" />
+      </div>
+    </CardContent>
+    <CardFooter className="flex justify-end">
+      <Button type="submit" form="contactFormExample6">
+        Send Message
+      </Button>
+    </CardFooter>
+  </form>
+</Card>
+
+// ❌ AVOID: Complex custom card structures with nested divs
+<Card className="bg-card border-border">
+  <div className="border-border bg-card container-padding-x border-b py-6">
+    <div className="section-title-gap-sm">
+      <h1 className="heading-md text-card-foreground">{title}</h1>
+      {/* Complex custom structure - don't do this */}
+    </div>
+  </div>
+  <div className="container-padding-x section-padding-y">
+    {/* Custom content structure */}
+  </div>
+</Card>
+```
+
+### Form Field Pattern from Pro-Blocks
+```typescript
+// ✅ CORRECT: Use exact field pattern from pro-block examples
+<div className="grid w-full items-center gap-1.5">
+  <Label htmlFor="fieldName">Field Label</Label>
+  <Input
+    id="fieldName"
+    name="fieldName"
+    type="text"
+    placeholder="Enter value"
+    value={field.state.value}
+    onChange={(e) => field.handleChange(e.target.value)}
+  />
+  {field.state.meta.errors.length > 0 && (
+    <p className="text-destructive text-sm">
+      {field.state.meta.errors[0]}
+    </p>
+  )}
+</div>
+
+// ❌ AVOID: Custom field layouts with design system classes
+<div className="section-title-gap-sm">
+  <Label htmlFor="fieldName">Field Label</Label>
+  <Input /* ... */ />
+  {/* Custom spacing pattern - avoid this */}
+</div>
+```
+
+### Consistent Spacing from Pro-Blocks
+```typescript
+// ✅ CORRECT: Use spacing patterns from pro-block examples
+<CardContent className="space-y-6">
+  {/* Multiple form sections */}
+</CardContent>
+
+<div className="space-y-3">
+  {/* Radio group items */}
+</div>
+
+<div className="grid w-full items-center gap-1.5">
+  {/* Individual form fields */}
+</div>
+
+// ❌ AVOID: Mixing design system spacing classes
+<CardContent className="section-title-gap-lg">
+  <div className="section-title-gap-sm">
+    {/* Inconsistent with pro-block patterns */}
+  </div>
+</CardContent>
+```
+
+### Multi-Step Form Adaptation
+```typescript
+// ✅ CORRECT: Adapt pro-block single form to multi-step while keeping structure
+export function ApplicationForm() {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  return (
+    <form.AppForm>
+      <Card className="mx-auto w-full max-w-2xl"> {/* Slightly larger for multi-step */}
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{subtitle}</CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-8"> {/* Increased spacing for sections */}
+          <form onSubmit={handleSubmit} id="travel-application-form">
+            {renderStep()}
+          </form>
+        </CardContent>
+
+        <CardFooter className="flex items-center justify-between">
+          {/* Navigation buttons following pro-block button patterns */}
+        </CardFooter>
+      </Card>
+    </form.AppForm>
+  );
+}
+```
+
 ## Shadcn/ui Integration
 
 ### Component Import Pattern
@@ -13,8 +224,52 @@ alwaysApply: false
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+```
+
+### Form Section Pattern with Cards
+```typescript
+// Always use Card components for form sections
+function PersonalInfoSection() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          Personal Information
+          <span className="text-destructive text-sm" aria-label="Required section">*</span>
+        </CardTitle>
+        <CardDescription>
+          Please provide your basic personal details
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="section-title-gap-lg">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* form fields using design system spacing */}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### Enhanced Radio Button Pattern
+```typescript
+// Use proper design system classes for enhanced radio buttons
+<RadioGroup value={value} onValueChange={onChange} className="section-title-gap-sm">
+  <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
+    <RadioGroupItem value="individual" id="individual" />
+    <Label htmlFor="individual" className="flex-1 cursor-pointer">
+      Individual Travel
+    </Label>
+  </div>
+  <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
+    <RadioGroupItem value="family" id="family" />
+    <Label htmlFor="family" className="flex-1 cursor-pointer">
+      Family/Group Travel
+    </Label>
+  </div>
+</RadioGroup>
 ```
 
 ### Atomic Design Structure
@@ -24,7 +279,13 @@ src/components/
 │   ├── button.tsx
 │   ├── input.tsx
 │   ├── card.tsx
-│   └── form.tsx
+│   └── radio-group.tsx
+├── pro-blocks/      # Professional components (molecules)
+│   ├── buttons/
+│   │   └── button-9.tsx  # Step navigation
+│   ├── application/
+│   │   ├── cards/
+│   │   └── section-headers/
 ├── forms/           # Form-specific components (molecules)
 │   ├── personal-info-form.tsx
 │   ├── travel-details-form.tsx
@@ -50,7 +311,7 @@ interface FormStep {
   condition?: (data: FormData) => boolean;
 }
 
-const FORM_STEPS: FormStep[] = [
+const FORM_STEPS = [
   {
     id: 'personal-info',
     title: 'Personal Information',
@@ -73,69 +334,24 @@ const FORM_STEPS: FormStep[] = [
 ];
 ```
 
-### Conditional Form Fields
+### Form Layout with Design System
 ```typescript
-function CustomsDeclarationStep({ form }: FormStepProps) {
+function FormLayout({ children, title, subtitle }) {
   return (
-    <div className="space-y-6">
-      <form.Field
-        name="carryingCommercialGoods"
-        children={(field) => (
-          <FormItem>
-            <FormLabel>Are you carrying commercial goods?</FormLabel>
-            <FormControl>
-              <RadioGroup
-                value={field.state.value}
-                onValueChange={field.handleChange}
-                className="flex flex-col space-y-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yes" id="goods-yes" />
-                  <Label htmlFor="goods-yes">Yes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="goods-no" />
-                  <Label htmlFor="goods-no">No</Label>
-                </div>
-              </RadioGroup>
-            </FormControl>
-            {field.state.meta.errors.length > 0 && (
-              <FormMessage>{field.state.meta.errors[0]}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
-
-      {/* Conditional fields based on carrying goods */}
-      <form.Subscribe
-        selector={(state) => state.values.carryingCommercialGoods}
-        children={(carryingGoods) =>
-          carryingGoods === 'yes' && (
-            <div className="space-y-4 pl-4 border-l-2 border-blue-200">
-              <form.Field
-                name="goodsValue"
-                children={(field) => (
-                  <FormItem>
-                    <FormLabel>Total value of goods (USD)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(parseFloat(e.target.value) || 0)}
-                        onBlur={field.handleBlur}
-                      />
-                    </FormControl>
-                    {field.state.meta.errors.length > 0 && (
-                      <FormMessage>{field.state.meta.errors[0]}</FormMessage>
-                    )}
-                  </FormItem>
-                )}
-              />
+    <div className="min-h-screen bg-background">
+      <div className="container-padding-x section-padding-y">
+        <div className="mx-auto max-w-2xl">
+          <div className="section-title-gap-lg">
+            <div className="text-center section-title-gap-sm">
+              <h1 className="heading-lg text-card-foreground">{title}</h1>
+              {subtitle && (
+                <p className="text-muted-foreground">{subtitle}</p>
+              )}
             </div>
-          )
-        }
-      />
+            <div className="section-title-gap-lg">{children}</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -161,6 +377,10 @@ const personalInfoSchema = z.object({
       const age = today.getFullYear() - birthDate.getFullYear();
       return age >= 0 && age <= 120;
     }, 'Please enter a valid date of birth'),
+
+  email: z.string()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
   passportNumber: z.string()
     .min(6, 'Passport number must be at least 6 characters')
     .max(20, 'Passport number must be less than 20 characters')
@@ -170,109 +390,183 @@ const personalInfoSchema = z.object({
 type PersonalInfoForm = z.infer<typeof personalInfoSchema>;
 ```
 
-### TanStack Form Integration
+### TanStack Form Integration with Design System
 ```typescript
-import { useForm } from '@tanstack/react-form';
-import { zodValidator } from '@tanstack/zod-form-adapter';
+import { useAppForm } from '@/components/ui/tanstack-form';
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 function PersonalInfoStep() {
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       firstName: '',
       lastName: '',
-      dateOfBirth: '',
+      email: '',
       passportNumber: '',
+    },
+    validators: {
+      onChange: personalInfoSchema,
     },
     onSubmit: async ({ value }) => {
       try {
-        // Save data or proceed to next step
         await saveFormData(value);
       } catch (error) {
         toast.error('Failed to save information. Please try again.');
       }
     },
-    validators: {
-      onChange: personalInfoSchema,
-    },
-    validatorAdapter: zodValidator,
   });
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        form.handleSubmit();
-      }}
-      className="space-y-6"
-    >
-      <form.Field
-        name="firstName"
-        children={(field) => (
-          <FormItem>
-            <FormLabel htmlFor={field.name}>First Name</FormLabel>
-            <FormControl>
-              <Input
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </FormControl>
-            {field.state.meta.errors.length > 0 && (
-              <FormMessage>{field.state.meta.errors[0]}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
+    <Card>
+      <CardHeader>
+        <CardTitle>Personal Information</CardTitle>
+        <CardDescription>Please provide your basic personal details</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form.AppField name="firstName">
+              {(field: AnyFieldApi) => (
+                <div className="grid w-full items-center gap-1.5">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-destructive">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.AppField>
 
-      <form.Field
-        name="lastName"
-        children={(field) => (
-          <FormItem>
-            <FormLabel htmlFor={field.name}>Last Name</FormLabel>
-            <FormControl>
-              <Input
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </FormControl>
-            {field.state.meta.errors.length > 0 && (
-              <FormMessage>{field.state.meta.errors[0]}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
+            <form.AppField name="lastName">
+              {(field: AnyFieldApi) => (
+                <div className="grid w-full items-center gap-1.5">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-destructive">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.AppField>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+```
 
-      <form.Field
-        name="passportNumber"
-        children={(field) => (
-          <FormItem>
-            <FormLabel htmlFor={field.name}>Passport Number</FormLabel>
-            <FormControl>
-              <Input
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </FormControl>
-            {field.state.meta.errors.length > 0 && (
-              <FormMessage>{field.state.meta.errors[0]}</FormMessage>
-            )}
-          </FormItem>
-        )}
-      />
+### TanStack Form TypeScript Patterns
 
-      <Button type="submit" disabled={!form.state.canSubmit}>
-        Continue
-      </Button>
-    </form>
+#### Pragmatic Type Safety Approach
+```typescript
+// ✅ CORRECT: Use AnyFieldApi for field typing - simple and effective
+import type { AnyFieldApi } from "@tanstack/react-form";
+
+<form.AppField name="email">
+  {(field: AnyFieldApi) => (
+    <div className="grid w-full items-center gap-1.5">
+      <Label htmlFor="email">Email</Label>
+      <Input
+        id="email"
+        type="email"
+        value={field.state.value}
+        onBlur={field.handleBlur}
+        onChange={(e) => field.handleChange(e.target.value)}
+      />
+      {field.state.meta.errors.length > 0 && (
+        <p className="text-sm text-destructive">
+          {field.state.meta.errors[0]}
+        </p>
+      )}
+    </div>
+  )}
+</form.AppField>
+
+// ❌ AVOID: Complex TanStack Form generic types (requires 9-19 type arguments)
+type ComplexFieldApi<
+  TParentData,
+  TName extends DeepKeys<TParentData>,
+  TFieldValidator extends Validator<DeepValue<TParentData, TName>, unknown> | undefined = undefined,
+  TFormValidator extends Validator<TParentData, unknown> | undefined = undefined,
+  TData extends DeepValue<TParentData, TName> = DeepValue<TParentData, TName>
+> = FieldApi<TParentData, TName, TFieldValidator, TFormValidator, TData>;
+```
+
+#### Form Instance Types
+```typescript
+// ✅ CORRECT: Use any for form instances due to TanStack Form complexity
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AppFormInstance = any;
+
+export interface TripTypeFormProps {
+  form: AppFormInstance;
+}
+
+// ❌ AVOID: Trying to fully type TanStack Form instances
+// TanStack Form's typing system is extremely complex and not practical for real-world use
+```
+
+#### Multi-Step Form Architecture Pattern
+```typescript
+// ✅ CORRECT: Separate step components from container
+// Container handles navigation, steps handle form fields
+export function ApplicationForm() {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const form = useAppForm({
+    defaultValues: { /* ... */ },
+    onSubmit: async ({ value }) => {
+      console.log("Form submitted:", value);
+    },
+  });
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0: return <TripTypeForm form={form} />;
+      case 1: return <TravellerInfoForm form={form} />;
+      case 2: return <PassportDetailsForm form={form} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <form.AppForm>
+      <FormLayout>
+        {renderStep()}
+      </FormLayout>
+    </form.AppForm>
+  );
+}
+
+// Individual step components handle their specific fields
+export function TripTypeForm({ form }: TripTypeFormProps) {
+  return (
+    <FormSection title="Travel Type" required>
+      <form.AppField name="travelType.tripDirection">
+        {(field: AnyFieldApi) => (
+          <RadioGroup
+            value={field.state.value}
+            onValueChange={field.handleChange}
+          >
+            {/* radio options */}
+          </RadioGroup>
+        )}
+      </form.AppField>
+    </FormSection>
   );
 }
 ```
@@ -338,16 +632,16 @@ function FormField({ name, label, description, required, error }) {
   const errorId = `${fieldId}-error`;
 
   return (
-    <div className="space-y-2">
+    <div className="section-title-gap-sm">
       <Label
         htmlFor={fieldId}
-        className={required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""}
+        className={required ? "after:content-['*'] after:ml-0.5 after:text-destructive" : ""}
       >
         {label}
       </Label>
 
       {description && (
-        <p id={descriptionId} className="text-sm text-gray-600">
+        <p id={descriptionId} className="text-sm text-muted-foreground">
           {description}
         </p>
       )}
@@ -364,7 +658,7 @@ function FormField({ name, label, description, required, error }) {
         <p
           id={errorId}
           role="alert"
-          className="text-sm text-red-600"
+          className="text-sm text-destructive"
         >
           {error}
         </p>
@@ -376,22 +670,24 @@ function FormField({ name, label, description, required, error }) {
 
 ## Mobile-First Responsive Design
 
-### Responsive Form Layout
+### Responsive Form Layout with Design System
 ```typescript
 function FormLayout({ children, title }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        <Card className="w-full">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-gray-900">
-              {title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-6 pb-8">
-            {children}
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-background">
+      <div className="container-padding-x section-padding-y">
+        <div className="mx-auto max-w-2xl">
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="heading-md text-card-foreground">
+                {title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="section-title-gap-lg">
+              {children}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -423,82 +719,80 @@ function MobileOptimizedInput({ type, ...props }) {
 
 ## Progress Indication
 
-### Step Progress Component
+### Use Pro-Blocks for Step Progress
 ```typescript
-function StepProgress({ currentStep, totalSteps, steps }) {
+// Use button-9 pro-block for step navigation instead of custom components
+import { Steps } from "@/components/ui/pro-blocks/buttons/button-9";
+
+const FORM_STEPS = [
+  { icon: Info, label: "Travel Type" },
+  { icon: User, label: "Personal Info" },
+  { icon: FileText, label: "Passport Details" },
+  { icon: Plane, label: "Flight Info" },
+  { icon: CheckCircle, label: "Review" },
+];
+
+function FormWizard() {
   return (
-    <nav aria-label="Form progress" className="mb-8">
-      <ol className="flex items-center justify-between w-full">
-        {steps.map((step, index) => {
-          const isActive = index === currentStep;
-          const isCompleted = index < currentStep;
-
-          return (
-            <li key={step.id} className="flex items-center">
-              <div
-                className={`
-                  flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium
-                  ${isActive ? 'bg-blue-600 text-white' : ''}
-                  ${isCompleted ? 'bg-green-600 text-white' : ''}
-                  ${!isActive && !isCompleted ? 'bg-gray-200 text-gray-600' : ''}
-                `}
-                aria-current={isActive ? 'step' : undefined}
-              >
-                {isCompleted ? (
-                  <CheckIcon className="w-4 h-4" />
-                ) : (
-                  index + 1
-                )}
-              </div>
-
-              <span className="ml-2 text-sm font-medium text-gray-900 hidden sm:inline">
-                {step.title}
-              </span>
-
-              {index < steps.length - 1 && (
-                <ChevronRightIcon className="w-5 h-5 text-gray-400 mx-2" />
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
+    <div className="section-title-gap-lg">
+      <Steps
+        steps={FORM_STEPS}
+        activeStep={currentStep}
+        onStepChange={handleStepChange}
+      />
+      <div className="section-title-gap-lg">
+        {renderCurrentStep()}
+      </div>
+    </div>
   );
 }
 ```
 
 ## QR Code & Confirmation Patterns
 
-### QR Code Display Component
+### QR Code Display Component with Design System
 ```typescript
 import QRCode from 'qrcode.react';
 
 function QRCodeDisplay({ data, size = 200 }) {
   return (
-    <div className="flex flex-col items-center space-y-4">
-      <div className="p-4 bg-white rounded-lg shadow-sm border">
-        <QRCode
-          value={data}
-          size={size}
-          level="M"
-          includeMargin={true}
-          renderAs="svg"
-        />
-      </div>
+    <Card>
+      <CardContent className="flex flex-col items-center section-title-gap-lg text-center">
+        <div className="p-4 bg-card rounded-lg shadow-sm border-border border">
+          <QRCode
+            value={data}
+            size={size}
+            level="M"
+            includeMargin={true}
+            renderAs="svg"
+          />
+        </div>
 
-      <div className="text-center">
-        <p className="text-sm text-gray-600 mb-2">
-          Show this code to immigration officials
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => downloadQRCode(data)}
-          className="text-sm"
-        >
-          Download QR Code
-        </Button>
-      </div>
-    </div>
+        <div className="section-title-gap-sm">
+          <p className="text-sm text-muted-foreground">
+            Show this code to immigration officials
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => downloadQRCode(data)}
+            className="text-sm"
+          >
+            Download QR Code
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 ```
+
+## Key Principles Summary
+
+1. **Use pro-block examples as templates** - When users provide working shadcn examples (like [FormExample6](mdc:src/components/FormExample6.tsx)), adapt them rather than creating custom solutions
+2. **Always use existing shadcn components** - Never create custom UI components
+3. **Use pro-blocks when available** - Check [src/components/pro-blocks/](mdc:src/components/pro-blocks) first
+4. **Follow pro-block spacing patterns** - Use `space-y-*` consistently (from examples) instead of mixing custom design system classes
+5. **Use pro-block field layout** - Use `grid w-full items-center gap-1.5` for form fields to match shadcn examples
+6. **Card structure from examples** - Use `Card` → `CardHeader` → `CardContent` → `CardFooter` pattern from pro-blocks
+7. **Design system colors only** - Use `text-destructive`, `text-muted-foreground`, `bg-background`, etc.
+8. **TanStack Form pragmatism** - Use `AnyFieldApi` for field typing instead of complex generics

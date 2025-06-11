@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/node,nextjs,linux,windows,macos,visualstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,nextjs,linux,windows,macos,visualstudio
 
+### Project specific ###
+
+docs/transient
+
 ### Linux ###
 *~
 

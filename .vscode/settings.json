@@ -14,6 +14,7 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit",
     "source.organizeImports": "never"
   },
   "eslint.validate": [
@@ -22,6 +23,10 @@
     "typescript",
     "typescriptreact",
     "json"
+  ],
+  "stylelint.validate": [
+    "css",
+    "scss"
   ],
   "prettier.requireConfig": true,
   "prettier.useEditorConfig": false,
