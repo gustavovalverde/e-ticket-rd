@@ -6,7 +6,7 @@ export const applicationFormOptions = formOptions({
     // Trip type (nested object)
     travelType: {
       tripDirection: "" as "entry" | "exit" | "",
-      transportMethod: "" as "air" | "sea" | "land" | "",
+      transportMethod: "air" as "air" | "sea" | "land" | "",
       travelingAlone: "" as "alone" | "with-others" | "",
       groupType: "" as "friends" | "coworkers" | "family" | "couple" | "",
     },
@@ -14,6 +14,12 @@ export const applicationFormOptions = formOptions({
     flightInfo: {
       flightNumber: "",
       travelDate: "",
+      // Auto-filled fields from FlightRadar24 API (matching ERD structure)
+      airline: "",
+      aircraft: "",
+      departurePort: "", // Origin airport IATA code
+      arrivalPort: "", // Destination airport IATA code
+      estimatedArrival: "",
     },
     // Personal information
     firstName: "",

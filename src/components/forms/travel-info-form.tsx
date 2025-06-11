@@ -7,21 +7,66 @@ import {
   ArrowDown,
   ArrowUp,
   Search,
-  Calendar,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  X,
+  Info,
 } from "lucide-react";
+import { useEffect, useCallback } from "react";
 
+import { FormField } from "@/components/forms/form-field";
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
+import {
+  validateFlightNumber,
+  formatFlightNumber,
+} from "@/lib/schemas/flight-validation";
 
 import type { TravelInfoFormProps } from "@/lib/types/form";
 import type { AnyFieldApi } from "@tanstack/react-form";
 
 export function TravelInfoForm({ form }: TravelInfoFormProps) {
+  const { result, error, isLoading, lookupFlight, reset } = useFlightLookup();
+
+  const formattedFlightNumberHandler = useCallback((value: string) => {
+    return formatFlightNumber(value);
+  }, []);
+
+  const handleFlightLookup = useCallback(
+    async (flightNumber: string) => {
+      await lookupFlight(flightNumber, true);
+    },
+    [lookupFlight]
+  );
+
+  const handleClearFlight = useCallback(() => {
+    reset();
+    form.setFieldValue("flightInfo.flightNumber", "");
+  }, [reset, form]);
+
+  // Fill in flight details when search succeeds
+  useEffect(() => {
+    if (result?.success && result.flight) {
+      const { flight } = result;
+      form.setFieldValue("flightInfo.airline", flight.airline);
+      form.setFieldValue("flightInfo.aircraft", flight.aircraft);
+      form.setFieldValue("flightInfo.departurePort", flight.origin.iata);
+      form.setFieldValue("flightInfo.arrivalPort", flight.destination.iata);
+      form.setFieldValue(
+        "flightInfo.estimatedArrival",
+        flight.estimatedArrival
+      );
+    }
+  }, [result, form]);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Trip Direction Selection */}
       <FormSection
         title="Travel Direction"
@@ -30,57 +75,32 @@ export function TravelInfoForm({ form }: TravelInfoFormProps) {
       >
         <form.AppField name="travelType.tripDirection">
           {(field: AnyFieldApi) => (
-            <div className="space-y-3">
-              <RadioGroup
-                value={field.state.value}
-                onValueChange={field.handleChange}
-                className="grid grid-cols-1 gap-4 md:grid-cols-2"
-              >
-                <div className="border-border flex items-center space-x-4 rounded-lg border p-6 transition-all duration-200 hover:border-green-200 hover:bg-green-50">
-                  <RadioGroupItem value="entry" id="entry" />
-                  <div className="flex flex-1 items-center gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700">
-                      <ArrowDown className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="entry"
-                        className="cursor-pointer text-lg font-semibold"
-                      >
-                        Arriving
-                      </Label>
-                      <p className="text-muted-foreground text-sm">
-                        I&apos;m coming to the Dominican Republic
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-border flex items-center space-x-4 rounded-lg border p-6 transition-all duration-200 hover:border-blue-200 hover:bg-blue-50">
-                  <RadioGroupItem value="exit" id="exit" />
-                  <div className="flex flex-1 items-center gap-4">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700">
-                      <ArrowUp className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="exit"
-                        className="cursor-pointer text-lg font-semibold"
-                      >
-                        Departing
-                      </Label>
-                      <p className="text-muted-foreground text-sm">
-                        I&apos;m leaving the Dominican Republic
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </RadioGroup>
-              {field.state.meta.errors.length > 0 && (
-                <p className="text-destructive text-sm">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
+            <FormRadioGroup
+              field={field}
+              layout="grid"
+              columns="2"
+              padding="large"
+              options={[
+                {
+                  value: "entry",
+                  id: "entry",
+                  label: "Arriving",
+                  description: "I'm coming to the Dominican Republic",
+                  icon: <ArrowDown className="h-6 w-6" />,
+                  iconBg: "bg-green-100",
+                  iconColor: "text-green-700",
+                },
+                {
+                  value: "exit",
+                  id: "exit",
+                  label: "Departing",
+                  description: "I'm leaving the Dominican Republic",
+                  icon: <ArrowUp className="h-6 w-6" />,
+                  iconBg: "bg-blue-100",
+                  iconColor: "text-blue-700",
+                },
+              ]}
+            />
           )}
         </form.AppField>
       </FormSection>
@@ -93,70 +113,38 @@ export function TravelInfoForm({ form }: TravelInfoFormProps) {
       >
         <form.AppField name="travelType.transportMethod">
           {(field: AnyFieldApi) => (
-            <div className="space-y-3">
-              <RadioGroup
-                value={field.state.value}
-                onValueChange={field.handleChange}
-                className="space-y-3"
-              >
-                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                  <RadioGroupItem value="air" id="air" />
-                  <div className="flex flex-1 items-center gap-3">
-                    <PlaneIcon className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <Label
-                        htmlFor="air"
-                        className="cursor-pointer text-base font-medium"
-                      >
-                        Air Travel
-                      </Label>
-                      <p className="text-muted-foreground text-sm">
-                        By airplane
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                  <RadioGroupItem value="sea" id="sea" />
-                  <div className="flex flex-1 items-center gap-3">
-                    <Ship className="h-5 w-5 text-cyan-600" />
-                    <div>
-                      <Label
-                        htmlFor="sea"
-                        className="cursor-pointer text-base font-medium"
-                      >
-                        Sea Travel
-                      </Label>
-                      <p className="text-muted-foreground text-sm">
-                        By ship or boat
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                  <RadioGroupItem value="land" id="land" />
-                  <div className="flex flex-1 items-center gap-3">
-                    <Car className="h-5 w-5 text-green-600" />
-                    <div>
-                      <Label
-                        htmlFor="land"
-                        className="cursor-pointer text-base font-medium"
-                      >
-                        Land Travel
-                      </Label>
-                      <p className="text-muted-foreground text-sm">
-                        By car, bus, or other ground transport
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </RadioGroup>
-              {field.state.meta.errors.length > 0 && (
-                <p className="text-destructive text-sm">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
+            <FormRadioGroup
+              field={field}
+              options={[
+                {
+                  value: "air",
+                  id: "air",
+                  label: "Air Travel",
+                  description: "By airplane",
+                  icon: <PlaneIcon className="h-5 w-5" />,
+                  iconBg: "bg-blue-100",
+                  iconColor: "text-blue-600",
+                },
+                {
+                  value: "sea",
+                  id: "sea",
+                  label: "Sea Travel",
+                  description: "By ship or boat",
+                  icon: <Ship className="h-5 w-5" />,
+                  iconBg: "bg-cyan-100",
+                  iconColor: "text-cyan-600",
+                },
+                {
+                  value: "land",
+                  id: "land",
+                  label: "Land Travel",
+                  description: "By car, bus, or other ground transport",
+                  icon: <Car className="h-5 w-5" />,
+                  iconBg: "bg-green-100",
+                  iconColor: "text-green-600",
+                },
+              ]}
+            />
           )}
         </form.AppField>
       </FormSection>
@@ -168,93 +156,363 @@ export function TravelInfoForm({ form }: TravelInfoFormProps) {
             return (
               <FormSection
                 title="Flight Information"
-                description="Enter your flight details for smart auto-fill"
+                description="Let's start with your travel date, then we'll help find your flight"
                 required
               >
                 <div className="space-y-6">
-                  {/* Flight Number with Smart Search */}
-                  <form.AppField name="flightInfo.flightNumber">
-                    {(field: AnyFieldApi) => (
-                      <div className="space-y-3">
-                        <Label htmlFor="flightNumber">Flight Number</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="flightNumber"
-                            type="text"
-                            placeholder="e.g., AA1234, DL567, JB889"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            className="flex-1"
-                          />
-                          <Button type="button" variant="outline" size="icon">
-                            <Search className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="text-muted-foreground text-xs">
-                          We&apos;ll auto-fill airline, route, and schedule
-                          information when you enter your flight number
-                        </p>
-                        {field.state.meta.errors.length > 0 && (
-                          <p className="text-destructive text-sm">
-                            {field.state.meta.errors[0]}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </form.AppField>
-
                   {/* Travel Date */}
                   <form.AppField name="flightInfo.travelDate">
-                    {(field: AnyFieldApi) => (
-                      <div className="space-y-3">
-                        <Label htmlFor="travelDate">Travel Date</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            id="travelDate"
-                            type="date"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            className="flex-1"
-                          />
-                          <Button type="button" variant="outline" size="icon">
-                            <Calendar className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        {field.state.meta.errors.length > 0 && (
-                          <p className="text-destructive text-sm">
-                            {field.state.meta.errors[0]}
+                    {(dateField: AnyFieldApi) => (
+                      <div className="grid w-full items-center gap-1.5">
+                        <Label
+                          htmlFor="travelDate"
+                          className="text-sm font-medium"
+                        >
+                          Travel Date *
+                        </Label>
+                        <DatePicker
+                          id="travelDate"
+                          value={
+                            dateField.state.value
+                              ? new Date(dateField.state.value)
+                              : undefined
+                          }
+                          onChange={(date) =>
+                            dateField.handleChange(
+                              date?.toISOString().split("T")[0] || ""
+                            )
+                          }
+                          className="w-full"
+                          aria-invalid={dateField.state.meta.errors.length > 0}
+                          aria-describedby={
+                            dateField.state.meta.errors.length > 0
+                              ? "travelDate-error"
+                              : "travelDate-description"
+                          }
+                        />
+                        <p
+                          id="travelDate-description"
+                          className="text-muted-foreground text-xs"
+                        >
+                          Pick your travel date in the calendar icon or input it
+                          manually.
+                        </p>
+                        {dateField.state.meta.errors.length > 0 && (
+                          <p
+                            id="travelDate-error"
+                            className="text-destructive text-sm"
+                            role="alert"
+                          >
+                            {dateField.state.meta.errors[0]}
                           </p>
                         )}
                       </div>
                     )}
                   </form.AppField>
 
-                  {/* Auto-filled Flight Details (Read-only) */}
-                  <div className="bg-muted/30 space-y-3 rounded-lg p-4">
-                    <h4 className="text-muted-foreground text-sm font-medium">
-                      Flight Details (Auto-filled)
-                    </h4>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      <div>
-                        <Label className="text-muted-foreground text-xs">
-                          Airline
-                        </Label>
-                        <p className="text-sm">
-                          Will auto-fill from flight number
-                        </p>
-                      </div>
-                      <div>
-                        <Label className="text-muted-foreground text-xs">
-                          Route
-                        </Label>
-                        <p className="text-sm">
-                          Will auto-fill from flight number
-                        </p>
-                      </div>
+                  {/* Flight Number */}
+                  <form.AppField name="flightInfo.travelDate">
+                    {(dateField: AnyFieldApi) => {
+                      const hasDate =
+                        dateField.state.value &&
+                        dateField.state.value.trim() !== "";
+
+                      return (
+                        <div
+                          className={`space-y-3 transition-all duration-300 ${
+                            hasDate ? "opacity-100" : "opacity-50"
+                          }`}
+                        >
+                          <form.AppField
+                            name="flightInfo.flightNumber"
+                            validators={{
+                              onBlur: async ({ value }: { value: string }) => {
+                                if (!value || !value.trim()) return undefined;
+                                const validation = validateFlightNumber(value);
+                                return validation.isValid
+                                  ? undefined
+                                  : validation.error;
+                              },
+                            }}
+                          >
+                            {(flightField: AnyFieldApi) => {
+                              const validation = validateFlightNumber(
+                                flightField.state.value || ""
+                              );
+                              const hasValidFormat = validation.isValid;
+
+                              return (
+                                <>
+                                  <Label
+                                    htmlFor="flightNumber"
+                                    className="text-sm font-medium"
+                                  >
+                                    Flight Number {hasDate && "*"}
+                                    {!hasDate && (
+                                      <span className="text-muted-foreground ml-2 text-sm font-normal">
+                                        (Choose your date first)
+                                      </span>
+                                    )}
+                                  </Label>
+                                  <div className="flex">
+                                    {result?.success ? (
+                                      <div className="flex w-full items-center">
+                                        <p className="flex-1 py-2 text-sm font-medium">
+                                          {flightField.state.value}
+                                        </p>
+                                        <Button
+                                          type="button"
+                                          onClick={handleClearFlight}
+                                          size="sm"
+                                          variant="outline"
+                                          className="ml-2 shrink-0"
+                                        >
+                                          <X className="h-4 w-4" />
+                                          Clear
+                                        </Button>
+                                      </div>
+                                    ) : (
+                                      <>
+                                        <Input
+                                          id="flightNumber"
+                                          type="text"
+                                          placeholder={
+                                            hasDate
+                                              ? "e.g., AA1234, DL567, UA123"
+                                              : "Choose your date first"
+                                          }
+                                          value={flightField.state.value}
+                                          onBlur={flightField.handleBlur}
+                                          onChange={(e) => {
+                                            const formatted =
+                                              formattedFlightNumberHandler(
+                                                e.target.value
+                                              );
+                                            flightField.handleChange(formatted);
+                                          }}
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              e.preventDefault();
+                                              if (
+                                                hasDate &&
+                                                hasValidFormat &&
+                                                !isLoading
+                                              ) {
+                                                handleFlightLookup(
+                                                  flightField.state.value
+                                                );
+                                              }
+                                            }
+                                          }}
+                                          className={`flex-1 rounded-r-none border-r-0 ${
+                                            flightField.state.value &&
+                                            !hasValidFormat
+                                              ? "border-destructive focus:border-destructive"
+                                              : ""
+                                          }`}
+                                          disabled={!hasDate}
+                                        />
+                                        <Button
+                                          type="button"
+                                          onClick={() =>
+                                            handleFlightLookup(
+                                              flightField.state.value
+                                            )
+                                          }
+                                          disabled={
+                                            !hasDate ||
+                                            !hasValidFormat ||
+                                            isLoading
+                                          }
+                                          size="default"
+                                          variant="outline"
+                                          className="shrink-0 rounded-l-none border-l-0"
+                                        >
+                                          {isLoading ? (
+                                            <>
+                                              <Loader2 className="h-4 w-4 animate-spin" />
+                                              Searching
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Search className="h-4 w-4" />
+                                              Search
+                                            </>
+                                          )}
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+
+                                  {/* Loading indicator */}
+                                  {isLoading && hasValidFormat && (
+                                    <div className="animate-in fade-in flex items-center gap-2 text-sm text-blue-600 duration-200">
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                      <span>Searching for your flight...</span>
+                                    </div>
+                                  )}
+
+                                  {/* Success indicator */}
+                                  {result?.success && (
+                                    <div className="animate-in fade-in space-y-2 duration-200">
+                                      <div className="flex items-center gap-2 text-sm text-green-600">
+                                        <CheckCircle className="h-4 w-4" />
+                                        <span>
+                                          Perfect! We found your flight.
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-sm text-blue-600">
+                                        <Info className="h-4 w-4" />
+                                        <span>
+                                          If this is the wrong flight, click the
+                                          ✕ button to search for a different
+                                          flight.
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Error indicator */}
+                                  {error && hasValidFormat && (
+                                    <div className="animate-in fade-in flex items-center gap-2 text-sm text-red-600 duration-200">
+                                      <AlertCircle className="h-4 w-4" />
+                                      <span>
+                                        We couldn&apos;t find that flight.
+                                        Please enter your details below
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  <p className="text-muted-foreground text-xs">
+                                    Format: 2-3 letters + 1-4 numbers (like
+                                    AA1234, U22621, or AAL8)
+                                  </p>
+
+                                  {flightField.state.meta.errors.length > 0 && (
+                                    <p className="text-destructive text-sm">
+                                      {flightField.state.meta.errors[0]}
+                                    </p>
+                                  )}
+                                </>
+                              );
+                            }}
+                          </form.AppField>
+                        </div>
+                      );
+                    }}
+                  </form.AppField>
+
+                  {/* Flight Details */}
+                  {(result !== null || error) && (
+                    <div className="bg-muted/30 space-y-4 rounded-lg p-4 transition-all duration-300">
+                      <h4 className="text-muted-foreground text-sm font-medium">
+                        Flight Details
+                        {result?.success && " ✓"}
+                      </h4>
+
+                      {result?.success ? (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          <div>
+                            <Label className="text-muted-foreground text-xs">
+                              Airline
+                            </Label>
+                            <p className="text-sm font-medium">
+                              {result.flight?.airline}
+                            </p>
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground text-xs">
+                              Aircraft
+                            </Label>
+                            <p className="text-sm font-medium">
+                              {result.flight?.aircraft}
+                            </p>
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground text-xs">
+                              Departure Port
+                            </Label>
+                            <p className="text-sm font-medium">
+                              {result.flight?.origin.iata}
+                            </p>
+                          </div>
+                          <div>
+                            <Label className="text-muted-foreground text-xs">
+                              Arrival Port
+                            </Label>
+                            <p className="text-sm font-medium">
+                              {result.flight?.destination.iata}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          <form.AppField name="flightInfo.airline">
+                            {(field: AnyFieldApi) => (
+                              <FormField
+                                field={field}
+                                label="Airline"
+                                placeholder="e.g., American Airlines"
+                                required
+                              />
+                            )}
+                          </form.AppField>
+
+                          <form.AppField name="flightInfo.aircraft">
+                            {(field: AnyFieldApi) => (
+                              <div className="grid w-full items-center gap-1.5">
+                                <Label
+                                  htmlFor="aircraft"
+                                  className="text-muted-foreground text-sm font-medium"
+                                >
+                                  Aircraft Type
+                                </Label>
+                                <Input
+                                  id="aircraft"
+                                  type="text"
+                                  placeholder="We'll show this when we find your flight"
+                                  value={field.state.value}
+                                  className="text-muted-foreground bg-muted"
+                                  disabled
+                                  readOnly
+                                  aria-describedby="aircraft-description"
+                                />
+                                <p
+                                  id="aircraft-description"
+                                  className="text-muted-foreground text-xs"
+                                >
+                                  We&apos;ll fill this in when we find your
+                                  flight
+                                </p>
+                              </div>
+                            )}
+                          </form.AppField>
+
+                          <form.AppField name="flightInfo.departurePort">
+                            {(field: AnyFieldApi) => (
+                              <FormField
+                                field={field}
+                                label="Departure Airport"
+                                placeholder="e.g., MIA"
+                                required
+                              />
+                            )}
+                          </form.AppField>
+
+                          <form.AppField name="flightInfo.arrivalPort">
+                            {(field: AnyFieldApi) => (
+                              <FormField
+                                field={field}
+                                label="Arrival Airport"
+                                placeholder="e.g., SDQ"
+                                required
+                              />
+                            )}
+                          </form.AppField>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  )}
                 </div>
               </FormSection>
             );
@@ -271,37 +529,21 @@ export function TravelInfoForm({ form }: TravelInfoFormProps) {
       >
         <form.AppField name="travelType.travelingAlone">
           {(field: AnyFieldApi) => (
-            <div className="space-y-3">
-              <RadioGroup
-                value={field.state.value}
-                onValueChange={field.handleChange}
-                className="space-y-3"
-              >
-                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                  <RadioGroupItem value="alone" id="alone-yes" />
-                  <Label
-                    htmlFor="alone-yes"
-                    className="flex-1 cursor-pointer text-base font-medium"
-                  >
-                    Yes, I&apos;m traveling alone
-                  </Label>
-                </div>
-                <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                  <RadioGroupItem value="with-others" id="alone-no" />
-                  <Label
-                    htmlFor="alone-no"
-                    className="flex-1 cursor-pointer text-base font-medium"
-                  >
-                    No, I&apos;m traveling with others
-                  </Label>
-                </div>
-              </RadioGroup>
-              {field.state.meta.errors.length > 0 && (
-                <p className="text-destructive text-sm">
-                  {field.state.meta.errors[0]}
-                </p>
-              )}
-            </div>
+            <FormRadioGroup
+              field={field}
+              options={[
+                {
+                  value: "alone",
+                  id: "alone-yes",
+                  label: "Yes, I'm traveling alone",
+                },
+                {
+                  value: "with-others",
+                  id: "alone-no",
+                  label: "No, I'm traveling with others",
+                },
+              ]}
+            />
           )}
         </form.AppField>
       </FormSection>
@@ -318,75 +560,38 @@ export function TravelInfoForm({ form }: TravelInfoFormProps) {
               >
                 <form.AppField name="travelType.groupType">
                   {(field: AnyFieldApi) => (
-                    <div className="space-y-3">
-                      <RadioGroup
-                        value={field.state.value}
-                        onValueChange={field.handleChange}
-                        className="space-y-3"
-                      >
-                        <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                          <RadioGroupItem value="family" id="family" />
-                          <div className="flex-1">
-                            <Label
-                              htmlFor="family"
-                              className="cursor-pointer text-base font-medium"
-                            >
-                              Family
-                            </Label>
-                            <p className="text-muted-foreground text-sm">
-                              Spouse, children, parents, siblings
-                            </p>
-                          </div>
-                        </div>
-                        <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                          <RadioGroupItem value="couple" id="couple" />
-                          <div className="flex-1">
-                            <Label
-                              htmlFor="couple"
-                              className="cursor-pointer text-base font-medium"
-                            >
-                              Couple
-                            </Label>
-                            <p className="text-muted-foreground text-sm">
-                              Traveling as a romantic couple
-                            </p>
-                          </div>
-                        </div>
-                        <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                          <RadioGroupItem value="friends" id="friends" />
-                          <div className="flex-1">
-                            <Label
-                              htmlFor="friends"
-                              className="cursor-pointer text-base font-medium"
-                            >
-                              Friends
-                            </Label>
-                            <p className="text-muted-foreground text-sm">
-                              Group of friends traveling together
-                            </p>
-                          </div>
-                        </div>
-                        <div className="border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border p-4 transition-colors">
-                          <RadioGroupItem value="coworkers" id="coworkers" />
-                          <div className="flex-1">
-                            <Label
-                              htmlFor="coworkers"
-                              className="cursor-pointer text-base font-medium"
-                            >
-                              Work Colleagues
-                            </Label>
-                            <p className="text-muted-foreground text-sm">
-                              Business travel with colleagues
-                            </p>
-                          </div>
-                        </div>
-                      </RadioGroup>
-                      {field.state.meta.errors.length > 0 && (
-                        <p className="text-destructive text-sm">
-                          {field.state.meta.errors[0]}
-                        </p>
-                      )}
-                    </div>
+                    <FormRadioGroup
+                      field={field}
+                      options={[
+                        {
+                          value: "family",
+                          id: "family",
+                          label: "Family",
+                          description:
+                            "Same household • Share address and other information",
+                        },
+                        {
+                          value: "couple",
+                          id: "couple",
+                          label: "Couple",
+                          description:
+                            "Romantic partner • May share address and other information",
+                        },
+                        {
+                          value: "friends",
+                          id: "friends",
+                          label: "Friends",
+                          description:
+                            "Different households • Individual details",
+                        },
+                        {
+                          value: "coworkers",
+                          id: "coworkers",
+                          label: "Work Colleagues",
+                          description: "Business travel • Individual details",
+                        },
+                      ]}
+                    />
                   )}
                 </form.AppField>
               </FormSection>

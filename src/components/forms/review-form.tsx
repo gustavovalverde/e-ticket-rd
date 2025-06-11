@@ -25,6 +25,15 @@ export function ReviewForm({ form, onSubmit }: ReviewFormProps) {
             {values.flightInfo?.flightNumber && (
               <p>Flight: {values.flightInfo.flightNumber}</p>
             )}
+            {values.flightInfo?.airline && (
+              <p>Airline: {values.flightInfo.airline}</p>
+            )}
+            {values.flightInfo?.departurePort && (
+              <p>Departure: {values.flightInfo.departurePort}</p>
+            )}
+            {values.flightInfo?.arrivalPort && (
+              <p>Arrival: {values.flightInfo.arrivalPort}</p>
+            )}
             {values.flightInfo?.travelDate && (
               <p>Travel Date: {values.flightInfo.travelDate}</p>
             )}

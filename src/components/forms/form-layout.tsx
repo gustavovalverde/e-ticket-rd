@@ -61,7 +61,6 @@ export function FormLayout({
   return (
     <div className={cn("bg-background min-h-screen", className)}>
       <div className="container-padding-x section-padding-y container mx-auto max-w-3xl">
-        {/* Step Progress Indicator using Pro Block */}
         {showStepIndicator && (
           <Steps
             steps={steps}
@@ -70,7 +69,6 @@ export function FormLayout({
           />
         )}
 
-        {/* Main Content Card - Following shadcn pro-block pattern */}
         <Card className="mx-auto w-full max-w-2xl">
           <CardHeader>
             <CardTitle>{title}</CardTitle>
@@ -92,7 +90,7 @@ export function FormLayout({
                 {backLabel}
               </Button>
             ) : (
-              <div /> // Spacer for alignment
+              <div />
             )}
 
             {/* Continue Button */}

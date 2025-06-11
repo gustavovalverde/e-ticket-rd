@@ -16,7 +16,6 @@ import { ReviewForm } from "./review-form";
 import { TravelInfoForm } from "./travel-info-form";
 import { TravellerInfoForm } from "./traveller-info-form";
 
-// Define form steps for navigation
 const FORM_STEPS = [
   { icon: Plane, label: "Travel Info" },
   { icon: User, label: "Personal Info" },
@@ -25,9 +24,7 @@ const FORM_STEPS = [
 ];
 
 export function ApplicationForm() {
-  const [currentStep] = useState(0); // 0-indexed for button-9, start with trip type
-
-  // Helper function to get current step data safely using explicit cases
+  const [currentStep] = useState(0);
   const getCurrentStepData = () => {
     switch (currentStep) {
       case 0:
@@ -66,7 +63,7 @@ export function ApplicationForm() {
   const form = useAppForm({
     ...applicationFormOptions,
     onSubmit: async ({ value }: { value: ApplicationFormData }) => {
-      // TODO: Submit form data to backend
+      // eslint-disable-next-line no-console
       console.log("Form submitted:", value);
     },
   });
@@ -81,18 +78,18 @@ export function ApplicationForm() {
   );
 
   const handleBack = () => {
-    // TODO: Implement navigation to previous step
+    // eslint-disable-next-line no-console
     console.log("Navigate to previous step");
   };
 
   const handleContinue = () => {
-    // TODO: Implement navigation to next step
+    // eslint-disable-next-line no-console
     console.log("Navigate to next step");
     form.handleSubmit();
   };
 
   const handleStepChange = (step: number) => {
-    // TODO: Implement step navigation
+    // eslint-disable-next-line no-console
     console.log("Navigate to step:", step);
   };
 
