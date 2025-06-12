@@ -70,6 +70,16 @@ const STEP_TITLES = {
 
 const FORM_STEPS: Step[] = [
   {
+    id: STEP_IDS.CONTACT_INFO,
+    title: STEP_TITLES.CONTACT_INFORMATION,
+    description: "Email and phone (optional)",
+  },
+  {
+    id: STEP_IDS.FLIGHT_INFO,
+    title: STEP_TITLES.FLIGHT_INFORMATION,
+    description: "Flight details and airline",
+  },
+  {
     id: STEP_IDS.GROUP_TRAVEL,
     title: STEP_TITLES.TRAVEL_GROUP,
     description: "Are you traveling with companions?",
@@ -83,16 +93,6 @@ const FORM_STEPS: Step[] = [
     id: STEP_IDS.PERSONAL_INFO,
     title: STEP_TITLES.PERSONAL_INFORMATION,
     description: "Identity and passport details",
-  },
-  {
-    id: STEP_IDS.CONTACT_INFO,
-    title: STEP_TITLES.CONTACT_INFORMATION,
-    description: "Email and phone (optional)",
-  },
-  {
-    id: STEP_IDS.FLIGHT_INFO,
-    title: STEP_TITLES.FLIGHT_INFORMATION,
-    description: "Flight details and airline",
   },
   {
     id: STEP_IDS.CUSTOMS_DECLARATION,
@@ -111,7 +111,7 @@ export function MultiStepForm({
   className,
 }: FormProps) {
   const [currentStepId, setCurrentStepId] = useState<string>(
-    STEP_IDS.GROUP_TRAVEL
+    STEP_IDS.CONTACT_INFO
   );
   const [stepErrors, setStepErrors] = useState<Record<string, boolean>>({});
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
@@ -173,6 +173,18 @@ export function MultiStepForm({
   const isStepDataValid = (stepId: string): boolean => {
     const values = form.state.values;
     switch (stepId) {
+      case STEP_IDS.CONTACT_INFO: {
+        // Contact info is optional, but if user entered email or phone, it should be valid
+        const hasEmail = values.contactInfo?.email?.trim();
+        const hasPhone = values.contactInfo?.phone?.number?.trim();
+        return !hasEmail && !hasPhone ? true : Boolean(hasEmail || hasPhone);
+      }
+      case STEP_IDS.FLIGHT_INFO:
+        return Boolean(
+          values.flightInfo?.flightNumber &&
+            values.flightInfo?.airline &&
+            values.flightInfo?.departurePort
+        );
       case STEP_IDS.GROUP_TRAVEL:
         return values.groupTravel?.isGroupTravel !== undefined;
       case STEP_IDS.GENERAL_INFO:
@@ -186,18 +198,6 @@ export function MultiStepForm({
           values.personalInfo?.firstName &&
             values.personalInfo?.lastName &&
             values.personalInfo?.passport?.number
-        );
-      case STEP_IDS.CONTACT_INFO: {
-        // Contact info is optional, but if user entered email or phone, it should be valid
-        const hasEmail = values.contactInfo?.email?.trim();
-        const hasPhone = values.contactInfo?.phone?.number?.trim();
-        return !hasEmail && !hasPhone ? true : Boolean(hasEmail || hasPhone);
-      }
-      case STEP_IDS.FLIGHT_INFO:
-        return Boolean(
-          values.flightInfo?.flightNumber &&
-            values.flightInfo?.airline &&
-            values.flightInfo?.departurePort
         );
       case STEP_IDS.CUSTOMS_DECLARATION:
         return (
@@ -233,6 +233,16 @@ export function MultiStepForm({
   // Centralized step data management
   const getCurrentStepData = () => {
     switch (currentStepId) {
+      case STEP_IDS.CONTACT_INFO:
+        return {
+          title: STEP_TITLES.CONTACT_INFORMATION,
+          subtitle: "Email and phone (optional)",
+        };
+      case STEP_IDS.FLIGHT_INFO:
+        return {
+          title: STEP_TITLES.FLIGHT_INFORMATION,
+          subtitle: "Flight details and airline",
+        };
       case STEP_IDS.GROUP_TRAVEL:
         return {
           title: STEP_TITLES.TRAVEL_GROUP,
@@ -247,16 +257,6 @@ export function MultiStepForm({
         return {
           title: STEP_TITLES.PERSONAL_INFORMATION,
           subtitle: "Identity and passport details",
-        };
-      case STEP_IDS.CONTACT_INFO:
-        return {
-          title: STEP_TITLES.CONTACT_INFORMATION,
-          subtitle: "Email and phone (optional)",
-        };
-      case STEP_IDS.FLIGHT_INFO:
-        return {
-          title: STEP_TITLES.FLIGHT_INFORMATION,
-          subtitle: "Flight details and airline",
         };
       case STEP_IDS.CUSTOMS_DECLARATION:
         return {
@@ -286,6 +286,12 @@ export function MultiStepForm({
     try {
       const values = form.state.values;
       switch (currentStepId) {
+        case STEP_IDS.CONTACT_INFO:
+          await contactInfoSchema.parseAsync(values.contactInfo);
+          break;
+        case STEP_IDS.FLIGHT_INFO:
+          await flightInfoSchema.parseAsync(values.flightInfo);
+          break;
         case STEP_IDS.GROUP_TRAVEL:
           await groupTravelSchema.parseAsync(values.groupTravel);
           break;
@@ -294,12 +300,6 @@ export function MultiStepForm({
           break;
         case STEP_IDS.PERSONAL_INFO:
           await personalInfoSchema.parseAsync(values.personalInfo);
-          break;
-        case STEP_IDS.CONTACT_INFO:
-          await contactInfoSchema.parseAsync(values.contactInfo);
-          break;
-        case STEP_IDS.FLIGHT_INFO:
-          await flightInfoSchema.parseAsync(values.flightInfo);
           break;
         case STEP_IDS.CUSTOMS_DECLARATION:
           await customsDeclarationSchema.parseAsync(values.customsDeclaration);
@@ -340,16 +340,16 @@ export function MultiStepForm({
     };
 
     switch (currentStepId) {
+      case STEP_IDS.CONTACT_INFO:
+        return <ContactInfoStep {...stepProps} />;
+      case STEP_IDS.FLIGHT_INFO:
+        return <FlightInfoStep {...stepProps} />;
       case STEP_IDS.GROUP_TRAVEL:
         return <GroupTravelStep {...stepProps} />;
       case STEP_IDS.GENERAL_INFO:
         return <GeneralInfoStep {...stepProps} />;
       case STEP_IDS.PERSONAL_INFO:
         return <PersonalInfoStep {...stepProps} />;
-      case STEP_IDS.CONTACT_INFO:
-        return <ContactInfoStep {...stepProps} />;
-      case STEP_IDS.FLIGHT_INFO:
-        return <FlightInfoStep {...stepProps} />;
       case STEP_IDS.CUSTOMS_DECLARATION:
         return <CustomsDeclarationStep {...stepProps} />;
       default:
