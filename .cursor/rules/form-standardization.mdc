@@ -1,0 +1,278 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Form Standardization Methodology
+
+This document outlines the standardized approach for form components implemented throughout the Dominican Republic E-Ticket system.
+
+## Standardization Principles
+
+### 1. Component Consistency
+- **Single Component Types**: Use standardized components (`FormField`, `FormRadioGroup`, `PhoneField`) across all form steps
+- **No Manual Implementations**: Avoid manual `RadioGroup`/`Label` combinations in favor of standardized wrappers
+- **Uniform Error Handling**: Consistent error styling and ARIA compliance across all components
+
+### 2. Centralized Configuration
+- **Field Requirements**: Single source of truth in [FIELD_REQUIREMENTS](mdc:src/lib/utils/form-utils.ts)
+- **Validation Rules**: Centralized Zod schemas in [validation.ts](mdc:src/lib/schemas/validation.ts)
+- **Automatic Detection**: Components auto-detect required status without manual props
+
+### 3. Enhanced User Experience
+- **Visual Indicators**: Red asterisk (*) for required fields, applied automatically
+- **Error Feedback**: Immediate visual feedback with red borders and proper error messages
+- **Accessibility**: WCAG 2.1/2.2 AA compliance with proper ARIA relationships
+
+## Implementation Patterns
+
+### Standard Form Field
+```tsx
+<form.AppField name="contactInfo.email">
+  {(field: AnyFieldApi) => (
+    <FormField
+      field={field}
+      label="Email Address"
+      type="email"
+      placeholder="Enter your email address"
+      description="We'll send your e-ticket confirmation here"
+    />
+  )}
+</form.AppField>
+```
+
+### Radio Group with Boolean Conversion
+```tsx
+<form.AppField name="groupTravel.travelingAlone">
+  {(field: AnyFieldApi) => {
+    // Convert boolean to string for RadioGroup compatibility
+    const stringField = {
+      ...field,
+      state: {
+        ...field.state,
+        value: field.state.value === true ? "solo" :
+               field.state.value === false ? "group" : ""
+      },
+      handleChange: (value: string) => {
+        field.handleChange(value === "solo");
+      }
+    };
+
+    return (
+      <FormRadioGroup
+        field={stringField}
+        options={[
+          {
+            value: "solo",
+            id: "solo",
+            label: "Traveling Solo",
+            description: "Just me",
+            icon: <User className="h-6 w-6" />
+          },
+          {
+            value: "group",
+            id: "group",
+            label: "Group Travel",
+            description: "With family or friends",
+            icon: <Users className="h-6 w-6" />
+          }
+        ]}
+        layout="grid"
+        columns="2"
+      />
+    );
+  }}
+</form.AppField>
+```
+
+### Phone Field with Country Code
+```tsx
+<form.AppField name="contactInfo.phone.number">
+  {(numberField: AnyFieldApi) => (
+    <form.AppField name="contactInfo.phone.countryCode">
+      {(countryCodeField: AnyFieldApi) => (
+        <PhoneField
+          numberField={numberField}
+          countryCodeField={countryCodeField}
+        />
+      )}
+    </form.AppField>
+  )}
+</form.AppField>
+```
+
+## Migration from Manual Components
+
+### Before (Manual Implementation)
+```tsx
+<div className="space-y-3">
+  <Label className="text-sm font-medium">Are you traveling alone?</Label>
+  <RadioGroup
+    name="travelingAlone"
+    value={field.state.value ? "solo" : "group"}
+    onValueChange={(value) => field.handleChange(value === "solo")}
+  >
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem value="solo" id="solo" />
+      <Label htmlFor="solo">Traveling Solo</Label>
+    </div>
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem value="group" id="group" />
+      <Label htmlFor="group">Group Travel</Label>
+    </div>
+  </RadioGroup>
+</div>
+```
+
+### After (Standardized Implementation)
+```tsx
+<FormRadioGroup
+  field={booleanFieldAdapter(field, { trueValue: "solo", falseValue: "group" })}
+  options={[
+    {
+      value: "solo",
+      id: "solo",
+      label: "Traveling Solo",
+      description: "Just me",
+      icon: <User className="h-6 w-6" />
+    },
+    {
+      value: "group",
+      id: "group",
+      label: "Group Travel",
+      description: "With family or friends",
+      icon: <Users className="h-6 w-6" />
+    }
+  ]}
+  layout="grid"
+  columns="2"
+/>
+```
+
+## Required Field System
+
+### Automatic Detection
+```typescript
+// Components automatically detect required status
+const isRequired = getFieldRequirement(field.name);
+
+// Visual indicator applied automatically
+<FormLabel
+  className={cn(
+    isRequired && "after:text-destructive after:ml-0.5 after:content-['*']"
+  )}
+>
+  {label}
+</FormLabel>
+```
+
+### Configuration Management
+```typescript
+export const FIELD_REQUIREMENTS: Record<string, boolean> = {
+  // Contact Information - Required for e-ticket delivery
+  "contactInfo.preferredName": false,
+  "contactInfo.email": true,
+  "contactInfo.phone.number": true,
+
+  // Flight Information - Required for processing
+  "flightInfo.travelDirection": true,
+  "flightInfo.hasStops": true,
+
+  // Customs Declaration - Legal requirement
+  "customsDeclaration.carryingMoney": true,
+  "customsDeclaration.carryingBiologicalMaterials": true,
+  "customsDeclaration.carryingTaxableGoods": true,
+};
+```
+
+## Error Handling Standards
+
+### Automatic Error Styling
+- **Border Color**: `aria-invalid:border-destructive` applied automatically
+- **Focus Ring**: `focus-visible:ring-destructive/20` for error states
+- **Error Messages**: `text-destructive` with `role="alert"` for accessibility
+
+### ARIA Compliance
+```tsx
+<Input
+  aria-invalid={hasError}
+  aria-describedby={hasError ? `${fieldId}-error` : undefined}
+  className={cn(
+    hasError && "border-destructive focus-visible:ring-destructive/20"
+  )}
+/>
+{hasError && (
+  <p id={`${fieldId}-error`} className="text-destructive text-sm" role="alert">
+    {field.state.meta.errors[0]}
+  </p>
+)}
+```
+
+## Component Architecture
+
+### Enhanced TanStack Form Integration
+```typescript
+import {
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/tanstack-form";
+```
+
+### Standard Component Hierarchy
+1. `FormItem` - Container with proper spacing
+2. `FormLabel` - Label with automatic required indicators
+3. `FormControl` - Input wrapper with error state management
+4. `FormDescription` - Optional help text
+5. `FormMessage` - Error message with accessibility
+
+## Boolean Field Adapters
+
+### Utility Function
+```typescript
+function booleanFieldAdapter(
+  field: AnyFieldApi,
+  config: { trueValue: string; falseValue: string }
+) {
+  return {
+    ...field,
+    state: {
+      ...field.state,
+      value: field.state.value === true ? config.trueValue :
+             field.state.value === false ? config.falseValue : ""
+    },
+    handleChange: (value: string) => {
+      field.handleChange(value === config.trueValue);
+    }
+  };
+}
+```
+
+### Common Use Cases
+- `{ trueValue: "yes", falseValue: "no" }` - Yes/No questions
+- `{ trueValue: "solo", falseValue: "group" }` - Travel preferences
+- `{ trueValue: "direct", falseValue: "connecting" }` - Flight options
+
+## Quality Assurance
+
+### Checklist for Form Standardization
+- [ ] Uses standardized components (`FormField`, `FormRadioGroup`, `PhoneField`)
+- [ ] No manual `RadioGroup`/`Label` implementations
+- [ ] Required fields automatically detected and displayed
+- [ ] Error styling consistent across all fields
+- [ ] Proper ARIA relationships and accessibility
+- [ ] Boolean fields properly adapted for RadioGroup compatibility
+- [ ] Icons and descriptions enhance user understanding
+- [ ] Validation rules centralized in schemas
+
+### Testing Requirements
+- [ ] Required field indicators display correctly
+- [ ] Error states show proper styling and messages
+- [ ] Screen reader compatibility (ARIA compliance)
+- [ ] Keyboard navigation works smoothly
+- [ ] Boolean field conversions function properly
+- [ ] Form submission handles all field types correctly
+
+This standardization ensures consistency, accessibility, and maintainability across all form components in the e-ticket system.

@@ -3,796 +3,236 @@ description:
 globs: **/components/**/*.ts,**/components/**/*.tsx,**/components/**/*.js,**/components/**/*.jsx,**/components/ui/**,**/forms/**/*.ts,**/forms/**/*.tsx,**/sections/**/*.ts,**/sections/**/*.tsx,**/layouts/**/*.ts,**/layouts/**/*.tsx,**/*.css,**/*.scss,**/styles/**,**/globals.css,components.json,tailwind.config.*,postcss.config.*,**/schemas/**/*.ts,**/lib/validations/**/*.ts,**/lib/utils.ts,**/lib/cn.ts,package.json
 alwaysApply: false
 ---
-# UI Component & Form Patterns
+# UI Patterns & Component Standards
 
-## Design System Compliance
+This project uses a standardized approach to form components and UI patterns for the Dominican Republic E-Ticket system.
 
-### Use Existing Components, Never Create Custom Ones
-```typescript
-// ✅ CORRECT: Use shadcn Card components for form sections
-<Card>
-  <CardHeader>
-    <CardTitle className="flex items-center gap-2">
-      Personal Information
-      {required && <span className="text-destructive text-sm">*</span>}
-    </CardTitle>
-    <CardDescription>Please provide your basic personal details</CardDescription>
-  </CardHeader>
-  <CardContent className="section-title-gap-lg">
-    {/* form fields */}
-  </CardContent>
-</Card>
+## Form Components Architecture
 
-// ❌ AVOID: Custom form section components
-function FormSectionModern({ title, description, children }) {
-  return <div className="custom-section">...</div>; // Don't create custom components
-}
-```
+### Core Philosophy
+- **TanStack Form Integration**: All forms use TanStack Form for complex government form requirements
+- **Shadcn/ui Enhancement**: TanStack form components enhanced with shadcn/ui best practices
+- **Centralized Requirements**: Single source of truth for field requirements in [form-utils.ts](mdc:src/lib/utils/form-utils.ts)
+- **Automatic Indicators**: Required field indicators and error styling applied automatically
 
-### Use Design System Variables, Never Custom Colors/Spacing
-```typescript
-// ✅ CORRECT: Use design system variables and classes
-<div className="bg-background text-foreground">
-  <h1 className="heading-lg text-card-foreground">Title</h1>
-  <p className="text-muted-foreground">Description</p>
-  <div className="section-title-gap-lg">Content</div>
-</div>
+### Standard Form Components
 
-// ❌ AVOID: Custom colors and spacing
-<div className="bg-slate-50/50 text-slate-900">
-  <h1 className="text-3xl font-bold">Title</h1>
-  <p className="text-gray-600">Description</p>
-  <div className="space-y-6">Content</div>
-</div>
-```
-
-### Design System Classes Reference
-```css
-/* Typography Classes (from globals.css) */
-.heading-xl    /* 3rem, font-weight: 700 */
-.heading-lg    /* 2.25rem, font-weight: 700 */
-.heading-md    /* 1.875rem, font-weight: 700 */
-.heading-sm    /* 1.5rem, font-weight: 700 */
-
-/* Spacing Classes (from globals.css) */
-.container-padding-x      /* padding-inline: 1.5rem */
-.section-padding-y        /* padding-block: 6rem, 4rem on mobile */
-.section-title-gap-xl     /* gap: 4rem, 3rem on mobile */
-.section-title-gap-lg     /* gap: 3rem, 2rem on mobile */
-.section-title-gap-md     /* gap: 2rem, 1.5rem on mobile */
-.section-title-gap-sm     /* gap: 1.5rem, 1rem on mobile */
-
-/* Color Variables (from globals.css) */
---background, --foreground
---card, --card-foreground
---muted, --muted-foreground
---primary, --border, --destructive
-```
-
-### Use Pro-Blocks for Complex Components
-```typescript
-// ✅ CORRECT: Use pro-blocks like button-9 for step navigation
-import { Steps } from "@/components/ui/pro-blocks/buttons/button-9";
-
-const FORM_STEPS = [
-  { icon: Info, label: "Travel Type" },
-  { icon: User, label: "Personal Info" },
-  { icon: FileText, label: "Passport Details" },
-];
-
-<Steps steps={FORM_STEPS} activeStep={currentStep} onStepChange={handleStepChange} />
-
-// ❌ AVOID: Custom step navigation components
-function StepNavigation({ steps, currentStep }) {
-  // Custom implementation - don't do this
-}
-```
-
-## Pro-Block Template Pattern
-
-### Always Use Pro-Block Examples as Templates
-When users provide working shadcn pro-block examples, use them as the foundation rather than creating custom solutions. This ensures consistency with the design system.
-
-```typescript
-// ✅ CORRECT: Follow pro-block examples like FormExample6 for form structure
-// From src/components/FormExample6.tsx - use this as the template
-<Card className="mx-auto w-full max-w-lg">
-  <CardHeader>
-    <CardTitle>Contact Us</CardTitle>
-    <CardDescription>
-      Please fill out the form below and we'll get back to you.
-    </CardDescription>
-  </CardHeader>
-  <form onSubmit={handleSubmit} id="contactFormExample6">
-    <CardContent className="space-y-6">
-      <div className="grid w-full items-center gap-1.5">
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" placeholder="Enter your full name" />
-      </div>
-      <div className="grid w-full items-center gap-1.5">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" placeholder="you@example.com" />
-      </div>
-    </CardContent>
-    <CardFooter className="flex justify-end">
-      <Button type="submit" form="contactFormExample6">
-        Send Message
-      </Button>
-    </CardFooter>
-  </form>
-</Card>
-
-// ❌ AVOID: Complex custom card structures with nested divs
-<Card className="bg-card border-border">
-  <div className="border-border bg-card container-padding-x border-b py-6">
-    <div className="section-title-gap-sm">
-      <h1 className="heading-md text-card-foreground">{title}</h1>
-      {/* Complex custom structure - don't do this */}
-    </div>
-  </div>
-  <div className="container-padding-x section-padding-y">
-    {/* Custom content structure */}
-  </div>
-</Card>
-```
-
-### Form Field Pattern from Pro-Blocks
-```typescript
-// ✅ CORRECT: Use exact field pattern from pro-block examples
-<div className="grid w-full items-center gap-1.5">
-  <Label htmlFor="fieldName">Field Label</Label>
-  <Input
-    id="fieldName"
-    name="fieldName"
-    type="text"
-    placeholder="Enter value"
-    value={field.state.value}
-    onChange={(e) => field.handleChange(e.target.value)}
-  />
-  {field.state.meta.errors.length > 0 && (
-    <p className="text-destructive text-sm">
-      {field.state.meta.errors[0]}
-    </p>
-  )}
-</div>
-
-// ❌ AVOID: Custom field layouts with design system classes
-<div className="section-title-gap-sm">
-  <Label htmlFor="fieldName">Field Label</Label>
-  <Input /* ... */ />
-  {/* Custom spacing pattern - avoid this */}
-</div>
-```
-
-### Consistent Spacing from Pro-Blocks
-```typescript
-// ✅ CORRECT: Use spacing patterns from pro-block examples
-<CardContent className="space-y-6">
-  {/* Multiple form sections */}
-</CardContent>
-
-<div className="space-y-3">
-  {/* Radio group items */}
-</div>
-
-<div className="grid w-full items-center gap-1.5">
-  {/* Individual form fields */}
-</div>
-
-// ❌ AVOID: Mixing design system spacing classes
-<CardContent className="section-title-gap-lg">
-  <div className="section-title-gap-sm">
-    {/* Inconsistent with pro-block patterns */}
-  </div>
-</CardContent>
-```
-
-### Multi-Step Form Adaptation
-```typescript
-// ✅ CORRECT: Adapt pro-block single form to multi-step while keeping structure
-export function ApplicationForm() {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  return (
-    <form.AppForm>
-      <Card className="mx-auto w-full max-w-2xl"> {/* Slightly larger for multi-step */}
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>{subtitle}</CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-8"> {/* Increased spacing for sections */}
-          <form onSubmit={handleSubmit} id="travel-application-form">
-            {renderStep()}
-          </form>
-        </CardContent>
-
-        <CardFooter className="flex items-center justify-between">
-          {/* Navigation buttons following pro-block button patterns */}
-        </CardFooter>
-      </Card>
-    </form.AppForm>
-  );
-}
-```
-
-## Shadcn/ui Integration
-
-### Component Import Pattern
-```typescript
-// Import components from the project's components directory
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-```
-
-### Form Section Pattern with Cards
-```typescript
-// Always use Card components for form sections
-function PersonalInfoSection() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          Personal Information
-          <span className="text-destructive text-sm" aria-label="Required section">*</span>
-        </CardTitle>
-        <CardDescription>
-          Please provide your basic personal details
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="section-title-gap-lg">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* form fields using design system spacing */}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-### Enhanced Radio Button Pattern
-```typescript
-// Use proper design system classes for enhanced radio buttons
-<RadioGroup value={value} onValueChange={onChange} className="section-title-gap-sm">
-  <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
-    <RadioGroupItem value="individual" id="individual" />
-    <Label htmlFor="individual" className="flex-1 cursor-pointer">
-      Individual Travel
-    </Label>
-  </div>
-  <div className="border-border hover:bg-muted/50 flex items-center space-x-3 rounded-lg border p-3 transition-colors">
-    <RadioGroupItem value="family" id="family" />
-    <Label htmlFor="family" className="flex-1 cursor-pointer">
-      Family/Group Travel
-    </Label>
-  </div>
-</RadioGroup>
-```
-
-### Atomic Design Structure
-```
-src/components/
-├── ui/              # Shadcn/ui components (atoms)
-│   ├── button.tsx
-│   ├── input.tsx
-│   ├── card.tsx
-│   └── radio-group.tsx
-├── pro-blocks/      # Professional components (molecules)
-│   ├── buttons/
-│   │   └── button-9.tsx  # Step navigation
-│   ├── application/
-│   │   ├── cards/
-│   │   └── section-headers/
-├── forms/           # Form-specific components (molecules)
-│   ├── personal-info-form.tsx
-│   ├── travel-details-form.tsx
-│   └── passport-scanner.tsx
-├── sections/        # Page sections (organisms)
-│   ├── form-wizard.tsx
-│   ├── confirmation-panel.tsx
-│   └── qr-code-display.tsx
-└── layouts/         # Layout components (templates)
-    ├── form-layout.tsx
-    └── confirmation-layout.tsx
-```
-
-## Smart Form Implementation
-
-### Multi-Step Form Wizard Pattern
-```typescript
-interface FormStep {
-  id: string;
-  title: string;
-  component: React.ComponentType<FormStepProps>;
-  validation: z.ZodSchema;
-  condition?: (data: FormData) => boolean;
-}
-
-const FORM_STEPS = [
-  {
-    id: 'personal-info',
-    title: 'Personal Information',
-    component: PersonalInfoStep,
-    validation: personalInfoSchema,
-  },
-  {
-    id: 'travel-details',
-    title: 'Travel Details',
-    component: TravelDetailsStep,
-    validation: travelDetailsSchema,
-  },
-  {
-    id: 'customs-declaration',
-    title: 'Customs Declaration',
-    component: CustomsDeclarationStep,
-    validation: customsSchema,
-    condition: (data) => data.travelPurpose === 'business',
-  },
-];
-```
-
-### Form Layout with Design System
-```typescript
-function FormLayout({ children, title, subtitle }) {
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container-padding-x section-padding-y">
-        <div className="mx-auto max-w-2xl">
-          <div className="section-title-gap-lg">
-            <div className="text-center section-title-gap-sm">
-              <h1 className="heading-lg text-card-foreground">{title}</h1>
-              {subtitle && (
-                <p className="text-muted-foreground">{subtitle}</p>
-              )}
-            </div>
-            <div className="section-title-gap-lg">{children}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-```
-
-## Form Validation with Zod
-
-### Schema Definition Pattern
-```typescript
-import { z } from 'zod';
-
-const personalInfoSchema = z.object({
-  firstName: z.string()
-    .min(1, 'First name is required')
-    .max(50, 'First name must be less than 50 characters'),
-  lastName: z.string()
-    .min(1, 'Last name is required')
-    .max(50, 'Last name must be less than 50 characters'),
-  dateOfBirth: z.string()
-    .refine((date) => {
-      const birthDate = new Date(date);
-      const today = new Date();
-      const age = today.getFullYear() - birthDate.getFullYear();
-      return age >= 0 && age <= 120;
-    }, 'Please enter a valid date of birth'),
-
-  email: z.string()
-    .min(1, 'Email is required')
-    .email('Please enter a valid email address'),
-  passportNumber: z.string()
-    .min(6, 'Passport number must be at least 6 characters')
-    .max(20, 'Passport number must be less than 20 characters')
-    .regex(/^[A-Z0-9]+$/, 'Passport number must contain only letters and numbers'),
-});
-
-type PersonalInfoForm = z.infer<typeof personalInfoSchema>;
-```
-
-### TanStack Form Integration with Design System
-```typescript
-import { useAppForm } from '@/components/ui/tanstack-form';
-import type { AnyFieldApi } from "@tanstack/react-form";
-
-function PersonalInfoStep() {
-  const form = useAppForm({
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      passportNumber: '',
-    },
-    validators: {
-      onChange: personalInfoSchema,
-    },
-    onSubmit: async ({ value }) => {
-      try {
-        await saveFormData(value);
-      } catch (error) {
-        toast.error('Failed to save information. Please try again.');
-      }
-    },
-  });
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Personal Information</CardTitle>
-        <CardDescription>Please provide your basic personal details</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <form.AppField name="firstName">
-              {(field: AnyFieldApi) => (
-                <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {field.state.meta.errors[0]}
-                    </p>
-                  )}
-                </div>
-              )}
-            </form.AppField>
-
-            <form.AppField name="lastName">
-              {(field: AnyFieldApi) => (
-                <div className="grid w-full items-center gap-1.5">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {field.state.meta.errors[0]}
-                    </p>
-                  )}
-                </div>
-              )}
-            </form.AppField>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-### TanStack Form TypeScript Patterns
-
-#### Pragmatic Type Safety Approach
-```typescript
-// ✅ CORRECT: Use AnyFieldApi for field typing - simple and effective
-import type { AnyFieldApi } from "@tanstack/react-form";
-
-<form.AppField name="email">
+#### FormField Component
+**Usage**: Standard text/email/password inputs
+```tsx
+<form.AppField name="contactInfo.email">
   {(field: AnyFieldApi) => (
-    <div className="grid w-full items-center gap-1.5">
-      <Label htmlFor="email">Email</Label>
-      <Input
-        id="email"
-        type="email"
-        value={field.state.value}
-        onBlur={field.handleBlur}
-        onChange={(e) => field.handleChange(e.target.value)}
-      />
-      {field.state.meta.errors.length > 0 && (
-        <p className="text-sm text-destructive">
-          {field.state.meta.errors[0]}
-        </p>
-      )}
-    </div>
+    <FormField
+      field={field}
+      label="Email Address"
+      type="email"
+      placeholder="Enter your email address"
+      description="We'll send your e-ticket confirmation here"
+    />
   )}
 </form.AppField>
-
-// ❌ AVOID: Complex TanStack Form generic types (requires 9-19 type arguments)
-type ComplexFieldApi<
-  TParentData,
-  TName extends DeepKeys<TParentData>,
-  TFieldValidator extends Validator<DeepValue<TParentData, TName>, unknown> | undefined = undefined,
-  TFormValidator extends Validator<TParentData, unknown> | undefined = undefined,
-  TData extends DeepValue<TParentData, TName> = DeepValue<TParentData, TName>
-> = FieldApi<TParentData, TName, TFieldValidator, TFormValidator, TData>;
 ```
 
-#### Form Instance Types
-```typescript
-// ✅ CORRECT: Use any for form instances due to TanStack Form complexity
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AppFormInstance = any;
+**Features**:
+- Automatic required field detection via [getFieldRequirement()](mdc:src/lib/utils/form-utils.ts)
+- Red asterisk (*) for required fields
+- Enhanced error styling with red borders
+- Proper ARIA relationships and accessibility
 
-export interface TripTypeFormProps {
-  form: AppFormInstance;
-}
-
-// ❌ AVOID: Trying to fully type TanStack Form instances
-// TanStack Form's typing system is extremely complex and not practical for real-world use
+#### FormRadioGroup Component
+**Usage**: Radio button selections with icons and descriptions
+```tsx
+<form.AppField name="groupTravel.travelingAlone">
+  {(field: AnyFieldApi) => (
+    <FormRadioGroup
+      field={booleanFieldAdapter(field, { trueValue: "solo", falseValue: "group" })}
+      options={[
+        {
+          value: "solo",
+          id: "solo",
+          label: "Traveling Solo",
+          description: "Just me",
+          icon: <User className="h-6 w-6" />,
+        },
+        {
+          value: "group",
+          id: "group",
+          label: "Group Travel",
+          description: "With family or friends",
+          icon: <Users className="h-6 w-6" />,
+        }
+      ]}
+      layout="grid"
+      columns="2"
+    />
+  )}
+</form.AppField>
 ```
 
-#### Multi-Step Form Architecture Pattern
-```typescript
-// ✅ CORRECT: Separate step components from container
-// Container handles navigation, steps handle form fields
-export function ApplicationForm() {
-  const [currentStep, setCurrentStep] = useState(0);
+#### PhoneField Component
+**Usage**: Phone number input with country code selection
+```tsx
+<form.AppField name="contactInfo.phone.number">
+  {(numberField: AnyFieldApi) => (
+    <form.AppField name="contactInfo.phone.countryCode">
+      {(countryCodeField: AnyFieldApi) => (
+        <PhoneField
+          numberField={numberField}
+          countryCodeField={countryCodeField}
+        />
+      )}
+    </form.AppField>
+  )}
+</form.AppField>
+```
 
-  const form = useAppForm({
-    defaultValues: { /* ... */ },
-    onSubmit: async ({ value }) => {
-      console.log("Form submitted:", value);
+### Required Field System
+
+#### Centralized Configuration
+All field requirements defined in [FIELD_REQUIREMENTS](mdc:src/lib/utils/form-utils.ts):
+
+```typescript
+export const FIELD_REQUIREMENTS: Record<string, boolean> = {
+  // Contact Information - Required for e-ticket delivery
+  "contactInfo.email": true,
+  "contactInfo.phone.number": true,
+
+  // Personal Information - Government required
+  "personalInfo.firstName": true,
+  "personalInfo.lastName": true,
+  "personalInfo.passportNumber": true,
+  "personalInfo.nationality": true,
+  "personalInfo.gender": true,
+  "personalInfo.dateOfBirth": true,
+
+  // Flight Information - Required for processing
+  "flightInfo.travelDirection": true,
+  "flightInfo.airline": true,
+  "flightInfo.flightNumber": true,
+  "flightInfo.departureDate": true,
+  "flightInfo.departurePort": true,
+  "flightInfo.arrivalPort": true,
+  "flightInfo.hasStops": true,
+
+  // Group Travel
+  "groupTravel.travelingAlone": true,
+
+  // General Information
+  "generalInfo.permanentAddress": true,
+  "generalInfo.purposeOfTrip": true,
+
+  // Customs Declaration - Legal requirement
+  "customsDeclaration.carryingMoney": true,
+  "customsDeclaration.carryingBiologicalMaterials": true,
+  "customsDeclaration.carryingTaxableGoods": true,
+};
+```
+
+#### Automatic Detection
+Components automatically detect required status:
+```typescript
+const isRequired = getFieldRequirement(field.name);
+```
+
+### Boolean Field Adapters
+
+For RadioGroup components that need boolean values:
+
+```typescript
+function booleanFieldAdapter(
+  field: AnyFieldApi,
+  config: { trueValue: string; falseValue: string }
+) {
+  return {
+    ...field,
+    state: {
+      ...field.state,
+      value: field.state.value === true ? config.trueValue :
+             field.state.value === false ? config.falseValue : ""
     },
-  });
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 0: return <TripTypeForm form={form} />;
-      case 1: return <TravellerInfoForm form={form} />;
-      case 2: return <PassportDetailsForm form={form} />;
-      default: return null;
+    handleChange: (value: string) => {
+      field.handleChange(value === config.trueValue);
     }
   };
-
-  return (
-    <form.AppForm>
-      <FormLayout>
-        {renderStep()}
-      </FormLayout>
-    </form.AppForm>
-  );
-}
-
-// Individual step components handle their specific fields
-export function TripTypeForm({ form }: TripTypeFormProps) {
-  return (
-    <FormSection title="Travel Type" required>
-      <form.AppField name="travelType.tripDirection">
-        {(field: AnyFieldApi) => (
-          <RadioGroup
-            value={field.state.value}
-            onValueChange={field.handleChange}
-          >
-            {/* radio options */}
-          </RadioGroup>
-        )}
-      </form.AppField>
-    </FormSection>
-  );
 }
 ```
 
-## Accessibility Patterns
+### Error Styling Standards
 
-### Keyboard Navigation
+#### Automatic Error Styling
+- **Field Borders**: Red border via `aria-invalid:border-destructive`
+- **Error Messages**: Red text with `text-destructive` and `role="alert"`
+- **Focus States**: Red ring via `focus-visible:ring-destructive/20`
+
+#### WCAG Compliance
+- Proper ARIA relationships (`aria-invalid`, `aria-describedby`)
+- Error messages with `role="alert"` for screen readers
+- High contrast error colors meeting WCAG AA standards
+
+### Component Imports
+
+#### Standard Form Components
 ```typescript
-function FormWizard() {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey) {
-        switch (event.key) {
-          case 'ArrowLeft':
-            event.preventDefault();
-            goToPreviousStep();
-            break;
-          case 'ArrowRight':
-            event.preventDefault();
-            goToNextStep();
-            break;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [currentStep]);
-}
+import { FormField } from "@/components/forms/form-field";
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
+import { PhoneField } from "@/components/ui/phone-field";
 ```
 
-### Screen Reader Support
+#### TanStack Form Enhanced Components
 ```typescript
-function FormStep({ title, isActive, stepNumber, totalSteps }) {
-  return (
-    <div
-      role="tabpanel"
-      aria-labelledby={`step-${stepNumber}-tab`}
-      aria-hidden={!isActive}
-      tabIndex={isActive ? 0 : -1}
-    >
-      <h2
-        id={`step-${stepNumber}-heading`}
-        className="sr-only"
-      >
-        Step {stepNumber} of {totalSteps}: {title}
-      </h2>
-
-      {/* Form content */}
-    </div>
-  );
-}
+import {
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/tanstack-form";
 ```
 
-### ARIA Labels and Descriptions
+#### Utility Functions
 ```typescript
-function FormField({ name, label, description, required, error }) {
-  const fieldId = `field-${name}`;
-  const descriptionId = `${fieldId}-description`;
-  const errorId = `${fieldId}-error`;
-
-  return (
-    <div className="section-title-gap-sm">
-      <Label
-        htmlFor={fieldId}
-        className={required ? "after:content-['*'] after:ml-0.5 after:text-destructive" : ""}
-      >
-        {label}
-      </Label>
-
-      {description && (
-        <p id={descriptionId} className="text-sm text-muted-foreground">
-          {description}
-        </p>
-      )}
-
-      <Input
-        id={fieldId}
-        name={name}
-        aria-describedby={`${description ? descriptionId : ''} ${error ? errorId : ''}`.trim()}
-        aria-invalid={error ? 'true' : 'false'}
-        aria-required={required}
-      />
-
-      {error && (
-        <p
-          id={errorId}
-          role="alert"
-          className="text-sm text-destructive"
-        >
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
+import { getFieldRequirement } from "@/lib/utils/form-utils";
+import { cn } from "@/lib/utils";
 ```
 
-## Mobile-First Responsive Design
+### Design System Integration
 
-### Responsive Form Layout with Design System
+#### Shadcn/ui Classes
+- `text-destructive` - Error text color
+- `border-destructive` - Error border color
+- `bg-muted/50` - Hover backgrounds
+- `text-muted-foreground` - Secondary text
+
+#### Icons and Visual Elements
+- Lucide React icons for consistency
+- Icon containers with appropriate sizing (`h-6 w-6`, `h-12 w-12`)
+- Color-coded icons for different states (green for positive, red for negative)
+
+### Form Step Organization
+
+#### Current Step Structure
+1. **Contact Information**: Preferred name, email (required), phone (required)
+2. **Flight Information**: Travel direction, airline, flight details, route/stops
+3. **Group Travel**: Solo vs group selection
+4. **General Information**: Address, purpose of trip
+5. **Personal Information**: Identity and passport details
+6. **Customs Declaration**: Money, biological materials, taxable goods
+
+### Validation Integration
+
+#### TanStack Form Validators
 ```typescript
-function FormLayout({ children, title }) {
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container-padding-x section-padding-y">
-        <div className="mx-auto max-w-2xl">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="heading-md text-card-foreground">
-                {title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="section-title-gap-lg">
-              {children}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
+validators={{
+  onChange: ({ value }) => {
+    if (!value) return "Email is required for e-ticket delivery";
+    return emailSchema.safeParse(value).success
+      ? undefined
+      : "Please enter a valid email address";
+  }
+}}
 ```
 
-### Mobile-Optimized Form Controls
-```typescript
-function MobileOptimizedInput({ type, ...props }) {
-  // Optimize input types for mobile keyboards
-  const mobileInputType = {
-    'passport': 'text',
-    'phone': 'tel',
-    'email': 'email',
-    'date': 'date',
-    'number': 'numeric',
-  }[type] || type;
+#### Schema Validation
+Uses Zod schemas from [validation.ts](mdc:src/lib/schemas/validation.ts) for consistent validation rules.
 
-  return (
-    <Input
-      {...props}
-      type={mobileInputType}
-      className="text-base" // Prevent zoom on iOS
-      autoComplete={getAutoCompleteValue(props.name)}
-    />
-  );
-}
-```
-
-## Progress Indication
-
-### Use Pro-Blocks for Step Progress
-```typescript
-// Use button-9 pro-block for step navigation instead of custom components
-import { Steps } from "@/components/ui/pro-blocks/buttons/button-9";
-
-const FORM_STEPS = [
-  { icon: Info, label: "Travel Type" },
-  { icon: User, label: "Personal Info" },
-  { icon: FileText, label: "Passport Details" },
-  { icon: Plane, label: "Flight Info" },
-  { icon: CheckCircle, label: "Review" },
-];
-
-function FormWizard() {
-  return (
-    <div className="section-title-gap-lg">
-      <Steps
-        steps={FORM_STEPS}
-        activeStep={currentStep}
-        onStepChange={handleStepChange}
-      />
-      <div className="section-title-gap-lg">
-        {renderCurrentStep()}
-      </div>
-    </div>
-  );
-}
-```
-
-## QR Code & Confirmation Patterns
-
-### QR Code Display Component with Design System
-```typescript
-import QRCode from 'qrcode.react';
-
-function QRCodeDisplay({ data, size = 200 }) {
-  return (
-    <Card>
-      <CardContent className="flex flex-col items-center section-title-gap-lg text-center">
-        <div className="p-4 bg-card rounded-lg shadow-sm border-border border">
-          <QRCode
-            value={data}
-            size={size}
-            level="M"
-            includeMargin={true}
-            renderAs="svg"
-          />
-        </div>
-
-        <div className="section-title-gap-sm">
-          <p className="text-sm text-muted-foreground">
-            Show this code to immigration officials
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => downloadQRCode(data)}
-            className="text-sm"
-          >
-            Download QR Code
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-```
-
-## Key Principles Summary
-
-1. **Use pro-block examples as templates** - When users provide working shadcn examples (like [FormExample6](mdc:src/components/FormExample6.tsx)), adapt them rather than creating custom solutions
-2. **Always use existing shadcn components** - Never create custom UI components
-3. **Use pro-blocks when available** - Check [src/components/pro-blocks/](mdc:src/components/pro-blocks) first
-4. **Follow pro-block spacing patterns** - Use `space-y-*` consistently (from examples) instead of mixing custom design system classes
-5. **Use pro-block field layout** - Use `grid w-full items-center gap-1.5` for form fields to match shadcn examples
-6. **Card structure from examples** - Use `Card` → `CardHeader` → `CardContent` → `CardFooter` pattern from pro-blocks
-7. **Design system colors only** - Use `text-destructive`, `text-muted-foreground`, `bg-background`, etc.
-8. **TanStack Form pragmatism** - Use `AnyFieldApi` for field typing instead of complex generics
+This standardized approach ensures consistency across all form components while maintaining accessibility, proper error handling, and a cohesive user experience.

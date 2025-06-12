@@ -12,15 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PhoneField } from "@/components/ui/phone-field";
 import { emailSchema } from "@/lib/schemas/validation";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
@@ -38,8 +30,8 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
       <Alert>
         <InfoIcon className="h-4 w-4" />
         <AlertDescription>
-          Provide your contact information (optional). This will be used for
-          important notifications about your travel.
+          Provide your contact information. This will be used for important
+          notifications about your travel.
         </AlertDescription>
       </Alert>
 
@@ -49,9 +41,21 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
             <Mail className="h-5 w-5" />
             Contact Information
           </CardTitle>
-          <CardDescription>How can we reach you? (Optional)</CardDescription>
+          <CardDescription>How can we reach you?</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          <form.AppField name="contactInfo.preferredName">
+            {(field: AnyFieldApi) => (
+              <FormField
+                field={field}
+                label="Preferred Name"
+                type="text"
+                placeholder="How would you like to be addressed?"
+                description="For personalized communications"
+              />
+            )}
+          </form.AppField>
+
           <form.AppField
             name="contactInfo.email"
             validators={{
@@ -65,59 +69,26 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
             }}
           >
             {(field: AnyFieldApi) => (
-              <div className="space-y-2">
-                <FormField
-                  field={field}
-                  label="Email Address"
-                  type="email"
-                  placeholder="Enter your email address"
-                  description="We'll send your e-ticket confirmation here"
-                />
-              </div>
+              <FormField
+                field={field}
+                label="Email Address"
+                type="email"
+                placeholder="Enter your email address"
+                description="We'll send your e-ticket confirmation here"
+              />
             )}
           </form.AppField>
 
           <form.AppField name="contactInfo.phone.number">
-            {(field: AnyFieldApi) => (
-              <div className="grid w-full items-center gap-1.5">
-                <Label className="text-sm font-medium">Phone Number</Label>
-                <div className="flex gap-2">
-                  <form.AppField name="contactInfo.phone.countryCode">
-                    {(countryField: AnyFieldApi) => (
-                      <Select
-                        value={countryField.state.value || "+1"}
-                        onValueChange={countryField.handleChange}
-                      >
-                        <SelectTrigger className="w-24">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="+1">+1</SelectItem>
-                          <SelectItem value="+1809">+1809</SelectItem>
-                          <SelectItem value="+34">+34</SelectItem>
-                          <SelectItem value="+33">+33</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </form.AppField>
-                  <Input
-                    type="tel"
-                    placeholder="Enter phone number"
-                    value={field.state.value || ""}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    className="flex-1"
+            {(numberField: AnyFieldApi) => (
+              <form.AppField name="contactInfo.phone.countryCode">
+                {(countryCodeField: AnyFieldApi) => (
+                  <PhoneField
+                    numberField={numberField}
+                    countryCodeField={countryCodeField}
                   />
-                </div>
-                <p className="text-muted-foreground text-xs">
-                  Include area code (optional)
-                </p>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm" role="alert">
-                    {field.state.meta.errors[0]}
-                  </p>
                 )}
-              </div>
+              </form.AppField>
             )}
           </form.AppField>
         </CardContent>

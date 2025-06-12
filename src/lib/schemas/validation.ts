@@ -86,11 +86,15 @@ export const passportExpiryDateSchema = z
   .min(1, "Passport expiry date is required");
 
 // Contact info fields
-export const emailSchema = z
+export const preferredNameSchema = z
   .string()
-  .email("Please enter a valid email address")
+  .max(50, "Preferred name is too long")
   .optional()
   .or(z.literal(""));
+export const emailSchema = z
+  .string()
+  .min(1, "Email address is required")
+  .email("Please enter a valid email address");
 
 // Flight info fields
 export const flightNumberSchema = z
@@ -138,8 +142,6 @@ export const generalInfoSchema = z.object({
   city: citySchema,
   state: stateSchema,
   postalCode: postalCodeSchema,
-  hasStops: hasStopsSchema,
-  entryOrExit: entryOrExitSchema,
 });
 
 // Personal information schema (Step 2)
@@ -166,12 +168,14 @@ export const personalInfoSchema = z.object({
 
 // Contact information schema
 export const contactInfoSchema = z.object({
+  preferredName: preferredNameSchema,
   email: emailSchema,
-  phone: phoneSchema.optional(),
+  phone: phoneSchema, // Required for travel notifications
 });
 
 // Flight information schema (Step 3)
 export const flightInfoSchema = z.object({
+  travelDirection: entryOrExitSchema,
   departurePort: departurePortSchema,
   arrivalPort: arrivalPortSchema,
   airline: airlineSchema,
@@ -182,6 +186,7 @@ export const flightInfoSchema = z.object({
   }),
   flightNumber: flightNumberSchema,
   confirmationNumber: z.string().optional(),
+  hasStops: hasStopsSchema,
 });
 
 // Customs declaration schema (Step 4)

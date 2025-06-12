@@ -1,9 +1,10 @@
 "use client";
 
-import { Plane, Zap, InfoIcon } from "lucide-react";
+import { Plane, Zap, InfoIcon, ArrowDown, ArrowUp, Route } from "lucide-react";
 import React from "react";
 
 import { FormField } from "@/components/forms/form-field";
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
@@ -56,6 +57,54 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
           Enter your flight details for travel processing
         </p>
       </div>
+
+      {/* Travel Direction - First Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ArrowDown className="h-5 w-5" />
+            Travel Direction
+          </CardTitle>
+          <CardDescription>
+            Are you entering or leaving the Dominican Republic?
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form.AppField name="flightInfo.travelDirection">
+            {(field: AnyFieldApi) => (
+              <div className="space-y-4">
+                <FormRadioGroup
+                  field={field}
+                  options={[
+                    {
+                      value: "ENTRY",
+                      id: "entry",
+                      label: "Entering Dominican Republic",
+                      description: "I'm arriving in the Dominican Republic",
+                      icon: <ArrowDown className="h-6 w-6" />,
+                      iconBg: "bg-green-100",
+                      iconColor: "text-green-700",
+                    },
+                    {
+                      value: "EXIT",
+                      id: "exit",
+                      label: "Leaving Dominican Republic",
+                      description: "I'm departing from the Dominican Republic",
+                      icon: <ArrowUp className="h-6 w-6" />,
+                      iconBg: "bg-blue-100",
+                      iconColor: "text-blue-700",
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
+              </div>
+            )}
+          </form.AppField>
+        </CardContent>
+      </Card>
 
       {/* Main Flight Information */}
       <Card>
@@ -293,6 +342,64 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                 </p>
               </div>
             )}
+          </form.AppField>
+        </CardContent>
+      </Card>
+
+      {/* Travel Route - Last Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Route className="h-5 w-5" />
+            Travel Route
+          </CardTitle>
+          <CardDescription>
+            Is this a direct flight or do you have connections?
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form.AppField name="flightInfo.hasStops">
+            {(field: AnyFieldApi) => {
+              // Handle boolean conversion for hasStops field
+              const currentValue = field.state.value ? "yes" : "no";
+              const handleValueChange = (value: string) => {
+                field.handleChange(value === "yes");
+              };
+
+              return (
+                <FormRadioGroup
+                  field={
+                    {
+                      ...field,
+                      state: { ...field.state, value: currentValue },
+                      handleChange: handleValueChange,
+                    } as AnyFieldApi
+                  }
+                  options={[
+                    {
+                      value: "no",
+                      id: "direct",
+                      label: "Direct Flight",
+                      description: "No connecting flights or stops",
+                      icon: <Plane className="h-5 w-5" />,
+                      iconColor: "text-green-600",
+                    },
+                    {
+                      value: "yes",
+                      id: "stops",
+                      label: "With Connections",
+                      description: "Has connecting flights or stops",
+                      icon: <Route className="h-5 w-5" />,
+                      iconColor: "text-blue-600",
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
+              );
+            }}
           </form.AppField>
         </CardContent>
       </Card>

@@ -21,8 +21,6 @@ export const applicationFormOptions = formOptions({
       city: "",
       state: "",
       postalCode: "",
-      hasStops: false,
-      entryOrExit: "ENTRY" as const,
     },
     personalInfo: {
       firstName: "",
@@ -46,6 +44,7 @@ export const applicationFormOptions = formOptions({
       isForeignResident: false,
     },
     contactInfo: {
+      preferredName: "",
       email: "",
       phone: {
         countryCode: "+1",
@@ -53,6 +52,7 @@ export const applicationFormOptions = formOptions({
       },
     },
     flightInfo: {
+      travelDirection: "ENTRY" as const,
       departurePort: "",
       arrivalPort: "",
       airline: "",
@@ -63,6 +63,7 @@ export const applicationFormOptions = formOptions({
       },
       flightNumber: "",
       confirmationNumber: "",
+      hasStops: false,
     },
     customsDeclaration: {
       carriesOverTenThousand: false,

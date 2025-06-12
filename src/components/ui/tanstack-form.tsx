@@ -52,13 +52,22 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 const useFieldContext = () => {
-  const { id } = React.useContext(FormItemContext);
-  const { name, store, ...fieldContext } = _useFieldContext();
+  const itemContext = React.useContext(FormItemContext);
+  const fieldContextValue = _useFieldContext();
 
-  const errors = useStore(store, (state) => state.meta.errors);
-  if (!fieldContext) {
+  if (!fieldContextValue) {
+    throw new Error("useFieldContext should be used within a form field");
+  }
+
+  if (!itemContext) {
     throw new Error("useFieldContext should be used within <FormItem>");
   }
+
+  const { name, store, ...fieldContext } = fieldContextValue;
+  const { id } = itemContext;
+
+  const errors = useStore(store, (state) => state.meta.errors);
+  const hasError = errors.length > 0;
 
   return {
     id,
@@ -67,6 +76,7 @@ const useFieldContext = () => {
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
     errors,
+    hasError,
     store,
     ...fieldContext,
   };
@@ -76,12 +86,12 @@ function FormLabel({
   className,
   ...props
 }: React.ComponentProps<typeof Label>) {
-  const { formItemId, errors } = useFieldContext();
+  const { formItemId, hasError } = useFieldContext();
 
   return (
     <Label
       data-slot="form-label"
-      data-error={!!errors.length}
+      data-error={hasError}
       className={cn("data-[error=true]:text-destructive", className)}
       htmlFor={formItemId}
       {...props}
@@ -90,19 +100,22 @@ function FormLabel({
 }
 
 function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
-  const { errors, formItemId, formDescriptionId, formMessageId } =
+  const { hasError, formItemId, formDescriptionId, formMessageId } =
     useFieldContext();
+
+  const getAriaDescribedBy = () => {
+    const ids = [];
+    if (formDescriptionId) ids.push(formDescriptionId);
+    if (hasError) ids.push(formMessageId);
+    return ids.length > 0 ? ids.join(" ") : undefined;
+  };
 
   return (
     <Slot
       data-slot="form-control"
       id={formItemId}
-      aria-describedby={
-        !errors.length
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
-      aria-invalid={!!errors.length}
+      aria-describedby={getAriaDescribedBy()}
+      aria-invalid={hasError}
       {...props}
     />
   );
@@ -123,16 +136,20 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { errors, formMessageId } = useFieldContext();
-  const body = errors.length
-    ? String(errors.at(0)?.message ?? "")
-    : props.children;
-  if (!body) return null;
+
+  const body =
+    errors.length > 0 ? String(errors[0]?.message ?? "") : props.children;
+
+  if (!body) {
+    return null;
+  }
 
   return (
     <p
       data-slot="form-message"
       id={formMessageId}
       className={cn("text-destructive text-sm", className)}
+      role="alert"
       {...props}
     >
       {body}
@@ -140,4 +157,14 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
-export { useAppForm, useFormContext, useFieldContext, withForm };
+export {
+  useAppForm,
+  useFormContext,
+  useFieldContext,
+  withForm,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+};

@@ -3,6 +3,7 @@
 import { Shield, DollarSign, Leaf, Package, InfoIcon } from "lucide-react";
 import React from "react";
 
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
@@ -11,8 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   carriesOverTenThousandSchema,
   carriesAnimalsOrFoodSchema,
@@ -20,6 +19,14 @@ import {
 } from "@/lib/schemas/validation";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
+
+// Constants for icon colors to avoid duplication
+const ICON_COLORS = {
+  GREEN: "text-green-600",
+  YELLOW: "text-yellow-600",
+  ORANGE: "text-orange-600",
+  RED: "text-red-600",
+} as const;
 
 interface CustomsDeclarationStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,6 +36,19 @@ interface CustomsDeclarationStepProps {
 }
 
 export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
+  // Helper function to handle boolean to string conversion for radio groups
+  const createBooleanFieldAdapter = (field: AnyFieldApi) => {
+    const currentValue = field.state.value ? "yes" : "no";
+    const handleValueChange = (value: string) => {
+      field.handleChange(value === "yes");
+    };
+
+    return {
+      ...field,
+      state: { ...field.state, value: currentValue },
+      handleChange: handleValueChange,
+    } as AnyFieldApi;
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -37,8 +57,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           Customs Declaration
         </h2>
         <p className="text-muted-foreground">
-          Please declare any restricted items, currency, or goods for customs
-          processing
+          Please answer these questions honestly and accurately
         </p>
       </div>
 
@@ -47,10 +66,10 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="h-5 w-5" />
-            Money and Currency Declaration
+            Money and Monetary Instruments
           </CardTitle>
           <CardDescription>
-            Declaration of money and financial instruments
+            Declaration for cash and monetary instruments
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,46 +86,35 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           >
             {(field: AnyFieldApi) => (
               <div className="space-y-4">
-                <Label className="text-base font-medium">
-                  Are you carrying more than US$10,000 (or equivalent) in cash,
-                  checks, or other monetary instruments?
-                </Label>
-                <RadioGroup
-                  value={field.state.value ? "yes" : "no"}
-                  onValueChange={(value) => field.handleChange(value === "yes")}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="no" id="money-no" />
-                    <Label htmlFor="money-no" className="flex-1 cursor-pointer">
-                      <div className="font-medium">No</div>
-                      <div className="text-muted-foreground text-sm">
-                        Less than US$10,000
-                      </div>
-                    </Label>
-                  </div>
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="yes" id="money-yes" />
-                    <Label
-                      htmlFor="money-yes"
-                      className="flex-1 cursor-pointer"
-                    >
-                      <div className="font-medium">Yes</div>
-                      <div className="text-muted-foreground text-sm">
-                        US$10,000 or more
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
+                <FormRadioGroup
+                  field={createBooleanFieldAdapter(field)}
+                  options={[
+                    {
+                      value: "no",
+                      id: "money-no",
+                      label: "No",
+                      description: "Less than US$10,000",
+                      icon: <Shield className="h-5 w-5" />,
+                      iconColor: ICON_COLORS.GREEN,
+                    },
+                    {
+                      value: "yes",
+                      id: "money-yes",
+                      label: "Yes",
+                      description: "US$10,000 or more",
+                      icon: <DollarSign className="h-5 w-5" />,
+                      iconColor: ICON_COLORS.YELLOW,
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
                 <p className="text-muted-foreground text-sm">
                   This includes cash, traveler&apos;s checks, money orders, and
                   other monetary instruments
                 </p>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm" role="alert">
-                    {field.state.meta.errors[0]}
-                  </p>
-                )}
               </div>
             )}
           </form.AppField>
@@ -118,10 +126,10 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Leaf className="h-5 w-5" />
-            Agricultural and Food Products
+            Biological Materials
           </CardTitle>
           <CardDescription>
-            Declaration of plants, animals, food, and biological materials
+            Declaration for animals, plants, and food products
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -136,47 +144,53 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => (
-              <div className="space-y-4">
-                <Label className="text-base font-medium">
-                  Are you carrying any live animals, plants, food products, or
-                  biological materials?
-                </Label>
-                <RadioGroup
-                  value={field.state.value ? "yes" : "no"}
-                  onValueChange={(value) => field.handleChange(value === "yes")}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="no" id="bio-no" />
-                    <Label htmlFor="bio-no" className="flex-1 cursor-pointer">
-                      <div className="font-medium">No</div>
-                      <div className="text-muted-foreground text-sm">
-                        No biological materials
-                      </div>
-                    </Label>
-                  </div>
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="yes" id="bio-yes" />
-                    <Label htmlFor="bio-yes" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Yes</div>
-                      <div className="text-muted-foreground text-sm">
-                        Carrying biological items
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
-                <p className="text-muted-foreground text-sm">
-                  This includes fruits, vegetables, meat, dairy products, seeds,
-                  plants, live animals, or soil
-                </p>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm" role="alert">
-                    {field.state.meta.errors[0]}
+            {(field: AnyFieldApi) => {
+              // Handle boolean conversion for customs fields
+              const currentValue = field.state.value ? "yes" : "no";
+              const handleValueChange = (value: string) => {
+                field.handleChange(value === "yes");
+              };
+
+              return (
+                <div className="space-y-4">
+                  <FormRadioGroup
+                    field={
+                      {
+                        ...field,
+                        state: { ...field.state, value: currentValue },
+                        handleChange: handleValueChange,
+                      } as AnyFieldApi
+                    }
+                    options={[
+                      {
+                        value: "no",
+                        id: "bio-no",
+                        label: "No",
+                        description: "No biological materials",
+                        icon: <Shield className="h-5 w-5" />,
+                        iconColor: ICON_COLORS.GREEN,
+                      },
+                      {
+                        value: "yes",
+                        id: "bio-yes",
+                        label: "Yes",
+                        description: "Carrying biological items",
+                        icon: <Leaf className="h-5 w-5" />,
+                        iconColor: ICON_COLORS.ORANGE,
+                      },
+                    ]}
+                    layout="grid"
+                    columns="2"
+                    padding="small"
+                    size="small"
+                  />
+                  <p className="text-muted-foreground text-sm">
+                    This includes fruits, vegetables, meat, dairy products,
+                    seeds, plants, live animals, or soil
                   </p>
-                )}
-              </div>
-            )}
+                </div>
+              );
+            }}
           </form.AppField>
         </CardContent>
       </Card>
@@ -186,10 +200,10 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            Taxable Goods and Merchandise
+            Taxable Goods
           </CardTitle>
           <CardDescription>
-            Declaration of commercial goods and taxable items
+            Declaration for commercial goods and taxable items
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -204,80 +218,64 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => (
-              <div className="space-y-4">
-                <Label className="text-base font-medium">
-                  Are you carrying goods for commercial purposes or items
-                  subject to customs duties?
-                </Label>
-                <RadioGroup
-                  value={field.state.value ? "yes" : "no"}
-                  onValueChange={(value) => field.handleChange(value === "yes")}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="no" id="goods-no" />
-                    <Label htmlFor="goods-no" className="flex-1 cursor-pointer">
-                      <div className="font-medium">No</div>
-                      <div className="text-muted-foreground text-sm">
-                        Personal items only
-                      </div>
-                    </Label>
-                  </div>
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="yes" id="goods-yes" />
-                    <Label
-                      htmlFor="goods-yes"
-                      className="flex-1 cursor-pointer"
-                    >
-                      <div className="font-medium">Yes</div>
-                      <div className="text-muted-foreground text-sm">
-                        Commercial or taxable goods
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
-                <p className="text-muted-foreground text-sm">
-                  This includes items for sale, business samples, gifts over
-                  duty-free limits, or restricted items
-                </p>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm" role="alert">
-                    {field.state.meta.errors[0]}
+            {(field: AnyFieldApi) => {
+              // Handle boolean conversion for customs fields
+              const currentValue = field.state.value ? "yes" : "no";
+              const handleValueChange = (value: string) => {
+                field.handleChange(value === "yes");
+              };
+
+              return (
+                <div className="space-y-4">
+                  <FormRadioGroup
+                    field={
+                      {
+                        ...field,
+                        state: { ...field.state, value: currentValue },
+                        handleChange: handleValueChange,
+                      } as AnyFieldApi
+                    }
+                    options={[
+                      {
+                        value: "no",
+                        id: "goods-no",
+                        label: "No",
+                        description: "Personal items only",
+                        icon: <Shield className="h-5 w-5" />,
+                        iconColor: ICON_COLORS.GREEN,
+                      },
+                      {
+                        value: "yes",
+                        id: "goods-yes",
+                        label: "Yes",
+                        description: "Commercial or taxable goods",
+                        icon: <Package className="h-5 w-5" />,
+                        iconColor: ICON_COLORS.RED,
+                      },
+                    ]}
+                    layout="grid"
+                    columns="2"
+                    padding="small"
+                    size="small"
+                  />
+                  <p className="text-muted-foreground text-sm">
+                    This includes items for sale, business samples, gifts over
+                    duty-free limits, or restricted items
                   </p>
-                )}
-              </div>
-            )}
+                </div>
+              );
+            }}
           </form.AppField>
         </CardContent>
       </Card>
 
-      {/* Group Benefits */}
-      <form.AppField name="groupTravel.isGroupTravel">
-        {(groupField: AnyFieldApi) => {
-          if (!groupField.state.value) return null;
-
-          return (
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Family declarations:</strong> Since you&apos;re
-                traveling as a group, you can share these declarations for
-                family members traveling together. Individual declarations can
-                be made if needed for specific travelers.
-              </AlertDescription>
-            </Alert>
-          );
-        }}
-      </form.AppField>
-
-      {/* Legal Notice */}
+      {/* Information Alert */}
       <Alert>
-        <Shield className="h-4 w-4" />
+        <InfoIcon className="h-4 w-4" />
         <AlertDescription>
-          <strong>Legal Notice:</strong> Providing false information on customs
-          declarations is a serious offense and may result in penalties, fines,
-          or legal action. Please answer all questions truthfully.
+          <strong>Important:</strong> Providing false information on customs
+          declarations is a violation of Dominican Republic law and may result
+          in fines, confiscation of goods, or other legal consequences.
         </AlertDescription>
       </Alert>
     </div>

@@ -1,7 +1,15 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/tanstack-form";
+import { cn } from "@/lib/utils";
+import { getFieldRequirement } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 import type { ReactNode } from "react";
@@ -11,7 +19,7 @@ interface FormFieldProps {
   label: string;
   type?: string;
   placeholder?: string;
-  required?: boolean;
+  required?: boolean; // Manual override if provided
   disabled?: boolean;
   className?: string;
   description?: string;
@@ -23,52 +31,52 @@ export function FormField({
   label,
   type = "text",
   placeholder,
-  required = false,
+  required, // Manual override
   disabled = false,
-  className = "",
+  className,
   description,
   children,
 }: FormFieldProps) {
-  const fieldId = field.name.replace(/\./g, "-");
-  const errorId = `${fieldId}-error`;
-  const descriptionId = description ? `${fieldId}-description` : undefined;
+  // Determine if field is required (manual override or automatic detection)
+  const isRequired =
+    required !== undefined ? required : getFieldRequirement(field.name);
+  const hasError = field.state.meta.errors.length > 0;
 
   return (
-    <div className="grid w-full items-center gap-1.5">
-      <Label htmlFor={fieldId} className="text-sm font-medium">
-        {label} {required && "*"}
-      </Label>
+    <FormItem className={className}>
+      <FormLabel
+        className={cn(
+          isRequired &&
+            "after:text-destructive after:ml-0.5 after:content-['*']"
+        )}
+      >
+        {label}
+      </FormLabel>
 
-      {children || (
-        <Input
-          id={fieldId}
-          type={type}
-          placeholder={placeholder}
-          value={field.state.value || ""}
-          onBlur={field.handleBlur}
-          onChange={(e) => field.handleChange(e.target.value)}
-          disabled={disabled}
-          className={className}
-          aria-invalid={field.state.meta.errors.length > 0}
-          aria-describedby={
-            [field.state.meta.errors.length > 0 ? errorId : null, descriptionId]
-              .filter(Boolean)
-              .join(" ") || undefined
-          }
-        />
-      )}
+      <FormControl>
+        {children ? (
+          // Custom input component (like DatePicker)
+          children
+        ) : (
+          // Standard input with enhanced error styling
+          <Input
+            name={field.name}
+            type={type}
+            placeholder={placeholder}
+            value={field.state.value || ""}
+            onBlur={field.handleBlur}
+            onChange={(e) => field.handleChange(e.target.value)}
+            disabled={disabled}
+            className={cn(
+              hasError && "border-destructive focus-visible:ring-destructive/20"
+            )}
+          />
+        )}
+      </FormControl>
 
-      {description && (
-        <p id={descriptionId} className="text-muted-foreground text-xs">
-          {description}
-        </p>
-      )}
+      {description && <FormDescription>{description}</FormDescription>}
 
-      {field.state.meta.errors.length > 0 && (
-        <p id={errorId} className="text-destructive text-sm" role="alert">
-          {field.state.meta.errors[0]}
-        </p>
-      )}
-    </div>
+      <FormMessage />
+    </FormItem>
   );
 }
