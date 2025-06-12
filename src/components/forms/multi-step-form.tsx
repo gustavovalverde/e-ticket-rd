@@ -12,6 +12,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAppForm } from "@/components/ui/tanstack-form";
@@ -360,112 +361,109 @@ export function MultiStepForm({
 
   return (
     <form.AppForm>
-      <div className={cn("container mx-auto max-w-6xl p-4", className)}>
-        {/* Application Code Display */}
-        {applicationCode && (
-          <Alert className="mb-6">
-            <FileCheck className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Application Code:</strong> {applicationCode}
-              <br />
-              <span className="text-muted-foreground text-sm">
-                Save this code to access your application later
-              </span>
-            </AlertDescription>
-          </Alert>
-        )}
+      <div className={cn("bg-background min-h-screen", className)}>
+        <div className="container-padding-x section-padding-y container mx-auto max-w-6xl">
+          {/* Application Code Display */}
+          {applicationCode && (
+            <Alert className="mb-6">
+              <FileCheck className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Application Code:</strong> {applicationCode}
+                <br />
+                <span className="text-muted-foreground text-sm">
+                  Save this code to access your application later
+                </span>
+              </AlertDescription>
+            </Alert>
+          )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Progress Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileCheck className="h-5 w-5" />
-                  E-Ticket Application
-                </CardTitle>
-                <CardDescription>
-                  Complete all steps to generate your e-ticket
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ProgressIndicator
-                  steps={steps}
-                  currentStepId={currentStepId}
-                  variant={isMobile ? "mobile" : "default"}
-                />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Progress Sidebar */}
+            <div className="lg:col-span-1">
+              <Card className="sticky top-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileCheck className="h-5 w-5" />
+                    E-Ticket Application
+                  </CardTitle>
+                  <CardDescription>
+                    Complete all steps to generate your e-ticket
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <ProgressIndicator
+                    steps={steps}
+                    currentStepId={currentStepId}
+                    variant={isMobile ? "mobile" : "default"}
+                  />
 
-                {/* Quick Actions */}
-                <div className="mt-6 space-y-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => {
-                      const currentData = form.state.values;
-                      localStorage.setItem(
-                        STORAGE_KEY,
-                        JSON.stringify(currentData)
-                      );
-                    }}
-                  >
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Progress
-                  </Button>
+                  {/* Quick Actions */}
+                  <div className="space-y-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start gap-2"
+                      onClick={() => {
+                        const currentData = form.state.values;
+                        localStorage.setItem(
+                          STORAGE_KEY,
+                          JSON.stringify(currentData)
+                        );
+                      }}
+                    >
+                      <Save className="h-4 w-4" />
+                      Save Progress
+                    </Button>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start"
-                    onClick={() => {
-                      localStorage.removeItem(STORAGE_KEY);
-                      form.reset();
-                    }}
-                  >
-                    Clear Draft
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Form */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-xl">
-                      {getCurrentStepData().title}
-                    </CardTitle>
-                    <CardDescription className="mt-1">
-                      {getCurrentStepData().subtitle}
-                    </CardDescription>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        localStorage.removeItem(STORAGE_KEY);
+                        form.reset();
+                      }}
+                    >
+                      Clear Draft
+                    </Button>
                   </div>
-                  <Badge variant="outline" className="text-sm">
-                    {stepProgress.currentStepIndex + 1} of {steps.length}
-                  </Badge>
-                </div>
-              </CardHeader>
+                </CardContent>
+              </Card>
+            </div>
 
-              <Separator />
+            {/* Main Form */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl">
+                        {getCurrentStepData().title}
+                      </CardTitle>
+                      <CardDescription className="mt-1">
+                        {getCurrentStepData().subtitle}
+                      </CardDescription>
+                    </div>
+                    <Badge variant="outline" className="text-sm">
+                      {stepProgress.currentStepIndex + 1} of {steps.length}
+                    </Badge>
+                  </div>
+                </CardHeader>
 
-              <CardContent className="pt-6">
-                <form onSubmit={handleSubmit} id="eticket-application-form">
-                  {renderCurrentStep()}
-                </form>
-              </CardContent>
+                <Separator />
 
-              <Separator />
+                <CardContent className="space-y-8">
+                  <form onSubmit={handleSubmit} id="eticket-application-form">
+                    {renderCurrentStep()}
+                  </form>
+                </CardContent>
 
-              <CardContent className="pt-6">
-                {/* Navigation */}
-                <div className="flex items-center justify-between">
+                <CardFooter className="flex items-center justify-between">
                   <Button
                     variant="outline"
                     onClick={goToPreviousStep}
                     disabled={!stepProgress.canGoPrevious}
-                    className="flex items-center gap-2"
+                    className="gap-2"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Previous
@@ -475,7 +473,7 @@ export function MultiStepForm({
                     <Button
                       onClick={() => form.handleSubmit()}
                       disabled={!form.state.canSubmit}
-                      className="flex items-center gap-2"
+                      className="gap-2"
                     >
                       Submit Application
                     </Button>
@@ -483,15 +481,15 @@ export function MultiStepForm({
                     <Button
                       onClick={goToNextStep}
                       disabled={!stepProgress.canGoNext}
-                      className="flex items-center gap-2"
+                      className="gap-2"
                     >
                       Next
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardFooter>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
