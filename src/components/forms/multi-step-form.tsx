@@ -41,7 +41,7 @@ import { GeneralInfoStep } from "./steps/general-info-step";
 import { GroupTravelStep } from "./steps/group-travel-step";
 import { PersonalInfoStep } from "./steps/personal-info-step";
 
-interface MultiStepETicketFormProps {
+interface FormProps {
   onSubmit?: (data: ApplicationData) => void;
   initialData?: Partial<ApplicationData>;
   applicationCode?: string;
@@ -103,12 +103,12 @@ const FORM_STEPS: Step[] = [
 const AUTO_SAVE_INTERVAL = 30000; // 30 seconds
 const STORAGE_KEY = "eticket-draft";
 
-export function MultiStepETicketForm({
+export function MultiStepForm({
   onSubmit,
   initialData,
   applicationCode,
   className,
-}: MultiStepETicketFormProps) {
+}: FormProps) {
   const [currentStepId, setCurrentStepId] = useState<string>(
     STEP_IDS.GROUP_TRAVEL
   );
