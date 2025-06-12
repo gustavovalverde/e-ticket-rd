@@ -1,6 +1,5 @@
 "use client";
 
-import { zodValidator } from "@tanstack/zod-form-adapter";
 import { Shield, DollarSign, Leaf, Package, InfoIcon } from "lucide-react";
 import React from "react";
 
@@ -19,7 +18,8 @@ import {
   carriesAnimalsOrFoodSchema,
   carriesTaxableGoodsSchema,
 } from "@/lib/schemas/validation";
-import { getErrorMessage } from "@/lib/utils";
+
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 interface CustomsDeclarationStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,13 +54,18 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.Field
+          <form.AppField
             name="customsDeclaration.carriesOverTenThousand"
-            validators={{ onChange: carriesOverTenThousandSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: boolean }) => {
+                const result = carriesOverTenThousandSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+            {(field: AnyFieldApi) => (
               <div className="space-y-4">
                 <Label className="text-base font-medium">
                   Are you carrying more than US$10,000 (or equivalent) in cash,
@@ -98,13 +103,13 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                   other monetary instruments
                 </p>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -120,13 +125,18 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.Field
+          <form.AppField
             name="customsDeclaration.carriesAnimalsOrFood"
-            validators={{ onChange: carriesAnimalsOrFoodSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: boolean }) => {
+                const result = carriesAnimalsOrFoodSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+            {(field: AnyFieldApi) => (
               <div className="space-y-4">
                 <Label className="text-base font-medium">
                   Are you carrying any live animals, plants, food products, or
@@ -161,13 +171,13 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                   plants, live animals, or soil
                 </p>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -183,13 +193,18 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.Field
+          <form.AppField
             name="customsDeclaration.carriesTaxableGoods"
-            validators={{ onChange: carriesTaxableGoodsSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: boolean }) => {
+                const result = carriesTaxableGoodsSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+            {(field: AnyFieldApi) => (
               <div className="space-y-4">
                 <Label className="text-base font-medium">
                   Are you carrying goods for commercial purposes or items
@@ -227,20 +242,19 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                   duty-free limits, or restricted items
                 </p>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
       {/* Group Benefits */}
-      <form.Field name="groupTravel.isGroupTravel">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(groupField: any) => {
+      <form.AppField name="groupTravel.isGroupTravel">
+        {(groupField: AnyFieldApi) => {
           if (!groupField.state.value) return null;
 
           return (
@@ -255,7 +269,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             </Alert>
           );
         }}
-      </form.Field>
+      </form.AppField>
 
       {/* Legal Notice */}
       <Alert>

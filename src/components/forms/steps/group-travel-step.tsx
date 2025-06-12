@@ -3,6 +3,7 @@
 import { Users, Heart, Briefcase, UserCheck, InfoIcon } from "lucide-react";
 import React from "react";
 
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
@@ -11,9 +12,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { getErrorMessage } from "@/lib/utils";
+import { groupNatureSchema } from "@/lib/schemas/validation";
+
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 interface GroupTravelStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,9 +49,8 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.Field name="groupTravel.isGroupTravel">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+          <form.AppField name="groupTravel.isGroupTravel">
+            {(field: AnyFieldApi) => (
               <div className="space-y-4">
                 <Label className="text-base font-medium">
                   Are you traveling with others? *
@@ -59,38 +62,57 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                 >
                   <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
                     <RadioGroupItem value="no" id="solo" />
-                    <Label htmlFor="solo" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Traveling Solo</div>
-                      <div className="text-muted-foreground text-sm">
-                        I&apos;m traveling alone
+                    <div className="flex flex-1 items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full">
+                        <UserCheck className="h-5 w-5 text-blue-600" />
                       </div>
-                    </Label>
+                      <div>
+                        <Label
+                          htmlFor="solo"
+                          className="cursor-pointer text-base font-medium"
+                        >
+                          Traveling Solo
+                        </Label>
+                        <p className="text-muted-foreground text-sm">
+                          I&apos;m traveling alone
+                        </p>
+                      </div>
+                    </div>
                   </div>
                   <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
                     <RadioGroupItem value="yes" id="group" />
-                    <Label htmlFor="group" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Group Travel</div>
-                      <div className="text-muted-foreground text-sm">
-                        I&apos;m traveling with others
+                    <div className="flex flex-1 items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full">
+                        <Users className="h-5 w-5 text-green-600" />
                       </div>
-                    </Label>
+                      <div>
+                        <Label
+                          htmlFor="group"
+                          className="cursor-pointer text-base font-medium"
+                        >
+                          Group Travel
+                        </Label>
+                        <p className="text-muted-foreground text-sm">
+                          I&apos;m traveling with others
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </RadioGroup>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
       {/* Group Details - Only show if traveling in group */}
-      <form.Field name="groupTravel.isGroupTravel">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(isGroupField: any) => {
+      <form.AppField name="groupTravel.isGroupTravel">
+        {(isGroupField: AnyFieldApi) => {
           if (!isGroupField.state.value) return null;
 
           return (
@@ -107,49 +129,33 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form.Field name="groupTravel.numberOfCompanions">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(field: any) => (
-                      <div className="space-y-4">
-                        <Label className="text-base font-medium">
+                  <form.AppField name="groupTravel.numberOfCompanions">
+                    {(field: AnyFieldApi) => (
+                      <div className="space-y-2">
+                        <Label htmlFor="companions">
                           Number of Companions *
                         </Label>
-                        <RadioGroup
-                          value={field.state.value?.toString() || ""}
-                          onValueChange={(value) =>
-                            field.handleChange(Number(value))
+                        <Input
+                          id="companions"
+                          type="number"
+                          min="1"
+                          max="20"
+                          placeholder="Enter number of companions"
+                          value={field.state.value || ""}
+                          onChange={(e) =>
+                            field.handleChange(
+                              Number(e.target.value) || undefined
+                            )
                           }
-                          className="grid grid-cols-2 gap-4 md:grid-cols-4"
-                        >
-                          {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                            <div
-                              key={num}
-                              className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-3"
-                            >
-                              <RadioGroupItem
-                                value={num.toString()}
-                                id={`companions-${num}`}
-                              />
-                              <Label
-                                htmlFor={`companions-${num}`}
-                                className="flex-1 cursor-pointer text-center"
-                              >
-                                {num} {num === 1 ? "person" : "people"}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                        <p className="text-muted-foreground text-sm">
-                          Count adults and children traveling with you
-                        </p>
+                        />
                         {field.state.meta.errors.length > 0 && (
                           <p className="text-destructive text-sm">
-                            {getErrorMessage(field.state.meta.errors[0])}
+                            {field.state.meta.errors[0]}
                           </p>
                         )}
                       </div>
                     )}
-                  </form.Field>
+                  </form.AppField>
                 </CardContent>
               </Card>
 
@@ -165,94 +171,70 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form.Field name="groupTravel.groupNature">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(field: any) => (
+                  <form.AppField
+                    name="groupTravel.groupNature"
+                    validators={{
+                      onChange: ({ value }: { value: string }) => {
+                        const result = groupNatureSchema.safeParse(value);
+                        return result.success
+                          ? undefined
+                          : result.error.issues[0]?.message;
+                      },
+                    }}
+                  >
+                    {(field: AnyFieldApi) => (
                       <div className="space-y-4">
                         <Label className="text-base font-medium">
-                          Group Relationship *
+                          Group Type *
                         </Label>
-                        <RadioGroup
-                          value={field.state.value || ""}
-                          onValueChange={field.handleChange}
-                          className="grid grid-cols-1 gap-4 md:grid-cols-2"
-                        >
-                          <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                            <RadioGroupItem value="Family" id="family" />
-                            <Label
-                              htmlFor="family"
-                              className="flex-1 cursor-pointer"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Heart className="h-4 w-4" />
-                                <div className="font-medium">Family</div>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                Spouse, children, relatives
-                              </div>
-                            </Label>
-                          </div>
-                          <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                            <RadioGroupItem value="Friends" id="friends" />
-                            <Label
-                              htmlFor="friends"
-                              className="flex-1 cursor-pointer"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4" />
-                                <div className="font-medium">Friends</div>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                Personal friends
-                              </div>
-                            </Label>
-                          </div>
-                          <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                            <RadioGroupItem
-                              value="Work_Colleagues"
-                              id="colleagues"
-                            />
-                            <Label
-                              htmlFor="colleagues"
-                              className="flex-1 cursor-pointer"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Briefcase className="h-4 w-4" />
-                                <div className="font-medium">
-                                  Work Colleagues
-                                </div>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                Business travel companions
-                              </div>
-                            </Label>
-                          </div>
-                          <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                            <RadioGroupItem value="Partner" id="couple" />
-                            <Label
-                              htmlFor="couple"
-                              className="flex-1 cursor-pointer"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Heart className="h-4 w-4" />
-                                <div className="font-medium">
-                                  Partner/Couple
-                                </div>
-                              </div>
-                              <div className="text-muted-foreground text-sm">
-                                Romantic partner
-                              </div>
-                            </Label>
-                          </div>
-                        </RadioGroup>
-                        {field.state.meta.errors.length > 0 && (
-                          <p className="text-destructive text-sm">
-                            {getErrorMessage(field.state.meta.errors[0])}
-                          </p>
-                        )}
+                        <FormRadioGroup
+                          field={field}
+                          options={[
+                            {
+                              value: "Family",
+                              id: "family",
+                              label: "Family",
+                              description: "Traveling with family members",
+                              icon: <Heart className="h-5 w-5" />,
+                              iconBg: undefined,
+                              iconColor: "text-red-600",
+                            },
+                            {
+                              value: "Friends",
+                              id: "friends",
+                              label: "Friends",
+                              description: "Traveling with friends",
+                              icon: <Users className="h-5 w-5" />,
+                              iconBg: undefined,
+                              iconColor: "text-blue-600",
+                            },
+                            {
+                              value: "Work_Colleagues",
+                              id: "work",
+                              label: "Work Colleagues",
+                              description: "Business or work-related travel",
+                              icon: <Briefcase className="h-5 w-5" />,
+                              iconBg: undefined,
+                              iconColor: "text-gray-600",
+                            },
+                            {
+                              value: "Partner",
+                              id: "partner",
+                              label: "Partner/Spouse",
+                              description: "Traveling with partner or spouse",
+                              icon: <Heart className="h-5 w-5" />,
+                              iconBg: undefined,
+                              iconColor: "text-pink-600",
+                            },
+                          ]}
+                          layout="grid"
+                          columns="2"
+                          padding="small"
+                          size="small"
+                        />
                       </div>
                     )}
-                  </form.Field>
+                  </form.AppField>
                 </CardContent>
               </Card>
 
@@ -274,7 +256,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
             </div>
           );
         }}
-      </form.Field>
+      </form.AppField>
     </div>
   );
 }

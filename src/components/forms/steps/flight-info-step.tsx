@@ -1,9 +1,9 @@
 "use client";
 
-import { zodValidator } from "@tanstack/zod-form-adapter";
 import { Plane, Zap, InfoIcon } from "lucide-react";
 import React from "react";
 
+import { FormField } from "@/components/forms/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
@@ -20,7 +20,8 @@ import {
   departurePortSchema,
   arrivalPortSchema,
 } from "@/lib/schemas/validation";
-import { getErrorMessage } from "@/lib/utils";
+
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 interface FlightInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,10 +70,15 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Flight Number with Smart Auto-fill */}
-          <form.Field
+          <form.AppField
             name="flightInfo.flightNumber"
             validators={{
-              onChange: flightNumberSchema,
+              onChange: ({ value }: { value: string }) => {
+                const result = flightNumberSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
               onChangeAsyncDebounceMs: 500,
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onChangeAsync: async ({ value }: any) => {
@@ -101,15 +107,13 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                     form.setFieldValue("flightInfo.arrivalPort", "");
                   }
                 }
-                return "Invalid flight number";
+                return undefined; // Don't show async error, let onChange handle format validation
               },
             }}
-            validatorAdapter={zodValidator}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+            {(field: AnyFieldApi) => (
               <div className="space-y-2">
-                <Label htmlFor="flight-number">
+                <Label htmlFor="flight-number" className="text-sm font-medium">
                   <Zap className="mr-1 inline h-4 w-4" />
                   Flight Number *
                 </Label>
@@ -128,98 +132,90 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   airline and airports
                 </p>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
 
           {/* Auto-filled Airline */}
-          <form.Field
+          <form.AppField
             name="flightInfo.airline"
-            validators={{ onChange: airlineSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: string }) => {
+                const result = airlineSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="airline">Airline *</Label>
-                <Input
-                  id="airline"
-                  placeholder="Will auto-fill when you enter flight number"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </div>
+            {(field: AnyFieldApi) => (
+              <FormField
+                field={field}
+                label="Airline"
+                placeholder="Will auto-fill when you enter flight number"
+                required
+              />
             )}
-          </form.Field>
+          </form.AppField>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* Departure Port */}
-            <form.Field
+            <form.AppField
               name="flightInfo.departurePort"
-              validators={{ onChange: departurePortSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = departurePortSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="departure-port">Departure Airport *</Label>
-                  <Input
-                    id="departure-port"
-                    placeholder="Will auto-fill"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Departure Airport"
+                  placeholder="Will auto-fill"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
 
             {/* Arrival Port */}
-            <form.Field
+            <form.AppField
               name="flightInfo.arrivalPort"
-              validators={{ onChange: arrivalPortSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = arrivalPortSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="arrival-port">Arrival Airport *</Label>
-                  <Input
-                    id="arrival-port"
-                    placeholder="Will auto-fill"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Arrival Airport"
+                  placeholder="Will auto-fill"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
           </div>
 
           {/* Flight Date */}
           <div className="grid max-w-md grid-cols-3 gap-4">
-            <form.Field name="flightInfo.flightDate.year">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="flight-year">Year</Label>
+            <form.AppField name="flightInfo.flightDate.year">
+              {(field: AnyFieldApi) => (
+                <div className="grid w-full items-center gap-1.5">
+                  <Label htmlFor="flight-year" className="text-sm font-medium">
+                    Year
+                  </Label>
                   <Input
                     id="flight-year"
                     type="number"
@@ -233,12 +229,13 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   />
                 </div>
               )}
-            </form.Field>
-            <form.Field name="flightInfo.flightDate.month">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="flight-month">Month</Label>
+            </form.AppField>
+            <form.AppField name="flightInfo.flightDate.month">
+              {(field: AnyFieldApi) => (
+                <div className="grid w-full items-center gap-1.5">
+                  <Label htmlFor="flight-month" className="text-sm font-medium">
+                    Month
+                  </Label>
                   <Input
                     id="flight-month"
                     type="number"
@@ -252,12 +249,13 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   />
                 </div>
               )}
-            </form.Field>
-            <form.Field name="flightInfo.flightDate.day">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="flight-day">Day</Label>
+            </form.AppField>
+            <form.AppField name="flightInfo.flightDate.day">
+              {(field: AnyFieldApi) => (
+                <div className="grid w-full items-center gap-1.5">
+                  <Label htmlFor="flight-day" className="text-sm font-medium">
+                    Day
+                  </Label>
                   <Input
                     id="flight-day"
                     type="number"
@@ -271,15 +269,14 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   />
                 </div>
               )}
-            </form.Field>
+            </form.AppField>
           </div>
 
           {/* Confirmation Number */}
-          <form.Field name="flightInfo.confirmationNumber">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="confirmation">
+          <form.AppField name="flightInfo.confirmationNumber">
+            {(field: AnyFieldApi) => (
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="confirmation" className="text-sm font-medium">
                   Booking Confirmation Number (Optional)
                 </Label>
                 <Input
@@ -291,19 +288,18 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   }
                   className="max-w-xs"
                 />
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs">
                   Your airline booking reference number
                 </p>
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
       {/* Benefits for Group Travel */}
-      <form.Field name="groupTravel.isGroupTravel">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(groupField: any) => {
+      <form.AppField name="groupTravel.isGroupTravel">
+        {(groupField: AnyFieldApi) => {
           if (!groupField.state.value) return null;
 
           return (
@@ -318,7 +314,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
             </Alert>
           );
         }}
-      </form.Field>
+      </form.AppField>
     </div>
   );
 }

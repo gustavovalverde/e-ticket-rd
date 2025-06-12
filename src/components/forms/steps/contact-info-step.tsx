@@ -1,9 +1,9 @@
 "use client";
 
-import { zodValidator } from "@tanstack/zod-form-adapter";
 import { Mail, InfoIcon } from "lucide-react";
 import React from "react";
 
+import { FormField } from "@/components/forms/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
@@ -22,7 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { emailSchema } from "@/lib/schemas/validation";
-import { getErrorMessage } from "@/lib/utils";
+
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 interface ContactInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,44 +51,39 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
           </CardTitle>
           <CardDescription>How can we reach you? (Optional)</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <form.Field
+        <CardContent className="space-y-6">
+          <form.AppField
             name="contactInfo.email"
-            validators={{ onChange: emailSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") return undefined; // Optional field
+                const result = emailSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+            {(field: AnyFieldApi) => (
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
+                <FormField
+                  field={field}
+                  label="Email Address"
                   type="email"
                   placeholder="Enter your email address"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                  description="We'll send your e-ticket confirmation here"
                 />
-                <p className="text-muted-foreground text-sm">
-                  We&apos;ll send your e-ticket confirmation here
-                </p>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
 
-          <form.Field name="contactInfo.phone.number">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+          <form.AppField name="contactInfo.phone.number">
+            {(field: AnyFieldApi) => (
+              <div className="grid w-full items-center gap-1.5">
+                <Label className="text-sm font-medium">Phone Number</Label>
                 <div className="flex gap-2">
-                  <form.Field name="contactInfo.phone.countryCode">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(countryField: any) => (
+                  <form.AppField name="contactInfo.phone.countryCode">
+                    {(countryField: AnyFieldApi) => (
                       <Select
                         value={countryField.state.value || "+1"}
                         onValueChange={countryField.handleChange}
@@ -103,21 +99,27 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                         </SelectContent>
                       </Select>
                     )}
-                  </form.Field>
+                  </form.AppField>
                   <Input
-                    id="phone"
+                    type="tel"
                     placeholder="Enter phone number"
                     value={field.state.value || ""}
+                    onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     className="flex-1"
                   />
                 </div>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs">
                   Include area code (optional)
                 </p>
+                {field.state.meta.errors.length > 0 && (
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 

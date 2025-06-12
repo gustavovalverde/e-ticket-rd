@@ -1,9 +1,10 @@
 "use client";
 
-import { zodValidator } from "@tanstack/zod-form-adapter";
 import { User, FileText, Shield, InfoIcon } from "lucide-react";
 import React from "react";
 
+import { FormField } from "@/components/forms/form-field";
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
@@ -14,7 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -27,15 +27,10 @@ import {
   lastNameSchema,
   passportNumberSchema,
   nationalitySchema,
-  dateOfBirthSchema,
-  passportExpiryDateSchema,
   genderSchema,
 } from "@/lib/schemas/validation";
-import { getErrorMessage } from "@/lib/utils";
 
-// Simple validation schemas for fields that don't have individual exports
-const occupationSchema = nationalitySchema; // Same validation as nationality (just required string)
-const maritalStatusSchema = nationalitySchema; // Same validation (just required string)
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 interface PersonalInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,55 +63,49 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             Enter your name exactly as it appears on your passport
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <form.Field
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form.AppField
               name="personalInfo.firstName"
-              validators={{ onChange: firstNameSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = firstNameSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="first-name">First Name *</Label>
-                  <Input
-                    id="first-name"
-                    placeholder="Enter your first name"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="First Name"
+                  placeholder="Enter your first name"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
 
-            <form.Field
+            <form.AppField
               name="personalInfo.lastName"
-              validators={{ onChange: lastNameSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = lastNameSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="last-name">Last Name *</Label>
-                  <Input
-                    id="last-name"
-                    placeholder="Enter your last name"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Last Name"
+                  placeholder="Enter your last name"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
           </div>
         </CardContent>
       </Card>
@@ -132,22 +121,21 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             Your birth details as shown on official documents
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <form.Field
-            name="personalInfo.birthDate"
-            validators={{ onChange: dateOfBirthSchema }}
-            validatorAdapter={zodValidator}
-          >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label>Date of Birth *</Label>
+        <CardContent className="space-y-6">
+          <form.AppField name="personalInfo.birthDate">
+            {(field: AnyFieldApi) => (
+              <div className="grid w-full items-center gap-1.5">
+                <Label className="text-sm font-medium">Date of Birth *</Label>
                 <div className="grid max-w-md grid-cols-3 gap-4">
-                  <form.Field name="personalInfo.birthDate.year">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(yearField: any) => (
-                      <div className="space-y-2">
-                        <Label htmlFor="birth-year">Year</Label>
+                  <form.AppField name="personalInfo.birthDate.year">
+                    {(yearField: AnyFieldApi) => (
+                      <div className="grid w-full items-center gap-1.5">
+                        <Label
+                          htmlFor="birth-year"
+                          className="text-sm font-medium"
+                        >
+                          Year
+                        </Label>
                         <Input
                           id="birth-year"
                           type="number"
@@ -163,12 +151,16 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                         />
                       </div>
                     )}
-                  </form.Field>
-                  <form.Field name="personalInfo.birthDate.month">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(monthField: any) => (
-                      <div className="space-y-2">
-                        <Label htmlFor="birth-month">Month</Label>
+                  </form.AppField>
+                  <form.AppField name="personalInfo.birthDate.month">
+                    {(monthField: AnyFieldApi) => (
+                      <div className="grid w-full items-center gap-1.5">
+                        <Label
+                          htmlFor="birth-month"
+                          className="text-sm font-medium"
+                        >
+                          Month
+                        </Label>
                         <Input
                           id="birth-month"
                           type="number"
@@ -184,12 +176,16 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                         />
                       </div>
                     )}
-                  </form.Field>
-                  <form.Field name="personalInfo.birthDate.day">
-                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                    {(dayField: any) => (
-                      <div className="space-y-2">
-                        <Label htmlFor="birth-day">Day</Label>
+                  </form.AppField>
+                  <form.AppField name="personalInfo.birthDate.day">
+                    {(dayField: AnyFieldApi) => (
+                      <div className="grid w-full items-center gap-1.5">
+                        <Label
+                          htmlFor="birth-day"
+                          className="text-sm font-medium"
+                        >
+                          Day
+                        </Label>
                         <Input
                           id="birth-day"
                           type="number"
@@ -205,87 +201,97 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                         />
                       </div>
                     )}
-                  </form.Field>
+                  </form.AppField>
                 </div>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
 
-          <form.Field
+          <form.AppField
             name="personalInfo.birthCountry"
-            validators={{ onChange: nationalitySchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "")
+                  return "Country of birth is required";
+                return undefined;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="birth-country">Country of Birth *</Label>
-                <Input
-                  id="birth-country"
-                  placeholder="Enter your country of birth"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </div>
+            {(field: AnyFieldApi) => (
+              <FormField
+                field={field}
+                label="Country of Birth"
+                placeholder="Enter your country of birth"
+                required
+              />
             )}
-          </form.Field>
+          </form.AppField>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <form.Field
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form.AppField
               name="personalInfo.gender"
-              validators={{ onChange: genderSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = genderSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label>Gender *</Label>
-                  <RadioGroup
-                    value={field.state.value || ""}
-                    onValueChange={(value) => field.handleChange(value)}
-                    className="flex flex-col space-y-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="MALE" id="male" />
-                      <Label htmlFor="male">Male</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="FEMALE" id="female" />
-                      <Label htmlFor="female">Female</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="OTHER" id="other" />
-                      <Label htmlFor="other">Other</Label>
-                    </div>
-                  </RadioGroup>
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
+              {(field: AnyFieldApi) => (
+                <div className="grid w-full items-center gap-1.5">
+                  <Label className="text-sm font-medium">Gender *</Label>
+                  <FormRadioGroup
+                    field={field}
+                    options={[
+                      {
+                        value: "MALE",
+                        id: "male",
+                        label: "Male",
+                        icon: <User className="h-5 w-5" />,
+                        iconBg: undefined,
+                        iconColor: "text-blue-600",
+                      },
+                      {
+                        value: "FEMALE",
+                        id: "female",
+                        label: "Female",
+                        icon: <User className="h-5 w-5" />,
+                        iconBg: undefined,
+                        iconColor: "text-pink-600",
+                      },
+                      {
+                        value: "OTHER",
+                        id: "other",
+                        label: "Other",
+                        icon: <User className="h-5 w-5" />,
+                        iconBg: undefined,
+                        iconColor: "text-gray-600",
+                      },
+                    ]}
+                    layout="stack"
+                    padding="small"
+                    size="small"
+                  />
                 </div>
               )}
-            </form.Field>
+            </form.AppField>
 
-            <form.Field
-              name="personalInfo.maritalStatus"
-              validators={{ onChange: maritalStatusSchema }}
-              validatorAdapter={zodValidator}
-            >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="marital-status">Marital Status *</Label>
+            <form.AppField name="personalInfo.maritalStatus">
+              {(field: AnyFieldApi) => (
+                <div className="grid w-full items-center gap-1.5">
+                  <Label
+                    htmlFor="marital-status"
+                    className="text-sm font-medium"
+                  >
+                    Marital Status *
+                  </Label>
                   <Select
                     value={field.state.value || ""}
                     onValueChange={(value) => field.handleChange(value)}
@@ -302,38 +308,34 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                     </SelectContent>
                   </Select>
                   {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
+                    <p className="text-destructive text-sm" role="alert">
+                      {field.state.meta.errors[0]}
                     </p>
                   )}
                 </div>
               )}
-            </form.Field>
+            </form.AppField>
           </div>
 
-          <form.Field
+          <form.AppField
             name="personalInfo.occupation"
-            validators={{ onChange: occupationSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "")
+                  return "Occupation is required";
+                return undefined;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="occupation">Occupation *</Label>
-                <Input
-                  id="occupation"
-                  placeholder="Enter your occupation/profession"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </div>
+            {(field: AnyFieldApi) => (
+              <FormField
+                field={field}
+                label="Occupation"
+                placeholder="Enter your occupation/profession"
+                required
+              />
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -348,96 +350,71 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             Enter your passport details exactly as shown
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <form.Field
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form.AppField
               name="personalInfo.passport.number"
-              validators={{ onChange: passportNumberSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = passportNumberSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="passport-number">Passport Number *</Label>
-                  <Input
-                    id="passport-number"
-                    placeholder="Enter your passport number"
-                    value={field.state.value || ""}
-                    onChange={(e) =>
-                      field.handleChange(e.target.value.toUpperCase())
-                    }
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Passport Number"
+                  placeholder="Enter your passport number"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
 
-            <form.Field
-              name="personalInfo.passport.confirmNumber"
-              validators={{ onChange: passportNumberSchema }}
-              validatorAdapter={zodValidator}
-            >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="passport-confirm">
-                    Confirm Passport Number *
-                  </Label>
-                  <Input
-                    id="passport-confirm"
-                    placeholder="Re-enter your passport number"
-                    value={field.state.value || ""}
-                    onChange={(e) =>
-                      field.handleChange(e.target.value.toUpperCase())
-                    }
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+            <form.AppField name="personalInfo.passport.confirmNumber">
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Confirm Passport Number"
+                  placeholder="Re-enter your passport number"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
           </div>
 
-          <form.Field
+          <form.AppField
             name="personalInfo.passport.nationality"
-            validators={{ onChange: nationalitySchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: string }) => {
+                const result = nationalitySchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="nationality">Nationality *</Label>
-                <Input
-                  id="nationality"
-                  placeholder="Enter your nationality"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </div>
+            {(field: AnyFieldApi) => (
+              <FormField
+                field={field}
+                label="Nationality"
+                placeholder="Enter your nationality"
+                required
+              />
             )}
-          </form.Field>
+          </form.AppField>
 
-          <form.Field
-            name="personalInfo.passport.expiryDate"
-            validators={{ onChange: passportExpiryDateSchema }}
-            validatorAdapter={zodValidator}
-          >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="passport-expiry">Passport Expiry Date *</Label>
+          <form.AppField name="personalInfo.passport.expiryDate">
+            {(field: AnyFieldApi) => (
+              <div className="grid w-full items-center gap-1.5">
+                <Label
+                  htmlFor="passport-expiry"
+                  className="text-sm font-medium"
+                >
+                  Passport Expiry Date *
+                </Label>
                 <Input
                   id="passport-expiry"
                   type="date"
@@ -445,17 +422,17 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                   onChange={(e) => field.handleChange(e.target.value)}
                   className="max-w-xs"
                 />
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-xs">
                   Your passport should be valid for at least 6 months
                 </p>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -470,9 +447,8 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
       </Alert>
 
       {/* Benefits for Group Travel */}
-      <form.Field name="groupTravel.isGroupTravel">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(groupField: any) => {
+      <form.AppField name="groupTravel.isGroupTravel">
+        {(groupField: AnyFieldApi) => {
           if (!groupField.state.value) return null;
 
           return (
@@ -486,7 +462,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             </Alert>
           );
         }}
-      </form.Field>
+      </form.AppField>
     </div>
   );
 }

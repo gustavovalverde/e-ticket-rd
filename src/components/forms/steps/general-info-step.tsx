@@ -1,9 +1,10 @@
 "use client";
 
-import { zodValidator } from "@tanstack/zod-form-adapter";
-import { MapPin, InfoIcon } from "lucide-react";
+import { MapPin, InfoIcon, ArrowDown, ArrowUp } from "lucide-react";
 import React from "react";
 
+import { FormField } from "@/components/forms/form-field";
+import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
@@ -12,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -24,7 +24,8 @@ import {
   hasStopsSchema,
   entryOrExitSchema,
 } from "@/lib/schemas/validation";
-import { getErrorMessage } from "@/lib/utils";
+
+import type { AnyFieldApi } from "@tanstack/react-form";
 
 interface GeneralInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -58,43 +59,49 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.Field
+          <form.AppField
             name="generalInfo.entryOrExit"
-            validators={{ onChange: entryOrExitSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: string }) => {
+                const result = entryOrExitSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+            {(field: AnyFieldApi) => (
               <div className="space-y-4">
-                <Label className="text-base font-medium">
-                  Travel Direction *
-                </Label>
-                <RadioGroup
-                  value={field.state.value}
-                  onValueChange={field.handleChange}
-                  className="grid grid-cols-1 gap-4 md:grid-cols-2"
-                >
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="ENTRY" id="entry" />
-                    <Label htmlFor="entry" className="flex-1 cursor-pointer">
-                      Entering Dominican Republic
-                    </Label>
-                  </div>
-                  <div className="hover:bg-accent flex items-center space-x-2 rounded-lg border p-4">
-                    <RadioGroupItem value="EXIT" id="exit" />
-                    <Label htmlFor="exit" className="flex-1 cursor-pointer">
-                      Leaving Dominican Republic
-                    </Label>
-                  </div>
-                </RadioGroup>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
+                <FormRadioGroup
+                  field={field}
+                  options={[
+                    {
+                      value: "ENTRY",
+                      id: "entry",
+                      label: "Entering Dominican Republic",
+                      description: undefined,
+                      icon: <ArrowDown className="h-6 w-6" />,
+                      iconBg: undefined,
+                      iconColor: undefined,
+                    },
+                    {
+                      value: "EXIT",
+                      id: "exit",
+                      label: "Leaving Dominican Republic",
+                      description: undefined,
+                      icon: <ArrowUp className="h-6 w-6" />,
+                      iconBg: undefined,
+                      iconColor: undefined,
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
@@ -107,129 +114,112 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
           </CardTitle>
           <CardDescription>Where do you currently live?</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <form.Field
+        <CardContent className="space-y-6">
+          <form.AppField
             name="generalInfo.permanentAddress"
-            validators={{ onChange: permanentAddressSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: string }) => {
+                const result = permanentAddressSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
-              <div className="space-y-2">
-                <Label htmlFor="address">Street Address *</Label>
-                <Input
-                  id="address"
-                  placeholder="Enter your complete street address"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </div>
+            {(field: AnyFieldApi) => (
+              <FormField
+                field={field}
+                label="Street Address"
+                placeholder="Enter your complete street address"
+                required
+              />
             )}
-          </form.Field>
+          </form.AppField>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <form.Field
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form.AppField
               name="generalInfo.city"
-              validators={{ onChange: citySchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = citySchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="city">City *</Label>
-                  <Input
-                    id="city"
-                    placeholder="Enter your city"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="City"
+                  placeholder="Enter your city"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
 
-            <form.Field
+            <form.AppField
               name="generalInfo.state"
-              validators={{ onChange: stateSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = stateSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="state">State/Province</Label>
-                  <Input
-                    id="state"
-                    placeholder="Enter your state or province"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="State/Province"
+                  placeholder="Enter your state or province"
+                />
               )}
-            </form.Field>
+            </form.AppField>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <form.Field
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <form.AppField
               name="generalInfo.residenceCountry"
-              validators={{ onChange: residenceCountrySchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = residenceCountrySchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="country">Country *</Label>
-                  <Input
-                    id="country"
-                    placeholder="Enter your country of residence"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Country"
+                  placeholder="Enter your country of residence"
+                  required
+                />
               )}
-            </form.Field>
+            </form.AppField>
 
-            <form.Field
+            <form.AppField
               name="generalInfo.postalCode"
-              validators={{ onChange: postalCodeSchema }}
-              validatorAdapter={zodValidator}
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const result = postalCodeSchema.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
             >
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="space-y-2">
-                  <Label htmlFor="postal">Postal Code</Label>
-                  <Input
-                    id="postal"
-                    placeholder="Enter your postal/ZIP code"
-                    value={field.state.value || ""}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm">
-                      {getErrorMessage(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </div>
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Postal Code"
+                  placeholder="Enter your postal/ZIP code"
+                />
               )}
-            </form.Field>
+            </form.AppField>
           </div>
         </CardContent>
       </Card>
@@ -246,13 +236,18 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.Field
+          <form.AppField
             name="generalInfo.hasStops"
-            validators={{ onChange: hasStopsSchema }}
-            validatorAdapter={zodValidator}
+            validators={{
+              onChange: ({ value }: { value: boolean }) => {
+                const result = hasStopsSchema.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
           >
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {(field: any) => (
+            {(field: AnyFieldApi) => (
               <div className="space-y-4">
                 <Label className="text-base font-medium">Flight Type</Label>
                 <RadioGroup
@@ -280,20 +275,19 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                   </div>
                 </RadioGroup>
                 {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">
-                    {getErrorMessage(field.state.meta.errors[0])}
+                  <p className="text-destructive text-sm" role="alert">
+                    {field.state.meta.errors[0]}
                   </p>
                 )}
               </div>
             )}
-          </form.Field>
+          </form.AppField>
         </CardContent>
       </Card>
 
       {/* Benefits for Group Travel */}
-      <form.Field name="groupTravel.isGroupTravel">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(groupField: any) => {
+      <form.AppField name="groupTravel.isGroupTravel">
+        {(groupField: AnyFieldApi) => {
           if (!groupField.state.value) return null;
 
           return (
@@ -307,7 +301,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
             </Alert>
           );
         }}
-      </form.Field>
+      </form.AppField>
     </div>
   );
 }

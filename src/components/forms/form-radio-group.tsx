@@ -16,12 +16,22 @@ interface RadioOption {
   iconColor?: string;
 }
 
+// Type for field validation
+interface FieldValidators {
+  onChange?: (params: { value: string }) => string | undefined;
+  onBlur?: (params: { value: string }) => string | undefined;
+  onChangeAsync?: (params: { value: string }) => Promise<string | undefined>;
+  onChangeAsyncDebounceMs?: number;
+}
+
 interface FormRadioGroupProps {
   field: AnyFieldApi;
   options: RadioOption[];
   layout?: "grid" | "stack";
   columns?: "1" | "2";
   padding?: "small" | "large";
+  size?: "small" | "large"; // Controls icon container size
+  validators?: FieldValidators;
 }
 
 export function FormRadioGroup({
@@ -30,13 +40,25 @@ export function FormRadioGroup({
   layout = "stack",
   columns = "1",
   padding = "small",
+  size = "large",
 }: FormRadioGroupProps) {
   const errorId = `${field.name}-error`;
-  const paddingClass = padding === "small" ? "p-4" : "p-6";
+
+  // Calculate padding class based on size and padding props
+  let paddingClass: string;
+  if (size === "small") {
+    paddingClass = padding === "small" ? "p-2" : "p-3";
+  } else {
+    paddingClass = padding === "small" ? "p-4" : "p-6";
+  }
+
+  const spacingClass = size === "small" ? "space-x-2" : "space-x-4";
   const layoutClass =
     layout === "grid"
       ? `grid gap-4 ${columns === "2" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`
       : "space-y-3";
+
+  const iconSizeClass = size === "small" ? "h-6 w-6" : "h-12 w-12";
 
   return (
     <div className="space-y-3">
@@ -54,14 +76,14 @@ export function FormRadioGroup({
           <Label
             key={option.value}
             htmlFor={option.id}
-            className={`border-border hover:bg-muted/50 data-[state=checked]:border-primary data-[state=checked]:bg-primary/5 flex cursor-pointer items-center space-x-4 rounded-lg border ${paddingClass} transition-colors`}
+            className={`border-border hover:bg-muted/50 data-[state=checked]:border-primary data-[state=checked]:bg-primary/5 flex cursor-pointer items-center ${spacingClass} rounded-lg border ${paddingClass} transition-colors`}
           >
             <RadioGroupItem value={option.value} id={option.id} />
             <div className="flex flex-1 items-center gap-4">
               {option.icon && (
                 <div
-                  className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${
-                    option.iconBg || "bg-gray-100"
+                  className={`flex ${iconSizeClass} flex-shrink-0 items-center justify-center rounded-full ${
+                    option.iconBg || "bg-white-100"
                   } ${option.iconColor || "text-gray-700"}`}
                 >
                   {option.icon}
