@@ -5,9 +5,9 @@ import { useCallback, useState } from "react";
 
 import { useAppForm } from "@/components/ui/tanstack-form";
 import {
-  applicationFormOptions,
-  type ApplicationFormData,
-} from "@/lib/schemas/form-options";
+  legacyApplicationFormOptions as applicationFormOptions,
+  type LegacyApplicationData as ApplicationFormData,
+} from "@/lib/schemas/forms";
 
 import { FlightInfoForm } from "./flight-info-form";
 import { FormLayout } from "./form-layout";

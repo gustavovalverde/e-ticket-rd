@@ -21,8 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { emailSchema } from "@/lib/schemas/validation";
 import { getErrorMessage } from "@/lib/utils";
-import { emailSchema } from "@/lib/validations/eticket-schemas";
 
 interface ContactInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

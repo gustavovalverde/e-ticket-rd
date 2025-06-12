@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// ===== BASE VALIDATION SCHEMAS =====
+
 // Base schemas for reusable validation patterns
 const phoneSchema = z.object({
   countryCode: z.string().min(1, "Country code is required"),
@@ -26,7 +28,9 @@ const passportSchema = z
     path: ["confirmNumber"],
   });
 
-// Individual field schemas for group travel
+// ===== INDIVIDUAL FIELD SCHEMAS =====
+
+// Group travel fields
 export const isGroupTravelSchema = z.boolean();
 export const numberOfCompanionsSchema = z
   .number()
@@ -37,27 +41,7 @@ export const groupNatureSchema = z
   .enum(["Family", "Friends", "Work_Colleagues", "Partner"])
   .optional();
 
-// Group travel schema
-export const groupTravelSchema = z
-  .object({
-    isGroupTravel: isGroupTravelSchema.default(false),
-    numberOfCompanions: numberOfCompanionsSchema,
-    groupNature: groupNatureSchema,
-  })
-  .refine(
-    (data) => {
-      if (data.isGroupTravel) {
-        return data.numberOfCompanions && data.groupNature;
-      }
-      return true;
-    },
-    {
-      message: "Group details are required when traveling with others",
-      path: ["numberOfCompanions"],
-    }
-  );
-
-// Individual field schemas for general info
+// General info fields
 export const permanentAddressSchema = z
   .string()
   .min(10, "Please provide a complete address")
@@ -72,36 +56,8 @@ export const hasStopsSchema = z.boolean().default(false);
 export const entryOrExitSchema = z.enum(["ENTRY", "EXIT"], {
   required_error: "Please select entry or exit",
 });
-export const purposeOfTravelSchema = z
-  .string()
-  .min(1, "Purpose of travel is required");
-export const lengthOfStaySchema = z
-  .number()
-  .min(1, "Length of stay must be at least 1 day")
-  .max(365, "Length of stay cannot exceed 365 days");
-export const arrivalDateSchema = z.string().min(1, "Arrival date is required");
-export const departureDateSchema = z
-  .string()
-  .min(1, "Departure date is required");
-export const addressInDRSchema = z
-  .string()
-  .min(10, "Please provide a complete address in Dominican Republic");
-export const phoneNumberSchema = z
-  .string()
-  .min(10, "Please provide a valid phone number");
 
-// General information schema (Step 1)
-export const generalInfoSchema = z.object({
-  permanentAddress: permanentAddressSchema,
-  residenceCountry: residenceCountrySchema,
-  city: citySchema,
-  state: stateSchema,
-  postalCode: postalCodeSchema,
-  hasStops: hasStopsSchema,
-  entryOrExit: entryOrExitSchema,
-});
-
-// Individual field schemas for personal info
+// Personal info fields
 export const firstNameSchema = z
   .string()
   .min(2, "First name must be at least 2 characters")
@@ -129,6 +85,63 @@ export const passportExpiryDateSchema = z
   .string()
   .min(1, "Passport expiry date is required");
 
+// Contact info fields
+export const emailSchema = z
+  .string()
+  .email("Please enter a valid email address")
+  .optional()
+  .or(z.literal(""));
+
+// Flight info fields
+export const flightNumberSchema = z
+  .string()
+  .min(2, "Flight number is required")
+  .max(10, "Flight number is too long")
+  .regex(/^[A-Z0-9]+$/, "Flight number must contain only letters and numbers");
+export const airlineSchema = z.string().min(1, "Airline is required");
+export const departurePortSchema = z
+  .string()
+  .min(1, "Departure port is required");
+export const arrivalPortSchema = z.string().min(1, "Arrival port is required");
+
+// Customs declaration fields
+export const carriesOverTenThousandSchema = z.boolean().default(false);
+export const carriesAnimalsOrFoodSchema = z.boolean().default(false);
+export const carriesTaxableGoodsSchema = z.boolean().default(false);
+
+// ===== COMPOSITE SCHEMAS =====
+
+// Group travel schema
+export const groupTravelSchema = z
+  .object({
+    isGroupTravel: isGroupTravelSchema.default(false),
+    numberOfCompanions: numberOfCompanionsSchema,
+    groupNature: groupNatureSchema,
+  })
+  .refine(
+    (data) => {
+      if (data.isGroupTravel) {
+        return data.numberOfCompanions && data.groupNature;
+      }
+      return true;
+    },
+    {
+      message: "Group details are required when traveling with others",
+      path: ["numberOfCompanions"],
+    }
+  );
+
+// General information schema (Step 1)
+export const generalInfoSchema = z.object({
+  permanentAddress: permanentAddressSchema,
+  residenceCountry: residenceCountrySchema,
+  city: citySchema,
+  state: stateSchema,
+  postalCode: postalCodeSchema,
+  hasStops: hasStopsSchema,
+  entryOrExit: entryOrExitSchema,
+});
+
 // Personal information schema (Step 2)
 export const personalInfoSchema = z.object({
   firstName: firstNameSchema,
@@ -151,30 +164,11 @@ export const personalInfoSchema = z.object({
   isForeignResident: z.boolean().default(false),
 });
 
-// Individual field schemas for contact info
-export const emailSchema = z
-  .string()
-  .email("Please enter a valid email address")
-  .optional()
-  .or(z.literal(""));
-
 // Contact information schema
 export const contactInfoSchema = z.object({
   email: emailSchema,
   phone: phoneSchema.optional(),
 });
-
-// Individual field schemas for flight info
-export const flightNumberSchema = z
-  .string()
-  .min(2, "Flight number is required")
-  .max(10, "Flight number is too long")
-  .regex(/^[A-Z0-9]+$/, "Flight number must contain only letters and numbers");
-export const airlineSchema = z.string().min(1, "Airline is required");
-export const departurePortSchema = z
-  .string()
-  .min(1, "Departure port is required");
-export const arrivalPortSchema = z.string().min(1, "Arrival port is required");
 
 // Flight information schema (Step 3)
 export const flightInfoSchema = z.object({
@@ -190,11 +184,6 @@ export const flightInfoSchema = z.object({
   confirmationNumber: z.string().optional(),
 });
 
-// Individual field schemas for customs declaration
-export const carriesOverTenThousandSchema = z.boolean().default(false);
-export const carriesAnimalsOrFoodSchema = z.boolean().default(false);
-export const carriesTaxableGoodsSchema = z.boolean().default(false);
-
 // Customs declaration schema (Step 4)
 export const customsDeclarationSchema = z.object({
   carriesOverTenThousand: carriesOverTenThousandSchema,
@@ -202,8 +191,8 @@ export const customsDeclarationSchema = z.object({
   carriesTaxableGoods: carriesTaxableGoodsSchema,
 });
 
-// Complete form schema
-export const eTicketFormSchema = z.object({
+// Complete application schema
+export const applicationSchema = z.object({
   groupTravel: groupTravelSchema,
   generalInfo: generalInfoSchema,
   personalInfo: personalInfoSchema,
@@ -212,24 +201,12 @@ export const eTicketFormSchema = z.object({
   customsDeclaration: customsDeclarationSchema,
 });
 
-// Form step configuration
-export interface FormStep {
-  id: string;
-  title: string;
-  description: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  schema: z.ZodType<any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: React.ComponentType<any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  condition?: (data: any) => boolean;
-}
+// ===== TYPE EXPORTS =====
 
-// Type exports for TypeScript
 export type GroupTravelData = z.infer<typeof groupTravelSchema>;
 export type GeneralInfoData = z.infer<typeof generalInfoSchema>;
 export type PersonalInfoData = z.infer<typeof personalInfoSchema>;
 export type ContactInfoData = z.infer<typeof contactInfoSchema>;
 export type FlightInfoData = z.infer<typeof flightInfoSchema>;
 export type CustomsDeclarationData = z.infer<typeof customsDeclarationSchema>;
-export type ETicketFormData = z.infer<typeof eTicketFormSchema>;
+export type ApplicationData = z.infer<typeof applicationSchema>;

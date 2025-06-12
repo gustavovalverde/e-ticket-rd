@@ -11,10 +11,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import type { ETicketFormData } from "@/lib/validations/eticket-schemas";
+import type { ApplicationData } from "@/lib/schemas/forms";
 
 interface ApplicationSummaryProps {
-  data: ETicketFormData;
+  data: ApplicationData;
   applicationCode: string;
 }
 

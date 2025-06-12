@@ -14,12 +14,12 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { getErrorMessage } from "@/lib/utils";
 import {
   carriesOverTenThousandSchema,
   carriesAnimalsOrFoodSchema,
   carriesTaxableGoodsSchema,
-} from "@/lib/validations/eticket-schemas";
+} from "@/lib/schemas/validation";
+import { getErrorMessage } from "@/lib/utils";
 
 interface CustomsDeclarationStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

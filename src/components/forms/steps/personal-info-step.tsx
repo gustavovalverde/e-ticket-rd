@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getErrorMessage } from "@/lib/utils";
 import {
   firstNameSchema,
   lastNameSchema,
@@ -31,7 +30,8 @@ import {
   dateOfBirthSchema,
   passportExpiryDateSchema,
   genderSchema,
-} from "@/lib/validations/eticket-schemas";
+} from "@/lib/schemas/validation";
+import { getErrorMessage } from "@/lib/utils";
 
 // Simple validation schemas for fields that don't have individual exports
 const occupationSchema = nationalitySchema; // Same validation as nationality (just required string)

@@ -5,18 +5,18 @@ import { useState } from "react";
 import { MultiStepETicketForm } from "./multi-step-eticket-form";
 import { SuccessPage } from "./success-page";
 
-import type { ETicketFormData } from "@/lib/validations/eticket-schemas";
+import type { ApplicationData } from "@/lib/schemas/forms";
 
 export function ETicketFormContainer() {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submittedData, setSubmittedData] = useState<ETicketFormData | null>(
+  const [submittedData, setSubmittedData] = useState<ApplicationData | null>(
     null
   );
   const [applicationCode] = useState(
     `ETK${Math.random().toString(36).substr(2, 6).toUpperCase()}`
   );
 
-  const handleFormSubmit = (data: ETicketFormData) => {
+  const handleFormSubmit = (data: ApplicationData) => {
     setSubmittedData(data);
     setIsSubmitted(true);
 

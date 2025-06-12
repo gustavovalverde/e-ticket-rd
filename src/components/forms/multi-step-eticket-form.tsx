@@ -1,8 +1,7 @@
 "use client";
 
-import { useForm } from "@tanstack/react-form";
 import { ChevronLeft, ChevronRight, Save, FileCheck } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +14,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { useAppForm } from "@/components/ui/tanstack-form";
+import {
+  applicationFormOptions,
+  type ApplicationData,
+} from "@/lib/schemas/forms";
 import {
   groupTravelSchema,
   generalInfoSchema,
@@ -23,8 +26,8 @@ import {
   contactInfoSchema,
   flightInfoSchema,
   customsDeclarationSchema,
-  type ETicketFormData,
-} from "@/lib/validations/eticket-schemas";
+} from "@/lib/schemas/validation";
+import { cn } from "@/lib/utils";
 
 import {
   ProgressIndicator,
@@ -39,8 +42,8 @@ import { GroupTravelStep } from "./steps/group-travel-step";
 import { PersonalInfoStep } from "./steps/personal-info-step";
 
 interface MultiStepETicketFormProps {
-  onSubmit?: (data: ETicketFormData) => void;
-  initialData?: Partial<ETicketFormData>;
+  onSubmit?: (data: ApplicationData) => void;
+  initialData?: Partial<ApplicationData>;
   applicationCode?: string;
   className?: string;
 }
@@ -124,71 +127,14 @@ export function MultiStepETicketForm({
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
-  // Initialize form with TanStack Form
-  const form = useForm({
+  // Initialize form with TanStack Form using useAppForm hook
+  const form = useAppForm({
+    ...applicationFormOptions,
     defaultValues: {
-      groupTravel: {
-        isGroupTravel: false,
-        numberOfCompanions: undefined,
-        groupNature: undefined,
-      },
-      generalInfo: {
-        permanentAddress: "",
-        residenceCountry: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        hasStops: false,
-        entryOrExit: "ENTRY" as const,
-      },
-      personalInfo: {
-        firstName: "",
-        lastName: "",
-        birthDate: {
-          year: 1990,
-          month: 1,
-          day: 1,
-        },
-        gender: "MALE" as const,
-        birthCountry: "",
-        maritalStatus: "SINGLE" as const,
-        occupation: "",
-        passport: {
-          number: "",
-          confirmNumber: "",
-          nationality: "",
-          isDifferentNationality: false,
-          additionalNationality: "",
-        },
-        isForeignResident: false,
-      },
-      contactInfo: {
-        email: "",
-        phone: {
-          countryCode: "+1",
-          number: "",
-        },
-      },
-      flightInfo: {
-        departurePort: "",
-        arrivalPort: "",
-        airline: "",
-        flightDate: {
-          year: new Date().getFullYear(),
-          month: new Date().getMonth() + 1,
-          day: new Date().getDate(),
-        },
-        flightNumber: "",
-        confirmationNumber: "",
-      },
-      customsDeclaration: {
-        carriesOverTenThousand: false,
-        carriesAnimalsOrFood: false,
-        carriesTaxableGoods: false,
-      },
+      ...applicationFormOptions.defaultValues,
       ...initialData,
-    } as ETicketFormData,
-    onSubmit: async ({ value }) => {
+    },
+    onSubmit: async ({ value }: { value: ApplicationData }) => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
         onSubmit?.(value);
@@ -213,7 +159,7 @@ export function MultiStepETicketForm({
     const savedDraft = localStorage.getItem(STORAGE_KEY);
     if (savedDraft && !initialData) {
       try {
-        const draftData = JSON.parse(savedDraft) as ETicketFormData;
+        const draftData = JSON.parse(savedDraft) as ApplicationData;
         // Reset form with draft data
         form.reset(draftData);
       } catch {
@@ -282,6 +228,57 @@ export function MultiStepETicketForm({
   });
 
   const stepProgress = useStepProgress(steps, currentStepId);
+
+  // Centralized step data management
+  const getCurrentStepData = () => {
+    switch (currentStepId) {
+      case STEP_IDS.GROUP_TRAVEL:
+        return {
+          title: STEP_TITLES.TRAVEL_GROUP,
+          subtitle: "Are you traveling with companions?",
+        };
+      case STEP_IDS.GENERAL_INFO:
+        return {
+          title: STEP_TITLES.GENERAL_INFORMATION,
+          subtitle: "Address and travel direction",
+        };
+      case STEP_IDS.PERSONAL_INFO:
+        return {
+          title: STEP_TITLES.PERSONAL_INFORMATION,
+          subtitle: "Identity and passport details",
+        };
+      case STEP_IDS.CONTACT_INFO:
+        return {
+          title: STEP_TITLES.CONTACT_INFORMATION,
+          subtitle: "Email and phone (optional)",
+        };
+      case STEP_IDS.FLIGHT_INFO:
+        return {
+          title: STEP_TITLES.FLIGHT_INFORMATION,
+          subtitle: "Flight details and airline",
+        };
+      case STEP_IDS.CUSTOMS_DECLARATION:
+        return {
+          title: STEP_TITLES.CUSTOMS_DECLARATION,
+          subtitle: "Items and goods declaration",
+        };
+      default:
+        return {
+          title: "E-Ticket Application",
+          subtitle: "",
+        };
+    }
+  };
+
+  // Proper form submission handler
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      form.handleSubmit();
+    },
+    [form]
+  );
 
   // Step navigation functions
   const validateCurrentStep = async (): Promise<boolean> => {
@@ -362,135 +359,142 @@ export function MultiStepETicketForm({
   const isLastStep = currentStepId === STEP_IDS.CUSTOMS_DECLARATION;
 
   return (
-    <div className={cn("container mx-auto max-w-6xl p-4", className)}>
-      {/* Application Code Display */}
-      {applicationCode && (
-        <Alert className="mb-6">
-          <FileCheck className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Application Code:</strong> {applicationCode}
-            <br />
-            <span className="text-muted-foreground text-sm">
-              Save this code to access your application later
-            </span>
-          </AlertDescription>
-        </Alert>
-      )}
+    <form.AppForm>
+      <div className={cn("container mx-auto max-w-6xl p-4", className)}>
+        {/* Application Code Display */}
+        {applicationCode && (
+          <Alert className="mb-6">
+            <FileCheck className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Application Code:</strong> {applicationCode}
+              <br />
+              <span className="text-muted-foreground text-sm">
+                Save this code to access your application later
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Progress Sidebar */}
-        <div className="lg:col-span-1">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileCheck className="h-5 w-5" />
-                E-Ticket Application
-              </CardTitle>
-              <CardDescription>
-                Complete all steps to generate your e-ticket
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProgressIndicator
-                steps={steps}
-                currentStepId={currentStepId}
-                variant={isMobile ? "mobile" : "default"}
-              />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Progress Sidebar */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileCheck className="h-5 w-5" />
+                  E-Ticket Application
+                </CardTitle>
+                <CardDescription>
+                  Complete all steps to generate your e-ticket
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ProgressIndicator
+                  steps={steps}
+                  currentStepId={currentStepId}
+                  variant={isMobile ? "mobile" : "default"}
+                />
 
-              {/* Quick Actions */}
-              <div className="mt-6 space-y-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    const currentData = form.state.values;
-                    localStorage.setItem(
-                      STORAGE_KEY,
-                      JSON.stringify(currentData)
-                    );
-                  }}
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Progress
-                </Button>
+                {/* Quick Actions */}
+                <div className="mt-6 space-y-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      const currentData = form.state.values;
+                      localStorage.setItem(
+                        STORAGE_KEY,
+                        JSON.stringify(currentData)
+                      );
+                    }}
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Progress
+                  </Button>
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    localStorage.removeItem(STORAGE_KEY);
-                    form.reset();
-                  }}
-                >
-                  Clear Draft
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Form */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-xl">
-                    {steps.find((s) => s.id === currentStepId)?.title}
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    {steps.find((s) => s.id === currentStepId)?.description}
-                  </CardDescription>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      localStorage.removeItem(STORAGE_KEY);
+                      form.reset();
+                    }}
+                  >
+                    Clear Draft
+                  </Button>
                 </div>
-                <Badge variant="outline" className="text-sm">
-                  {stepProgress.currentStepIndex + 1} of {steps.length}
-                </Badge>
-              </div>
-            </CardHeader>
+              </CardContent>
+            </Card>
+          </div>
 
-            <Separator />
+          {/* Main Form */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-xl">
+                      {getCurrentStepData().title}
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {getCurrentStepData().subtitle}
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline" className="text-sm">
+                    {stepProgress.currentStepIndex + 1} of {steps.length}
+                  </Badge>
+                </div>
+              </CardHeader>
 
-            <CardContent className="pt-6">{renderCurrentStep()}</CardContent>
+              <Separator />
 
-            <Separator />
+              <CardContent className="pt-6">
+                <form onSubmit={handleSubmit} id="eticket-application-form">
+                  {renderCurrentStep()}
+                </form>
+              </CardContent>
 
-            <CardContent className="pt-6">
-              {/* Navigation */}
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="outline"
-                  onClick={goToPreviousStep}
-                  disabled={!stepProgress.canGoPrevious}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
+              <Separator />
 
-                {isLastStep ? (
+              <CardContent className="pt-6">
+                {/* Navigation */}
+                <div className="flex items-center justify-between">
                   <Button
-                    onClick={() => form.handleSubmit()}
+                    variant="outline"
+                    onClick={goToPreviousStep}
+                    disabled={!stepProgress.canGoPrevious}
                     className="flex items-center gap-2"
                   >
-                    Submit Application
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
                   </Button>
-                ) : (
-                  <Button
-                    onClick={goToNextStep}
-                    disabled={!stepProgress.canGoNext}
-                    className="flex items-center gap-2"
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+
+                  {isLastStep ? (
+                    <Button
+                      onClick={() => form.handleSubmit()}
+                      disabled={!form.state.canSubmit}
+                      className="flex items-center gap-2"
+                    >
+                      Submit Application
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={goToNextStep}
+                      disabled={!stepProgress.canGoNext}
+                      className="flex items-center gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </form.AppForm>
   );
 }

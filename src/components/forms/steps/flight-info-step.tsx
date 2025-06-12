@@ -14,13 +14,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getErrorMessage } from "@/lib/utils";
 import {
   flightNumberSchema,
   airlineSchema,
   departurePortSchema,
   arrivalPortSchema,
-} from "@/lib/validations/eticket-schemas";
+} from "@/lib/schemas/validation";
+import { getErrorMessage } from "@/lib/utils";
 
 interface FlightInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
