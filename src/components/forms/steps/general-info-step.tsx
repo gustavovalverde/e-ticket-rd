@@ -7,11 +7,11 @@ import { FormField } from "@/components/forms/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  permanentAddressSchema,
-  residenceCountrySchema,
-  citySchema,
-  stateSchema,
-  postalCodeSchema,
+  validatePermanentAddress,
+  validateResidenceCountry,
+  validateCity,
+  validateState,
+  validatePostalCode,
 } from "@/lib/schemas/validation";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
@@ -42,7 +42,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                 if (!value || value.trim() === "") {
                   return "Street address is required";
                 }
-                const result = permanentAddressSchema.safeParse(value);
+                const result = validatePermanentAddress.safeParse(value);
                 return result.success
                   ? undefined
                   : result.error.issues[0]?.message;
@@ -67,7 +67,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                   if (!value || value.trim() === "") {
                     return "City is required";
                   }
-                  const result = citySchema.safeParse(value);
+                  const result = validateCity.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -89,7 +89,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
               validators={{
                 onBlur: ({ value }: { value: string }) => {
                   if (!value || value.trim() === "") return undefined; // Optional field
-                  const result = stateSchema.safeParse(value);
+                  const result = validateState.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -114,7 +114,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                   if (!value || value.trim() === "") {
                     return "Country is required";
                   }
-                  const result = residenceCountrySchema.safeParse(value);
+                  const result = validateResidenceCountry.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -136,7 +136,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
               validators={{
                 onBlur: ({ value }: { value: string }) => {
                   if (!value || value.trim() === "") return undefined; // Optional field
-                  const result = postalCodeSchema.safeParse(value);
+                  const result = validatePostalCode.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;

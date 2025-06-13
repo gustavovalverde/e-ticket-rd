@@ -28,7 +28,7 @@ import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
 import {
   validateFlightNumber,
   formatFlightNumber,
-} from "@/lib/schemas/flight-validation";
+} from "@/lib/schemas/validation";
 import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";

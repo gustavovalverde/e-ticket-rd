@@ -7,9 +7,9 @@ import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  carriesOverTenThousandSchema,
-  carriesAnimalsOrFoodSchema,
-  carriesTaxableGoodsSchema,
+  validateCarriesOverTenThousand,
+  validateCarriesAnimalsOrFood,
+  validateCarriesTaxableGoods,
 } from "@/lib/schemas/validation";
 import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
@@ -49,7 +49,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying over $10,000";
                 }
-                const result = carriesOverTenThousandSchema.safeParse(value);
+                const result = validateCarriesOverTenThousand.safeParse(value);
                 return result.success
                   ? undefined
                   : result.error.issues[0]?.message;
@@ -104,7 +104,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying biological materials";
                 }
-                const result = carriesAnimalsOrFoodSchema.safeParse(value);
+                const result = validateCarriesAnimalsOrFood.safeParse(value);
                 return result.success
                   ? undefined
                   : result.error.issues[0]?.message;
@@ -159,7 +159,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying taxable goods";
                 }
-                const result = carriesTaxableGoodsSchema.safeParse(value);
+                const result = validateCarriesTaxableGoods.safeParse(value);
                 return result.success
                   ? undefined
                   : result.error.issues[0]?.message;

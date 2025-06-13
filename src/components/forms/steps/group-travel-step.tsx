@@ -7,7 +7,7 @@ import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { groupNatureSchema } from "@/lib/schemas/validation";
+import { validateGroupNature } from "@/lib/schemas/validation";
 import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
@@ -114,7 +114,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                         if (!value || value.trim() === "") {
                           return "Group type is required";
                         }
-                        const result = groupNatureSchema.safeParse(value);
+                        const result = validateGroupNature.safeParse(value);
                         return result.success
                           ? undefined
                           : result.error.issues[0]?.message;

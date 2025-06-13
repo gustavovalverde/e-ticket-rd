@@ -18,11 +18,11 @@ import {
 } from "@/components/ui/select";
 import { useFieldContext } from "@/components/ui/tanstack-form";
 import {
-  firstNameSchema,
-  lastNameSchema,
-  passportNumberSchema,
-  nationalitySchema,
-  genderSchema,
+  validateFirstName,
+  validateLastName,
+  validatePassportNumber,
+  validateNationality,
+  validateGender,
 } from "@/lib/schemas/validation";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
@@ -108,7 +108,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                   if (!value || value.trim() === "") {
                     return "First name is required";
                   }
-                  const result = firstNameSchema.safeParse(value);
+                  const result = validateFirstName.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -131,7 +131,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                   if (!value || value.trim() === "") {
                     return "Last name is required";
                   }
-                  const result = lastNameSchema.safeParse(value);
+                  const result = validateLastName.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -206,7 +206,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                   if (!value || value.trim() === "") {
                     return "Gender is required";
                   }
-                  const result = genderSchema.safeParse(value);
+                  const result = validateGender.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -307,7 +307,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                   if (!value || value.trim() === "") {
                     return "Passport number is required";
                   }
-                  const result = passportNumberSchema.safeParse(value);
+                  const result = validatePassportNumber.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -343,7 +343,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                 if (!value || value.trim() === "") {
                   return "Nationality is required";
                 }
-                const result = nationalitySchema.safeParse(value);
+                const result = validateNationality.safeParse(value);
                 return result.success
                   ? undefined
                   : result.error.issues[0]?.message;

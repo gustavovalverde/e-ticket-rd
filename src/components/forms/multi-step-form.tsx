@@ -23,12 +23,12 @@ import {
   type ApplicationData,
 } from "@/lib/schemas/forms";
 import {
-  groupTravelSchema,
-  generalInfoSchema,
-  personalInfoSchema,
-  contactInfoSchema,
-  flightInfoSchema,
-  customsDeclarationSchema,
+  validateGroupTravelData,
+  validateGeneralInfoData,
+  validatePersonalInfoData,
+  validateContactInfoData,
+  validateFlightInfoData,
+  validateCustomsDeclarationData,
 } from "@/lib/schemas/validation";
 import { cn } from "@/lib/utils";
 
@@ -288,22 +288,24 @@ export function MultiStepForm({
       const values = form.state.values;
       switch (currentStepId) {
         case STEP_IDS.CONTACT_INFO:
-          await contactInfoSchema.parseAsync(values.contactInfo);
+          await validateContactInfoData.parseAsync(values.contactInfo);
           break;
         case STEP_IDS.FLIGHT_INFO:
-          await flightInfoSchema.parseAsync(values.flightInfo);
+          await validateFlightInfoData.parseAsync(values.flightInfo);
           break;
         case STEP_IDS.GROUP_TRAVEL:
-          await groupTravelSchema.parseAsync(values.groupTravel);
+          await validateGroupTravelData.parseAsync(values.groupTravel);
           break;
         case STEP_IDS.GENERAL_INFO:
-          await generalInfoSchema.parseAsync(values.generalInfo);
+          await validateGeneralInfoData.parseAsync(values.generalInfo);
           break;
         case STEP_IDS.PERSONAL_INFO:
-          await personalInfoSchema.parseAsync(values.personalInfo);
+          await validatePersonalInfoData.parseAsync(values.personalInfo);
           break;
         case STEP_IDS.CUSTOMS_DECLARATION:
-          await customsDeclarationSchema.parseAsync(values.customsDeclaration);
+          await validateCustomsDeclarationData.parseAsync(
+            values.customsDeclaration
+          );
           break;
       }
 

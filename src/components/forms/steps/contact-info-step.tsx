@@ -6,7 +6,7 @@ import React from "react";
 import { FormField } from "@/components/forms/form-field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneField } from "@/components/ui/phone-field";
-import { emailSchema } from "@/lib/schemas/validation";
+import { validateEmail } from "@/lib/schemas/validation";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
@@ -44,7 +44,7 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
             validators={{
               onBlur: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "") return undefined;
-                const result = emailSchema.safeParse(value);
+                const result = validateEmail.safeParse(value);
                 return result.success
                   ? undefined
                   : result.error.issues[0]?.message;
