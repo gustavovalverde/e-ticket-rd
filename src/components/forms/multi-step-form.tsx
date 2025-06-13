@@ -312,24 +312,34 @@ export function MultiStepForm({
       setStepValidationErrors((prev) => ({ ...prev, [currentStepId]: [] }));
       return true;
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Validation error for step", currentStepId, ":", error);
       setStepErrors((prev) => ({ ...prev, [currentStepId]: true }));
 
       // Extract detailed error information for user display
       const errorList: string[] = [];
-      if (error instanceof Error) {
-        errorList.push(error.message);
-      } else if (error && typeof error === "object" && "issues" in error) {
+
+      if (error && typeof error === "object" && "issues" in error) {
         // Zod validation errors
         const zodError = error as {
           issues: Array<{ message: string; path: string[] }>;
         };
+
         zodError.issues.forEach((issue) => {
-          const fieldPath =
-            issue.path.length > 0 ? issue.path.join(".") : "form";
-          errorList.push(`${fieldPath}: ${issue.message}`);
+          // Use just the message for better UX, without field path prefix
+          errorList.push(issue.message);
         });
+
+        // Log for development debugging (without exposing to user)
+        if (process.env.NODE_ENV === "development") {
+          // eslint-disable-next-line no-console
+          console.log(
+            "Validation errors for step",
+            currentStepId,
+            ":",
+            zodError.issues
+          );
+        }
+      } else if (error instanceof Error) {
+        errorList.push(error.message);
       } else {
         errorList.push("Please check the required fields and try again");
       }
