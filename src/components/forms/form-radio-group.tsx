@@ -126,10 +126,11 @@ export function FormRadioGroup({
             )}
           >
             {options.map((option) => (
-              <div
+              <label
                 key={option.id}
+                htmlFor={option.id}
                 className={cn(
-                  "border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border transition-colors",
+                  "border-border hover:bg-muted/50 flex cursor-pointer items-center space-x-4 rounded-lg border transition-colors",
                   paddingClass
                 )}
               >
@@ -148,15 +149,14 @@ export function FormRadioGroup({
                     </div>
                   )}
                   <div className="flex-1">
-                    <label
-                      htmlFor={option.id}
+                    <span
                       className={cn(
-                        "cursor-pointer leading-none font-medium",
+                        "leading-none font-medium",
                         currentSize.text
                       )}
                     >
                       {option.label}
-                    </label>
+                    </span>
                     {option.description && (
                       <p
                         className={cn(
@@ -169,7 +169,7 @@ export function FormRadioGroup({
                     )}
                   </div>
                 </div>
-              </div>
+              </label>
             ))}
           </RadioGroup>
         </FormControl>
