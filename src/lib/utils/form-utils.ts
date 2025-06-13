@@ -1,32 +1,4 @@
-import { z } from "zod";
-
 import type { AnyFieldApi } from "@tanstack/react-form";
-
-/**
- * Determines if a field is required based on its Zod schema
- * This is the single source of truth for field requirements
- */
-export function isFieldRequired(fieldSchema: z.ZodTypeAny): boolean {
-  // Check if the field schema is optional
-  return !(
-    fieldSchema instanceof z.ZodOptional ||
-    fieldSchema instanceof z.ZodNullable ||
-    fieldSchema instanceof z.ZodDefault ||
-    (fieldSchema instanceof z.ZodUnion &&
-      fieldSchema.options.some(
-        (option: z.ZodTypeAny) =>
-          option instanceof z.ZodUndefined || option instanceof z.ZodLiteral
-      ))
-  );
-}
-
-/**
- * Field requirement configuration type
- */
-export interface FieldRequirement {
-  required: boolean;
-  fieldName: string;
-}
 
 /**
  * Static field requirements based on our validation schemas
