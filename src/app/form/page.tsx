@@ -1,4 +1,4 @@
-import { ETicketFormContainer } from "@/components/forms/eticket-form-container";
+import { FormContainer } from "@/components/forms/eticket-form-container";
 
 import type { Metadata } from "next";
 
@@ -26,5 +26,5 @@ export const metadata: Metadata = {
 };
 
 export default function FormPage() {
-  return <ETicketFormContainer />;
+  return <FormContainer />;
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 
-import { normalizeFlightNumber } from "@/lib/schemas/flight-validation";
+import { normalizeFlightNumber } from "@/lib/schemas/validation";
 
 import type { FlightLookupResult } from "@/lib/types/flight";
 

@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button";
 import { ApplicationSummary } from "./application-summary";
 import { QRCodeDisplay } from "./qr-code-display";
 
-import type { ETicketFormData } from "@/lib/validations/eticket-schemas";
+import type { ApplicationData } from "@/lib/schemas/forms";
 
 interface SuccessPageProps {
-  submittedData: ETicketFormData;
+  submittedData: ApplicationData;
   applicationCode: string;
   onReset: () => void;
 }

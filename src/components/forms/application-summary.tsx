@@ -11,10 +11,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import type { ETicketFormData } from "@/lib/validations/eticket-schemas";
+import type { ApplicationData } from "@/lib/schemas/forms";
 
 interface ApplicationSummaryProps {
-  data: ETicketFormData;
+  data: ApplicationData;
   applicationCode: string;
 }
 
@@ -67,7 +67,7 @@ export function ApplicationSummary({
             <div className="space-y-1 text-sm">
               <p>
                 <span className="text-muted-foreground">Direction:</span>{" "}
-                {data.generalInfo.entryOrExit === "ENTRY"
+                {data.flightInfo.travelDirection === "ENTRY"
                   ? "Entry to Dominican Republic"
                   : "Exit from Dominican Republic"}
               </p>
@@ -80,6 +80,12 @@ export function ApplicationSummary({
                 {data.flightInfo.departurePort} → {data.flightInfo.arrivalPort}
               </p>
               <p>
+                <span className="text-muted-foreground">Flight Type:</span>{" "}
+                {data.flightInfo.hasStops
+                  ? "With Connections"
+                  : "Direct Flight"}
+              </p>
+              <p>
                 <span className="text-muted-foreground">Address:</span>{" "}
                 {data.generalInfo.permanentAddress}
               </p>
@@ -87,10 +93,20 @@ export function ApplicationSummary({
           </div>
 
           {/* Contact Information (if provided) */}
-          {(data.contactInfo.email || data.contactInfo.phone?.number) && (
+          {(data.contactInfo.preferredName ||
+            data.contactInfo.email ||
+            data.contactInfo.phone?.number) && (
             <div className="space-y-2">
               <h4 className="font-medium">Contact Information</h4>
               <div className="space-y-1 text-sm">
+                {data.contactInfo.preferredName && (
+                  <p>
+                    <span className="text-muted-foreground">
+                      Preferred Name:
+                    </span>{" "}
+                    {data.contactInfo.preferredName}
+                  </p>
+                )}
                 {data.contactInfo.email && (
                   <p>
                     <span className="text-muted-foreground">Email:</span>{" "}
