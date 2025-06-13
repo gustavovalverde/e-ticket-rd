@@ -87,6 +87,15 @@ alwaysApply: false
 - Provide clear, actionable error messages
 - Use TanStack Form for performance, flexibility, and advanced form features
 
+### Form Standardization Approach
+- Use standardized components (`FormField`, `FormRadioGroup`, `PhoneField`) across all forms
+- Avoid manual `RadioGroup`/`Label` implementations in favor of standardized wrappers
+- Implement centralized field requirements in [FIELD_REQUIREMENTS](mdc:src/lib/utils/form-utils.ts)
+- Apply automatic required field indicators (red asterisk) via `getFieldRequirement()`
+- Ensure consistent error styling with red borders and proper ARIA compliance
+- Use boolean field adapters for RadioGroup compatibility where needed
+- Follow TanStack Form integration with enhanced shadcn/ui patterns
+
 ## Internationalization & Communication
 
 ### Multilingual Support
@@ -129,4 +138,5 @@ alwaysApply: false
 For specific implementation patterns, see:
 - [Backend Integration Patterns](mdc:.cursor/rules/backend-integration.mdc)
 - [UI Component Patterns](mdc:.cursor/rules/ui-patterns.mdc)
+- [Form Standardization Methodology](mdc:.cursor/rules/form-standardization.mdc)
 - [Technology Stack](mdc:.cursor/rules/technology-stack.mdc)

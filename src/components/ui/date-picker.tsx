@@ -7,7 +7,7 @@ import {
   parse,
   isValid,
   addDays,
-  isPast,
+  isBefore,
   startOfToday,
   isMatch,
   isToday,
@@ -101,8 +101,8 @@ export function DatePicker({
       return `Use format DD/MM/YYYY (e.g., ${exampleDate})`;
     }
 
-    // Check if date is in the past (for travel dates)
-    if (isPast(parsedDate)) {
+    // Check if date is before today (for travel dates)
+    if (isBefore(parsedDate, today)) {
       return "Travel date must be today or in the future";
     }
 
@@ -207,7 +207,7 @@ export function DatePicker({
               onSelect={handleDateSelect}
               month={value || today}
               onMonthChange={() => {}} // Allow month navigation
-              disabled={(date) => isPast(date)}
+              disabled={(date) => isBefore(date, today)}
               className="rounded-md"
             />
 
