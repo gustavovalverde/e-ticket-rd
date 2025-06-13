@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAppForm } from "@/components/ui/tanstack-form";
+import { ValidationError } from "@/components/ui/validation-error";
 import {
   applicationFormOptions,
   type ApplicationData,
@@ -109,6 +110,9 @@ export function MultiStepForm({
     STEP_IDS.CONTACT_INFO
   );
   const [stepErrors, setStepErrors] = useState<Record<string, boolean>>({});
+  const [stepValidationErrors, setStepValidationErrors] = useState<
+    Record<string, unknown[]>
+  >({});
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
 
@@ -303,12 +307,37 @@ export function MultiStepForm({
           break;
       }
 
+      // Clear errors if validation passes
       setStepErrors((prev) => ({ ...prev, [currentStepId]: false }));
+      setStepValidationErrors((prev) => ({ ...prev, [currentStepId]: [] }));
       return true;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Validation error for step", currentStepId, ":", error);
       setStepErrors((prev) => ({ ...prev, [currentStepId]: true }));
+
+      // Extract detailed error information for user display
+      const errorList: string[] = [];
+      if (error instanceof Error) {
+        errorList.push(error.message);
+      } else if (error && typeof error === "object" && "issues" in error) {
+        // Zod validation errors
+        const zodError = error as {
+          issues: Array<{ message: string; path: string[] }>;
+        };
+        zodError.issues.forEach((issue) => {
+          const fieldPath =
+            issue.path.length > 0 ? issue.path.join(".") : "form";
+          errorList.push(`${fieldPath}: ${issue.message}`);
+        });
+      } else {
+        errorList.push("Please check the required fields and try again");
+      }
+
+      setStepValidationErrors((prev) => ({
+        ...prev,
+        [currentStepId]: errorList,
+      }));
       return false;
     }
   };
@@ -354,7 +383,48 @@ export function MultiStepForm({
     }
   };
 
+  // Helper functions to safely get step data without dynamic object access
+  const getStepError = (stepId: string): boolean => {
+    switch (stepId) {
+      case STEP_IDS.CONTACT_INFO:
+        return Boolean(stepErrors[STEP_IDS.CONTACT_INFO]);
+      case STEP_IDS.FLIGHT_INFO:
+        return Boolean(stepErrors[STEP_IDS.FLIGHT_INFO]);
+      case STEP_IDS.GROUP_TRAVEL:
+        return Boolean(stepErrors[STEP_IDS.GROUP_TRAVEL]);
+      case STEP_IDS.GENERAL_INFO:
+        return Boolean(stepErrors[STEP_IDS.GENERAL_INFO]);
+      case STEP_IDS.PERSONAL_INFO:
+        return Boolean(stepErrors[STEP_IDS.PERSONAL_INFO]);
+      case STEP_IDS.CUSTOMS_DECLARATION:
+        return Boolean(stepErrors[STEP_IDS.CUSTOMS_DECLARATION]);
+      default:
+        return false;
+    }
+  };
+
+  const getStepValidationErrors = (stepId: string): unknown[] => {
+    switch (stepId) {
+      case STEP_IDS.CONTACT_INFO:
+        return stepValidationErrors[STEP_IDS.CONTACT_INFO] || [];
+      case STEP_IDS.FLIGHT_INFO:
+        return stepValidationErrors[STEP_IDS.FLIGHT_INFO] || [];
+      case STEP_IDS.GROUP_TRAVEL:
+        return stepValidationErrors[STEP_IDS.GROUP_TRAVEL] || [];
+      case STEP_IDS.GENERAL_INFO:
+        return stepValidationErrors[STEP_IDS.GENERAL_INFO] || [];
+      case STEP_IDS.PERSONAL_INFO:
+        return stepValidationErrors[STEP_IDS.PERSONAL_INFO] || [];
+      case STEP_IDS.CUSTOMS_DECLARATION:
+        return stepValidationErrors[STEP_IDS.CUSTOMS_DECLARATION] || [];
+      default:
+        return [];
+    }
+  };
+
   const isLastStep = currentStepId === STEP_IDS.CUSTOMS_DECLARATION;
+  const currentStepHasErrors = getStepError(currentStepId);
+  const currentStepValidationErrors = getStepValidationErrors(currentStepId);
 
   return (
     <form.AppForm>
@@ -419,6 +489,8 @@ export function MultiStepForm({
                       onClick={() => {
                         localStorage.removeItem(STORAGE_KEY);
                         form.reset();
+                        setStepErrors({});
+                        setStepValidationErrors({});
                       }}
                     >
                       Clear Draft
@@ -451,6 +523,29 @@ export function MultiStepForm({
                 </CardHeader>
 
                 <Separator />
+
+                {/* Step Validation Errors */}
+                {currentStepHasErrors &&
+                  currentStepValidationErrors.length > 0 && (
+                    <div className="px-6 pt-6">
+                      <ValidationError
+                        errors={currentStepValidationErrors}
+                        title="Please fix the following issues:"
+                        variant="alert"
+                        dismissible
+                        onDismiss={() => {
+                          setStepErrors((prev) => ({
+                            ...prev,
+                            [currentStepId]: false,
+                          }));
+                          setStepValidationErrors((prev) => ({
+                            ...prev,
+                            [currentStepId]: [],
+                          }));
+                        }}
+                      />
+                    </div>
+                  )}
 
                 <CardContent className="space-y-8">
                   <form onSubmit={handleSubmit} id="eticket-application-form">

@@ -83,6 +83,10 @@ jobs:
           VALIDATE_JSX: false
           VALIDATE_CSS: false
           # Disable Prettier linters to avoid plugin conflicts
+          # TODO: Wait for fix or find a workaround for:
+          # https://github.com/super-linter/super-linter/issues/6089
+          VALIDATE_TYPESCRIPT_STANDARD: false
+          VALIDATE_TYPESCRIPT_PRETTIER: false
           VALIDATE_JSON_PRETTIER: false
           VALIDATE_MARKDOWN_PRETTIER: false
           VALIDATE_YAML_PRETTIER: false

@@ -8,7 +8,7 @@ import {
 import * as React from "react";
 
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn, getErrorMessage } from "@/lib/utils";
 
 const {
   fieldContext,
@@ -155,8 +155,18 @@ function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { errors, formMessageId } = useFieldContext();
 
-  const body =
-    errors.length > 0 ? String(errors[0]?.message ?? "") : props.children;
+  // Handle TanStack Form errors properly - they can be strings or objects
+  const getErrorText = (): string => {
+    if (errors.length === 0) {
+      return props.children ? String(props.children) : "";
+    }
+
+    // Use the first error and properly extract the message
+    const firstError = errors[0];
+    return getErrorMessage(firstError);
+  };
+
+  const body = getErrorText();
 
   if (!body) {
     return null;

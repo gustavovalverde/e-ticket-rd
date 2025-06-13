@@ -6,6 +6,7 @@ import {
   FormLabel,
   FormControl,
   FormDescription,
+  FormMessage,
   FieldProvider,
 } from "@/components/ui/tanstack-form";
 import { cn } from "@/lib/utils";
@@ -239,12 +240,8 @@ export function FormField({
             {description}
           </FormDescription>
         )}
-        {/* TanStack Form error display pattern */}
-        {!field.state.meta.isValid && (
-          <p className="text-destructive text-sm" role="alert">
-            {field.state.meta.errors.join(", ")}
-          </p>
-        )}
+        {/* Use proper FormMessage component following TanStack Form best practices */}
+        <FormMessage />
       </FormItem>
     </FieldProvider>
   );

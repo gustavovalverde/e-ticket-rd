@@ -13,6 +13,7 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormMessage,
 } from "@/components/ui/tanstack-form";
 import { cn } from "@/lib/utils";
 import { getFieldRequirement } from "@/lib/utils/form-utils";
@@ -171,15 +172,15 @@ export function PhoneField({
             hasError={hasError}
           />
         </FormControl>
-        {/* TanStack Form error display pattern */}
-        {(!numberField.state.meta.isValid ||
-          !countryCodeField.state.meta.isValid) && (
-          <p className="text-destructive text-sm" role="alert">
-            {!numberField.state.meta.isValid
-              ? numberField.state.meta.errors.join(", ")
-              : countryCodeField.state.meta.errors.join(", ")}
-          </p>
-        )}
+        {/* Use proper FormMessage component following TanStack Form best practices */}
+        <FormMessage />
+        {/* Show country code errors if number field is valid but country code isn't */}
+        {numberField.state.meta.isValid &&
+          !countryCodeField.state.meta.isValid && (
+            <FieldProvider field={countryCodeField}>
+              <FormMessage />
+            </FieldProvider>
+          )}
       </FormItem>
     </FieldProvider>
   );
