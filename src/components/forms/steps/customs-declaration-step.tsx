@@ -5,13 +5,7 @@ import React from "react";
 
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   carriesOverTenThousandSchema,
   carriesAnimalsOrFoodSchema,
@@ -39,16 +33,6 @@ interface CustomsDeclarationStepProps {
 export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Customs Declaration
-        </h2>
-        <p className="text-muted-foreground">
-          Please answer these questions honestly and accurately
-        </p>
-      </div>
-
       {/* Money Declaration */}
       <Card>
         <CardHeader>
@@ -56,9 +40,6 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             <DollarSign className="h-5 w-5" />
             Money and Monetary Instruments
           </CardTitle>
-          <CardDescription>
-            Declaration for cash and monetary instruments
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form.AppField
@@ -100,7 +81,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                 columns="2"
                 padding="small"
                 size="small"
-                description="This includes cash, traveler's checks, money orders, and other monetary instruments"
+                description="Includes cash, traveler's checks, and money orders"
               />
             )}
           </form.AppField>
@@ -114,9 +95,6 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             <Leaf className="h-5 w-5" />
             Biological Materials
           </CardTitle>
-          <CardDescription>
-            Declaration for animals, plants, and food products
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form.AppField
@@ -158,7 +136,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                 columns="2"
                 padding="small"
                 size="small"
-                description="This includes fruits, vegetables, meat, dairy products, seeds, plants, live animals, or soil"
+                description="Includes food, plants, animals, and soil"
               />
             )}
           </form.AppField>
@@ -172,9 +150,6 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             <Package className="h-5 w-5" />
             Taxable Goods
           </CardTitle>
-          <CardDescription>
-            Declaration for commercial goods and taxable items
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form.AppField
@@ -216,7 +191,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                 columns="2"
                 padding="small"
                 size="small"
-                description="This includes items for sale, business samples, gifts over duty-free limits, or restricted items"
+                description="Includes commercial items and gifts over duty-free limits"
               />
             )}
           </form.AppField>
@@ -227,9 +202,8 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
       <Alert>
         <InfoIcon className="h-4 w-4" />
         <AlertDescription>
-          <strong>Important:</strong> Providing false information on customs
-          declarations is a violation of Dominican Republic law and may result
-          in fines, confiscation of goods, or other legal consequences.
+          <strong>Important:</strong> Providing false customs information may
+          result in legal consequences.
         </AlertDescription>
       </Alert>
     </div>

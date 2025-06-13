@@ -20,13 +20,7 @@ import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { useFieldContext } from "@/components/ui/tanstack-form";
@@ -121,16 +115,6 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Flight Information
-        </h2>
-        <p className="text-muted-foreground">
-          Enter your flight details for travel processing
-        </p>
-      </div>
-
       {/* Travel Direction - First Section */}
       <Card>
         <CardHeader>
@@ -138,9 +122,6 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
             <MapPin className="h-5 w-5" />
             Travel Direction
           </CardTitle>
-          <CardDescription>
-            Are you entering or leaving the Dominican Republic?
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form.AppField
@@ -192,10 +173,6 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
             <Plane className="h-5 w-5" />
             Flight Details
           </CardTitle>
-          <CardDescription>
-            Let&rsquo;s start with your travel date, then we&rsquo;ll help find
-            your flight
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Travel Date */}
@@ -218,12 +195,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
             }}
           >
             {(dateField: AnyFieldApi) => (
-              <FormField
-                field={dateField}
-                label="Travel Date"
-                required
-                description="Pick your travel date in the calendar icon or input it manually."
-              >
+              <FormField field={dateField} label="Travel Date" required>
                 <DatePickerWithFormContext
                   mode="future"
                   value={
@@ -279,7 +251,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                             label={`Flight Number ${!hasDate ? "(Choose your date first)" : ""}`}
                             required
                             disabled={!hasDate}
-                            description="Smart auto-fill: Enter flight number to automatically populate airline and airports. Format: 2-3 letters + 1-4 numbers (like AA1234, U22621, or AAL8)"
+                            description="Auto-fill: Enter flight number (e.g., AA1234) to populate airline and airports"
                           >
                             {result?.success ? (
                               <div className="border-input bg-background flex w-full max-w-sm items-center rounded-md border px-3 py-2 text-sm">
@@ -365,7 +337,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                           {isLoading && hasValidFormat && (
                             <div className="animate-in fade-in flex items-center gap-2 text-sm text-blue-600 duration-200">
                               <Loader2 className="h-4 w-4 animate-spin" />
-                              <span>Searching for your flight...</span>
+                              <span>Searching...</span>
                             </div>
                           )}
 
@@ -374,14 +346,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                             <div className="animate-in fade-in space-y-3 duration-200">
                               <div className="flex items-center gap-2 text-sm text-green-600">
                                 <CheckCircle className="h-4 w-4" />
-                                <span>Perfect! We found your flight.</span>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm text-blue-600">
-                                <Info className="h-4 w-4" />
-                                <span>
-                                  If this is the wrong flight, click the ✕
-                                  button to search for a different flight.
-                                </span>
+                                <span>Flight found!</span>
                               </div>
                             </div>
                           )}
@@ -391,8 +356,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                             <div className="animate-in fade-in flex items-center gap-2 text-sm text-red-600 duration-200">
                               <AlertCircle className="h-4 w-4" />
                               <span>
-                                We couldn&rsquo;t find that flight. Please enter
-                                your details below
+                                Flight not found. Please enter details below.
                               </span>
                             </div>
                           )}
@@ -476,9 +440,8 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                       <FormField
                         field={field}
                         label="Aircraft Type"
-                        description="We'll fill this in when we find your flight"
                         disabled
-                        placeholder="We'll show this when we find your flight"
+                        placeholder="Auto-populated from flight search"
                         className="text-muted-foreground bg-muted"
                       />
                     )}
@@ -538,7 +501,6 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                 label="Booking Confirmation Number (Optional)"
                 placeholder="e.g., ABC123 (if available)"
                 className="max-w-sm"
-                description="Your airline booking reference number"
               />
             )}
           </form.AppField>
@@ -552,9 +514,6 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
             <Route className="h-5 w-5" />
             Travel Route
           </CardTitle>
-          <CardDescription>
-            Is this a direct flight or do you have connections?
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form.AppField
@@ -608,10 +567,8 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <strong>Group flight benefits:</strong> Since you&rsquo;re
-                traveling as a group, you can use the same flight information
-                for all group members. Individual flight details can be set if
-                needed.
+                <strong>Group travel:</strong> Flight information can be shared
+                with your group members.
               </AlertDescription>
             </Alert>
           );

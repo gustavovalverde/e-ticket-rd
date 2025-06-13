@@ -5,13 +5,7 @@ import React from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   permanentAddressSchema,
   residenceCountrySchema,
@@ -32,16 +26,6 @@ interface GeneralInfoStepProps {
 export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight">
-          General Information
-        </h2>
-        <p className="text-muted-foreground">
-          Tell us about your current residence
-        </p>
-      </div>
-
       {/* Current Residence */}
       <Card>
         <CardHeader>
@@ -49,7 +33,6 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
             <MapPin className="h-5 w-5" />
             Current Residence
           </CardTitle>
-          <CardDescription>Where do you currently live?</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <form.AppField
@@ -181,9 +164,8 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
             <Alert>
               <InfoIcon className="h-4 w-4" />
               <AlertDescription>
-                <strong>Address sharing:</strong> Since you&apos;re traveling as
-                a group, you can share this address information with your travel
-                companions. Each person can have different addresses if needed.
+                <strong>Group travel:</strong> Address information can be shared
+                with travel companions.
               </AlertDescription>
             </Alert>
           );

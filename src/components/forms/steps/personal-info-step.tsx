@@ -1,19 +1,13 @@
 "use client";
 
 import { lightFormat } from "date-fns";
-import { User, FileText, Shield, InfoIcon } from "lucide-react";
+import { User, FileText, InfoIcon } from "lucide-react";
 import * as React from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
@@ -97,16 +91,6 @@ function SelectWithFormContext({
 export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Personal Information
-        </h2>
-        <p className="text-muted-foreground">
-          Enter your personal details exactly as they appear on your passport
-        </p>
-      </div>
-
       {/* Name Information */}
       <Card>
         <CardHeader>
@@ -114,9 +98,6 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <User className="h-5 w-5" />
             Full Name
           </CardTitle>
-          <CardDescription>
-            Enter your name exactly as it appears on your passport
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -176,19 +157,11 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <User className="h-5 w-5" />
             Birth Information
           </CardTitle>
-          <CardDescription>
-            Your birth details as shown on official documents
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <form.AppField name="personalInfo.birthDate">
             {(field: AnyFieldApi) => (
-              <FormField
-                field={field}
-                label="Date of Birth"
-                required
-                description="Enter your birth date exactly as shown on your passport"
-              >
+              <FormField field={field} label="Date of Birth" required>
                 <DatePickerWithFormContext
                   mode="past"
                   value={
@@ -324,9 +297,6 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <FileText className="h-5 w-5" />
             Passport Information
           </CardTitle>
-          <CardDescription>
-            Enter your passport details exactly as shown
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -396,7 +366,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                 field={field}
                 label="Passport Expiry Date"
                 required
-                description="Your passport should be valid for at least 6 months"
+                description="Must be valid for at least 6 months"
               >
                 <DatePickerWithFormContext
                   mode="future"
@@ -416,16 +386,6 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
         </CardContent>
       </Card>
 
-      {/* Security Notice */}
-      <Alert>
-        <Shield className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Privacy & Security:</strong> Your personal information is
-          encrypted and protected. We only use this data for migration control
-          processing and will never share it with unauthorized parties.
-        </AlertDescription>
-      </Alert>
-
       {/* Benefits for Group Travel */}
       <form.AppField name="groupTravel.isGroupTravel">
         {(groupField: AnyFieldApi) => {
@@ -435,9 +395,8 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <Alert>
               <InfoIcon className="h-4 w-4" />
               <AlertDescription>
-                <strong>Family data sharing:</strong> Since you&apos;re
-                traveling as a group, we can help speed up similar information
-                for family members like shared nationality or addresses.
+                <strong>Group travel:</strong> Some information can be shared
+                with family members if applicable.
               </AlertDescription>
             </Alert>
           );

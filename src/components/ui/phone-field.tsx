@@ -13,7 +13,6 @@ import {
   FormItem,
   FormLabel,
   FormControl,
-  FormDescription,
 } from "@/components/ui/tanstack-form";
 import { cn } from "@/lib/utils";
 import { getFieldRequirement } from "@/lib/utils/form-utils";
@@ -25,7 +24,6 @@ interface PhoneFieldProps {
   countryCodeField: AnyFieldApi;
   label?: string;
   placeholder?: string;
-  description?: string;
   disabled?: boolean;
   className?: string;
 }
@@ -143,7 +141,6 @@ export function PhoneField({
   countryCodeField,
   label = "Phone Number",
   placeholder = "Enter phone number",
-  description = "Include area code",
   disabled = false,
   className,
 }: PhoneFieldProps) {
@@ -174,11 +171,6 @@ export function PhoneField({
             hasError={hasError}
           />
         </FormControl>
-        {description && (
-          <FormDescription className="text-sm leading-relaxed">
-            {description}
-          </FormDescription>
-        )}
         {/* TanStack Form error display pattern */}
         {(!numberField.state.meta.isValid ||
           !countryCodeField.state.meta.isValid) && (

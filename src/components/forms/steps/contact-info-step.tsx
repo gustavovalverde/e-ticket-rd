@@ -1,17 +1,10 @@
 "use client";
 
-import { Mail, InfoIcon } from "lucide-react";
+import { Mail } from "lucide-react";
 import React from "react";
 
 import { FormField } from "@/components/forms/form-field";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneField } from "@/components/ui/phone-field";
 import { emailSchema } from "@/lib/schemas/validation";
 
@@ -27,21 +20,12 @@ interface ContactInfoStepProps {
 export function ContactInfoStep({ form }: ContactInfoStepProps) {
   return (
     <div className="space-y-6">
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          Provide your contact information. This will be used for important
-          notifications about your travel.
-        </AlertDescription>
-      </Alert>
-
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
             Contact Information
           </CardTitle>
-          <CardDescription>How can we reach you?</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <form.AppField name="contactInfo.preferredName">
@@ -51,7 +35,6 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                 label="Preferred Name"
                 type="text"
                 placeholder="How would you like to be addressed?"
-                description="For personalized communications"
               />
             )}
           </form.AppField>
@@ -74,7 +57,7 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                 label="Email Address"
                 type="email"
                 placeholder="Enter your email address"
-                description="We'll send your e-ticket confirmation here"
+                description="We'll send your e-ticket here"
               />
             )}
           </form.AppField>
@@ -117,18 +100,6 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
           </form.AppField>
         </CardContent>
       </Card>
-
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Why provide contact info?</strong> We can send you:
-          <ul className="mt-2 list-inside list-disc space-y-1 text-sm">
-            <li>E-ticket confirmation with QR code</li>
-            <li>Important travel updates or changes</li>
-            <li>Reminders about required documents</li>
-          </ul>
-        </AlertDescription>
-      </Alert>
     </div>
   );
 }

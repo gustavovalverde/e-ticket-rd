@@ -6,13 +6,7 @@ import React from "react";
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { groupNatureSchema } from "@/lib/schemas/validation";
 import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
@@ -28,14 +22,6 @@ interface GroupTravelStepProps {
 export function GroupTravelStep({ form }: GroupTravelStepProps) {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight">Travel Companions</h2>
-        <p className="text-muted-foreground">
-          Are you traveling alone or with others?
-        </p>
-      </div>
-
       {/* Group Travel Question */}
       <Card>
         <CardHeader>
@@ -43,9 +29,6 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
             <Users className="h-5 w-5" />
             Travel Group
           </CardTitle>
-          <CardDescription>
-            Let us know if you&apos;re traveling with companions
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form.AppField name="groupTravel.isGroupTravel">
@@ -94,9 +77,6 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                     <UserCheck className="h-5 w-5" />
                     Group Size
                   </CardTitle>
-                  <CardDescription>
-                    How many people are traveling with you? (1-20 companions)
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form.AppField name="groupTravel.numberOfCompanions">
@@ -110,6 +90,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                         max={20}
                         step={1}
                         required
+                        description="1-20 companions"
                         className="max-w-xs"
                       />
                     )}
@@ -124,9 +105,6 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                     <Heart className="h-5 w-5" />
                     Group Type
                   </CardTitle>
-                  <CardDescription>
-                    What&apos;s your relationship with your travel companions?
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form.AppField
@@ -194,15 +172,8 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
               <Alert>
                 <InfoIcon className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Group travel benefits:</strong> Since you&apos;re
-                  traveling as a group, we can:
-                  <ul className="mt-2 list-inside list-disc space-y-1 text-sm">
-                    <li>
-                      Share common information like flight details and addresses
-                    </li>
-                    <li>Speed up the application process for all travelers</li>
-                    <li>Keep your group together during processing</li>
-                  </ul>
+                  <strong>Group travel:</strong> Common information can be
+                  shared between group members.
                 </AlertDescription>
               </Alert>
             </div>
