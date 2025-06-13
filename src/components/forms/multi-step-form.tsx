@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight, Save, FileCheck } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 
+import { ModeToggle } from "@/components/mode-toggle";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -440,9 +441,12 @@ export function MultiStepForm({
                         {getCurrentStepData().subtitle}
                       </CardDescription>
                     </div>
-                    <Badge variant="outline" className="text-sm">
-                      {stepProgress.currentStepIndex + 1} of {steps.length}
-                    </Badge>
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className="text-sm">
+                        {stepProgress.currentStepIndex + 1} of {steps.length}
+                      </Badge>
+                      <ModeToggle />
+                    </div>
                   </div>
                 </CardHeader>
 
