@@ -55,7 +55,10 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
           <form.AppField
             name="generalInfo.permanentAddress"
             validators={{
-              onChange: ({ value }: { value: string }) => {
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") {
+                  return "Street address is required";
+                }
                 const result = permanentAddressSchema.safeParse(value);
                 return result.success
                   ? undefined
@@ -77,7 +80,10 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
             <form.AppField
               name="generalInfo.city"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "City is required";
+                  }
                   const result = citySchema.safeParse(value);
                   return result.success
                     ? undefined
@@ -98,7 +104,8 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
             <form.AppField
               name="generalInfo.state"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") return undefined; // Optional field
                   const result = stateSchema.safeParse(value);
                   return result.success
                     ? undefined
@@ -120,7 +127,10 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
             <form.AppField
               name="generalInfo.residenceCountry"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "Country is required";
+                  }
                   const result = residenceCountrySchema.safeParse(value);
                   return result.success
                     ? undefined
@@ -141,7 +151,8 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
             <form.AppField
               name="generalInfo.postalCode"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") return undefined; // Optional field
                   const result = postalCodeSchema.safeParse(value);
                   return result.success
                     ? undefined

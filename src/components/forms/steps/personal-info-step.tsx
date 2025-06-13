@@ -123,7 +123,10 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <form.AppField
               name="personalInfo.firstName"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "First name is required";
+                  }
                   const result = firstNameSchema.safeParse(value);
                   return result.success
                     ? undefined
@@ -143,7 +146,10 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <form.AppField
               name="personalInfo.lastName"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "Last name is required";
+                  }
                   const result = lastNameSchema.safeParse(value);
                   return result.success
                     ? undefined
@@ -202,7 +208,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           <form.AppField
             name="personalInfo.birthCountry"
             validators={{
-              onChange: ({ value }: { value: string }) => {
+              onBlur: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "")
                   return "Country of birth is required";
                 return undefined;
@@ -223,7 +229,10 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <form.AppField
               name="personalInfo.gender"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "Gender is required";
+                  }
                   const result = genderSchema.safeParse(value);
                   return result.success
                     ? undefined
@@ -289,7 +298,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           <form.AppField
             name="personalInfo.occupation"
             validators={{
-              onChange: ({ value }: { value: string }) => {
+              onBlur: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "")
                   return "Occupation is required";
                 return undefined;
@@ -324,7 +333,10 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             <form.AppField
               name="personalInfo.passport.number"
               validators={{
-                onChange: ({ value }: { value: string }) => {
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "Passport number is required";
+                  }
                   const result = passportNumberSchema.safeParse(value);
                   return result.success
                     ? undefined
@@ -357,7 +369,10 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           <form.AppField
             name="personalInfo.passport.nationality"
             validators={{
-              onChange: ({ value }: { value: string }) => {
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") {
+                  return "Nationality is required";
+                }
                 const result = nationalitySchema.safeParse(value);
                 return result.success
                   ? undefined

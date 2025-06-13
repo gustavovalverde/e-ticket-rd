@@ -102,7 +102,7 @@ export function FormRadioGroup({
 
   return (
     <FieldProvider field={field}>
-      <FormItem className={cn("space-y-4", className)}>
+      <FormItem className={cn("space-y-3", className)}>
         {label && (
           <FormLabel
             className={cn(

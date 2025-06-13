@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { AnyFieldApi } from "@tanstack/react-form";
+
 /**
  * Determines if a field is required based on its Zod schema
  * This is the single source of truth for field requirements
@@ -84,4 +86,24 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
  */
 export function getFieldRequirement(fieldPath: string): boolean {
   return FIELD_REQUIREMENTS.get(fieldPath) ?? false;
+}
+
+/**
+ * Standardized boolean field adapter for RadioGroup components
+ * Converts boolean field values to "yes"/"no" strings for consistent UI
+ */
+export function booleanFieldAdapter(field: AnyFieldApi): AnyFieldApi {
+  // Handle undefined values by defaulting to false (which shows as "no")
+  const booleanValue = field.state.value === true;
+  const currentValue = booleanValue ? "yes" : "no";
+
+  const handleValueChange = (value: string) => {
+    field.handleChange(value === "yes");
+  };
+
+  return {
+    ...field,
+    state: { ...field.state, value: currentValue },
+    handleChange: handleValueChange,
+  } as AnyFieldApi;
 }

@@ -35,6 +35,7 @@ import {
   validateFlightNumber,
   formatFlightNumber,
 } from "@/lib/schemas/flight-validation";
+import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
@@ -249,7 +250,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
 
               return (
                 <div
-                  className={`space-y-3 transition-all duration-300 ${
+                  className={`space-y-6 transition-all duration-300 ${
                     hasDate ? "opacity-100" : "opacity-50"
                   }`}
                 >
@@ -272,7 +273,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                       const hasValidFormat = validation.isValid;
 
                       return (
-                        <div className="space-y-3">
+                        <div className="space-y-6">
                           <FormField
                             field={flightField}
                             label={`Flight Number ${!hasDate ? "(Choose your date first)" : ""}`}
@@ -370,7 +371,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
 
                           {/* Success indicator */}
                           {result?.success && (
-                            <div className="animate-in fade-in space-y-2 duration-200">
+                            <div className="animate-in fade-in space-y-3 duration-200">
                               <div className="flex items-center gap-2 text-sm text-green-600">
                                 <CheckCircle className="h-4 w-4" />
                                 <span>Perfect! We found your flight.</span>
@@ -406,7 +407,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
 
           {/* Flight Details */}
           {(result !== null || error) && (
-            <div className="bg-muted/30 space-y-4 rounded-lg p-4 transition-all duration-300">
+            <div className="bg-muted/30 space-y-6 rounded-lg p-4 transition-all duration-300">
               <h4 className="text-muted-foreground text-sm font-medium">
                 Flight Details
                 {result?.success && " ✓"}
@@ -567,47 +568,33 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => {
-              // Handle boolean conversion for hasStops field
-              const currentValue = field.state.value ? "yes" : "no";
-              const handleValueChange = (value: string) => {
-                field.handleChange(value === "yes");
-              };
-
-              return (
-                <FormRadioGroup
-                  field={
-                    {
-                      ...field,
-                      state: { ...field.state, value: currentValue },
-                      handleChange: handleValueChange,
-                    } as AnyFieldApi
-                  }
-                  options={[
-                    {
-                      value: "no",
-                      id: "direct",
-                      label: "Direct Flight",
-                      description: "No connecting flights or stops",
-                      icon: <Plane className="h-5 w-5" />,
-                      iconColor: "text-green-600",
-                    },
-                    {
-                      value: "yes",
-                      id: "stops",
-                      label: "With Connections",
-                      description: "Has connecting flights or stops",
-                      icon: <Route className="h-5 w-5" />,
-                      iconColor: "text-blue-600",
-                    },
-                  ]}
-                  layout="grid"
-                  columns="2"
-                  padding="small"
-                  size="small"
-                />
-              );
-            }}
+            {(field: AnyFieldApi) => (
+              <FormRadioGroup
+                field={booleanFieldAdapter(field)}
+                options={[
+                  {
+                    value: "no",
+                    id: "direct",
+                    label: "Direct Flight",
+                    description: "No connecting flights or stops",
+                    icon: <Plane className="h-5 w-5" />,
+                    iconColor: "text-green-600",
+                  },
+                  {
+                    value: "yes",
+                    id: "stops",
+                    label: "With Connections",
+                    description: "Has connecting flights or stops",
+                    icon: <Route className="h-5 w-5" />,
+                    iconColor: "text-blue-600",
+                  },
+                ]}
+                layout="grid"
+                columns="2"
+                padding="small"
+                size="small"
+              />
+            )}
           </form.AppField>
         </CardContent>
       </Card>

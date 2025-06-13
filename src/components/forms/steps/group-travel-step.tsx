@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { groupNatureSchema } from "@/lib/schemas/validation";
+import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
@@ -48,47 +49,33 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
         </CardHeader>
         <CardContent>
           <form.AppField name="groupTravel.isGroupTravel">
-            {(field: AnyFieldApi) => {
-              // Handle boolean conversion for this specific field
-              const currentValue = field.state.value ? "yes" : "no";
-              const handleValueChange = (value: string) => {
-                field.handleChange(value === "yes");
-              };
-
-              return (
-                <FormRadioGroup
-                  field={
-                    {
-                      ...field,
-                      state: { ...field.state, value: currentValue },
-                      handleChange: handleValueChange,
-                    } as AnyFieldApi
-                  }
-                  options={[
-                    {
-                      value: "no",
-                      id: "solo",
-                      label: "Traveling Solo",
-                      description: "I'm traveling alone",
-                      icon: <UserCheck className="h-5 w-5" />,
-                      iconColor: "text-blue-600",
-                    },
-                    {
-                      value: "yes",
-                      id: "group",
-                      label: "Group Travel",
-                      description: "I'm traveling with others",
-                      icon: <Users className="h-5 w-5" />,
-                      iconColor: "text-green-600",
-                    },
-                  ]}
-                  layout="grid"
-                  columns="2"
-                  padding="large"
-                  size="large"
-                />
-              );
-            }}
+            {(field: AnyFieldApi) => (
+              <FormRadioGroup
+                field={booleanFieldAdapter(field)}
+                options={[
+                  {
+                    value: "no",
+                    id: "solo",
+                    label: "Traveling Solo",
+                    description: "I'm traveling alone",
+                    icon: <UserCheck className="h-5 w-5" />,
+                    iconColor: "text-blue-600",
+                  },
+                  {
+                    value: "yes",
+                    id: "group",
+                    label: "Group Travel",
+                    description: "I'm traveling with others",
+                    icon: <Users className="h-5 w-5" />,
+                    iconColor: "text-green-600",
+                  },
+                ]}
+                layout="grid"
+                columns="2"
+                padding="large"
+                size="large"
+              />
+            )}
           </form.AppField>
         </CardContent>
       </Card>
@@ -145,7 +132,10 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                   <form.AppField
                     name="groupTravel.groupNature"
                     validators={{
-                      onChange: ({ value }: { value: string }) => {
+                      onBlur: ({ value }: { value: string }) => {
+                        if (!value || value.trim() === "") {
+                          return "Group type is required";
+                        }
                         const result = groupNatureSchema.safeParse(value);
                         return result.success
                           ? undefined
