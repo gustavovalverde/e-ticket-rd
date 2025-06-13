@@ -87,6 +87,20 @@ export function DatePicker({
   const [open, setOpen] = React.useState(false);
   const today = startOfToday();
 
+  // Add state to manage the displayed month independently from the selected value
+  const [displayMonth, setDisplayMonth] = React.useState<Date>(() => {
+    // Initialize with selected value's month if available, otherwise use default
+    if (value) return value;
+    return mode === "past" ? new Date(1990, 0) : today;
+  });
+
+  // Update display month when value changes (but allow independent navigation)
+  React.useEffect(() => {
+    if (value && open) {
+      setDisplayMonth(value);
+    }
+  }, [value, open]);
+
   // Generate disabled date function based on mode
   const getDisabledDate = (date: Date): boolean => {
     switch (mode) {
@@ -132,7 +146,8 @@ export function DatePicker({
           mode="single"
           selected={value}
           onSelect={handleDateSelect}
-          month={value || (mode === "past" ? new Date(1990, 0) : today)}
+          month={displayMonth}
+          onMonthChange={setDisplayMonth}
           disabled={getDisabledDate}
           captionLayout="dropdown"
           startMonth={
