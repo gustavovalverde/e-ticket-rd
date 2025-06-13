@@ -1,7 +1,8 @@
 "use client";
 
+import { lightFormat } from "date-fns";
 import { User, FileText, Shield, InfoIcon } from "lucide-react";
-import React from "react";
+import * as React from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
@@ -13,8 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useFieldContext } from "@/components/ui/tanstack-form";
 import {
   firstNameSchema,
   lastNameSchema,
@@ -37,6 +38,60 @@ interface PersonalInfoStepProps {
   form: any;
   onNext: () => void;
   onPrevious: () => void;
+}
+
+// Custom DatePicker that uses FormControl context for proper accessibility
+function DatePickerWithFormContext({
+  value,
+  onChange,
+  mode,
+  className,
+}: {
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  mode?: "future" | "past" | "any";
+  className?: string;
+}) {
+  // Get accessibility attributes from TanStack Form context
+  const { formItemId, hasError } = useFieldContext();
+
+  return (
+    <DatePicker
+      id={formItemId} // Use the proper form item ID
+      value={value}
+      onChange={onChange}
+      mode={mode}
+      className={className}
+      aria-invalid={hasError}
+    />
+  );
+}
+
+// Custom Select that uses FormControl context for proper accessibility
+function SelectWithFormContext({
+  field,
+  placeholder,
+  children,
+}: {
+  field: AnyFieldApi;
+  placeholder: string;
+  children: React.ReactNode;
+}) {
+  // Get accessibility attributes from TanStack Form context
+  const { formItemId, hasError } = useFieldContext();
+
+  return (
+    <Select
+      name={field.name}
+      value={field.state.value || ""}
+      onValueChange={(value) => field.handleChange(value)}
+    >
+      <SelectTrigger id={formItemId} aria-invalid={hasError}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>{children}</SelectContent>
+    </Select>
+  );
 }
 
 export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
@@ -79,8 +134,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
               {(field: AnyFieldApi) => (
                 <FormField
                   field={field}
-                  label="First Name"
-                  placeholder="Enter your first name"
+                  label="Given or first name(s)"
                   required
                 />
               )}
@@ -100,8 +154,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
               {(field: AnyFieldApi) => (
                 <FormField
                   field={field}
-                  label="Last Name"
-                  placeholder="Enter your last name"
+                  label="Last Name or family name"
                   required
                 />
               )}
@@ -124,91 +177,25 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
         <CardContent className="space-y-6">
           <form.AppField name="personalInfo.birthDate">
             {(field: AnyFieldApi) => (
-              <div className="grid w-full items-center gap-1.5">
-                <Label className="text-sm font-medium">Date of Birth *</Label>
-                <div className="grid max-w-md grid-cols-3 gap-4">
-                  <form.AppField name="personalInfo.birthDate.year">
-                    {(yearField: AnyFieldApi) => (
-                      <div className="grid w-full items-center gap-1.5">
-                        <Label
-                          htmlFor="birth-year"
-                          className="text-sm font-medium"
-                        >
-                          Year
-                        </Label>
-                        <Input
-                          id="birth-year"
-                          type="number"
-                          min="1900"
-                          max={new Date().getFullYear()}
-                          placeholder="1990"
-                          value={yearField.state.value || ""}
-                          onChange={(e) =>
-                            yearField.handleChange(
-                              Number(e.target.value) || undefined
-                            )
-                          }
-                        />
-                      </div>
-                    )}
-                  </form.AppField>
-                  <form.AppField name="personalInfo.birthDate.month">
-                    {(monthField: AnyFieldApi) => (
-                      <div className="grid w-full items-center gap-1.5">
-                        <Label
-                          htmlFor="birth-month"
-                          className="text-sm font-medium"
-                        >
-                          Month
-                        </Label>
-                        <Input
-                          id="birth-month"
-                          type="number"
-                          min="1"
-                          max="12"
-                          placeholder="12"
-                          value={monthField.state.value || ""}
-                          onChange={(e) =>
-                            monthField.handleChange(
-                              Number(e.target.value) || undefined
-                            )
-                          }
-                        />
-                      </div>
-                    )}
-                  </form.AppField>
-                  <form.AppField name="personalInfo.birthDate.day">
-                    {(dayField: AnyFieldApi) => (
-                      <div className="grid w-full items-center gap-1.5">
-                        <Label
-                          htmlFor="birth-day"
-                          className="text-sm font-medium"
-                        >
-                          Day
-                        </Label>
-                        <Input
-                          id="birth-day"
-                          type="number"
-                          min="1"
-                          max="31"
-                          placeholder="25"
-                          value={dayField.state.value || ""}
-                          onChange={(e) =>
-                            dayField.handleChange(
-                              Number(e.target.value) || undefined
-                            )
-                          }
-                        />
-                      </div>
-                    )}
-                  </form.AppField>
-                </div>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm" role="alert">
-                    {field.state.meta.errors[0]}
-                  </p>
-                )}
-              </div>
+              <FormField
+                field={field}
+                label="Date of Birth"
+                required
+                description="Enter your birth date exactly as shown on your passport"
+              >
+                <DatePickerWithFormContext
+                  mode="past"
+                  value={
+                    field.state.value ? new Date(field.state.value) : undefined
+                  }
+                  onChange={(date) =>
+                    field.handleChange(
+                      date ? lightFormat(date, "yyyy-MM-dd") : ""
+                    )
+                  }
+                  className="max-w-xs"
+                />
+              </FormField>
             )}
           </form.AppField>
 
@@ -245,74 +232,56 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
               }}
             >
               {(field: AnyFieldApi) => (
-                <div className="grid w-full items-center gap-1.5">
-                  <Label className="text-sm font-medium">Gender *</Label>
-                  <FormRadioGroup
-                    field={field}
-                    options={[
-                      {
-                        value: "MALE",
-                        id: "male",
-                        label: "Male",
-                        icon: <User className="h-5 w-5" />,
-                        iconBg: undefined,
-                        iconColor: "text-blue-600",
-                      },
-                      {
-                        value: "FEMALE",
-                        id: "female",
-                        label: "Female",
-                        icon: <User className="h-5 w-5" />,
-                        iconBg: undefined,
-                        iconColor: "text-pink-600",
-                      },
-                      {
-                        value: "OTHER",
-                        id: "other",
-                        label: "Other",
-                        icon: <User className="h-5 w-5" />,
-                        iconBg: undefined,
-                        iconColor: "text-gray-600",
-                      },
-                    ]}
-                    layout="stack"
-                    padding="small"
-                    size="small"
-                  />
-                </div>
+                <FormRadioGroup
+                  field={field}
+                  label="Gender"
+                  options={[
+                    {
+                      value: "MALE",
+                      id: "male",
+                      label: "Male",
+                      icon: <User className="h-5 w-5" />,
+                      iconBg: undefined,
+                      iconColor: "text-blue-600",
+                    },
+                    {
+                      value: "FEMALE",
+                      id: "female",
+                      label: "Female",
+                      icon: <User className="h-5 w-5" />,
+                      iconBg: undefined,
+                      iconColor: "text-pink-600",
+                    },
+                    {
+                      value: "OTHER",
+                      id: "other",
+                      label: "Other",
+                      icon: <User className="h-5 w-5" />,
+                      iconBg: undefined,
+                      iconColor: "text-gray-600",
+                    },
+                  ]}
+                  layout="stack"
+                  padding="small"
+                  size="small"
+                />
               )}
             </form.AppField>
 
             <form.AppField name="personalInfo.maritalStatus">
               {(field: AnyFieldApi) => (
-                <div className="grid w-full items-center gap-1.5">
-                  <Label
-                    htmlFor="marital-status"
-                    className="text-sm font-medium"
+                <FormField field={field} label="Marital Status" required>
+                  <SelectWithFormContext
+                    field={field}
+                    placeholder="Select marital status"
                   >
-                    Marital Status *
-                  </Label>
-                  <Select
-                    value={field.state.value || ""}
-                    onValueChange={(value) => field.handleChange(value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select marital status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SINGLE">Single</SelectItem>
-                      <SelectItem value="MARRIED">Married</SelectItem>
-                      <SelectItem value="DIVORCED">Divorced</SelectItem>
-                      <SelectItem value="WIDOWED">Widowed</SelectItem>
-                      <SelectItem value="COMMON_LAW">Common Law</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-destructive text-sm" role="alert">
-                      {field.state.meta.errors[0]}
-                    </p>
-                  )}
-                </div>
+                    <SelectItem value="SINGLE">Single</SelectItem>
+                    <SelectItem value="MARRIED">Married</SelectItem>
+                    <SelectItem value="DIVORCED">Divorced</SelectItem>
+                    <SelectItem value="WIDOWED">Widowed</SelectItem>
+                    <SelectItem value="COMMON_LAW">Common Law</SelectItem>
+                  </SelectWithFormContext>
+                </FormField>
               )}
             </form.AppField>
           </div>
@@ -408,29 +377,25 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
 
           <form.AppField name="personalInfo.passport.expiryDate">
             {(field: AnyFieldApi) => (
-              <div className="grid w-full items-center gap-1.5">
-                <Label
-                  htmlFor="passport-expiry"
-                  className="text-sm font-medium"
-                >
-                  Passport Expiry Date *
-                </Label>
-                <Input
-                  id="passport-expiry"
-                  type="date"
-                  value={field.state.value || ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
+              <FormField
+                field={field}
+                label="Passport Expiry Date"
+                required
+                description="Your passport should be valid for at least 6 months"
+              >
+                <DatePickerWithFormContext
+                  mode="future"
+                  value={
+                    field.state.value ? new Date(field.state.value) : undefined
+                  }
+                  onChange={(date) =>
+                    field.handleChange(
+                      date ? lightFormat(date, "yyyy-MM-dd") : ""
+                    )
+                  }
                   className="max-w-xs"
                 />
-                <p className="text-muted-foreground text-xs">
-                  Your passport should be valid for at least 6 months
-                </p>
-                {field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm" role="alert">
-                    {field.state.meta.errors[0]}
-                  </p>
-                )}
-              </div>
+              </FormField>
             )}
           </form.AppField>
         </CardContent>

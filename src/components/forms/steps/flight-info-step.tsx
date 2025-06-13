@@ -30,6 +30,7 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useFieldContext } from "@/components/ui/tanstack-form";
 import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
 import {
   validateFlightNumber,
@@ -43,6 +44,103 @@ interface FlightInfoStepProps {
   form: any;
   onNext: () => void;
   onPrevious: () => void;
+}
+
+// Custom component for flight search input with proper accessibility
+function FlightSearchInput({
+  hasDate,
+  hasValidFormat,
+  isLoading,
+  flightField,
+  formattedFlightNumberHandler,
+  handleFlightLookup,
+}: {
+  hasDate: boolean;
+  hasValidFormat: boolean;
+  isLoading: boolean;
+  flightField: AnyFieldApi;
+  formattedFlightNumberHandler: (value: string) => string;
+  handleFlightLookup: (flightNumber: string) => void;
+}) {
+  // Get accessibility attributes from TanStack Form context
+  const { formItemId, hasError } = useFieldContext();
+
+  return (
+    <div className="flex max-w-sm">
+      <Input
+        id={formItemId} // Use the proper form item ID
+        name={flightField.name}
+        type="text"
+        placeholder={
+          hasDate ? "e.g., AA1234, DL567, UA123" : "Choose your date first"
+        }
+        value={flightField.state.value}
+        onBlur={flightField.handleBlur}
+        onChange={(e) => {
+          const formatted = formattedFlightNumberHandler(e.target.value);
+          flightField.handleChange(formatted);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (hasDate && hasValidFormat && !isLoading) {
+              handleFlightLookup(flightField.state.value);
+            }
+          }
+        }}
+        className="flex-1 rounded-r-none border-r-0"
+        disabled={!hasDate}
+        aria-invalid={hasError}
+      />
+      <Button
+        type="button"
+        onClick={() => handleFlightLookup(flightField.state.value)}
+        disabled={!hasDate || !hasValidFormat || isLoading}
+        size="default"
+        variant="outline"
+        className="shrink-0 rounded-l-none border-l-0"
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Searching
+          </>
+        ) : (
+          <>
+            <Search className="h-4 w-4" />
+            Search
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+// Custom DatePicker that uses FormControl context for proper accessibility
+function DatePickerWithFormContext({
+  value,
+  onChange,
+  mode,
+  className,
+}: {
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  mode?: "future" | "past" | "any";
+  className?: string;
+}) {
+  // Get accessibility attributes from TanStack Form context
+  const { formItemId, hasError } = useFieldContext();
+
+  return (
+    <DatePicker
+      id={formItemId} // Use the proper form item ID
+      value={value}
+      onChange={onChange}
+      mode={mode}
+      className={className}
+      aria-invalid={hasError}
+    />
+  );
 }
 
 export function FlightInfoStep({ form }: FlightInfoStepProps) {
@@ -162,8 +260,8 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                 required
                 description="Pick your travel date in the calendar icon or input it manually."
               >
-                <DatePicker
-                  id="travelDate"
+                <DatePickerWithFormContext
+                  mode="future"
                   value={
                     dateField.state.value
                       ? new Date(dateField.state.value)
@@ -175,12 +273,6 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                     )
                   }
                   className="w-full max-w-sm"
-                  aria-invalid={dateField.state.meta.errors.length > 0}
-                  aria-describedby={
-                    dateField.state.meta.errors.length > 0
-                      ? "travelDate-error"
-                      : "travelDate-description"
-                  }
                 />
               </FormField>
             )}
@@ -242,65 +334,16 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                                 </Button>
                               </div>
                             ) : (
-                              <div className="flex max-w-sm">
-                                <Input
-                                  type="text"
-                                  placeholder={
-                                    hasDate
-                                      ? "e.g., AA1234, DL567, UA123"
-                                      : "Choose your date first"
-                                  }
-                                  value={flightField.state.value}
-                                  onBlur={flightField.handleBlur}
-                                  onChange={(e) => {
-                                    const formatted =
-                                      formattedFlightNumberHandler(
-                                        e.target.value
-                                      );
-                                    flightField.handleChange(formatted);
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      e.preventDefault();
-                                      if (
-                                        hasDate &&
-                                        hasValidFormat &&
-                                        !isLoading
-                                      ) {
-                                        handleFlightLookup(
-                                          flightField.state.value
-                                        );
-                                      }
-                                    }
-                                  }}
-                                  className="flex-1 rounded-r-none border-r-0"
-                                  disabled={!hasDate}
-                                />
-                                <Button
-                                  type="button"
-                                  onClick={() =>
-                                    handleFlightLookup(flightField.state.value)
-                                  }
-                                  disabled={
-                                    !hasDate || !hasValidFormat || isLoading
-                                  }
-                                  size="default"
-                                  variant="outline"
-                                  className="shrink-0 rounded-l-none border-l-0"
-                                >
-                                  {isLoading ? (
-                                    <>
-                                      <Loader2 className="h-4 w-4 animate-spin" />
-                                      Searching
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Search className="h-4 w-4" />
-                                      Search
-                                    </>
-                                  )}
-                                </Button>
-                              </div>
+                              <FlightSearchInput
+                                hasDate={hasDate}
+                                hasValidFormat={hasValidFormat}
+                                isLoading={isLoading}
+                                flightField={flightField}
+                                formattedFlightNumberHandler={
+                                  formattedFlightNumberHandler
+                                }
+                                handleFlightLookup={handleFlightLookup}
+                              />
                             )}
                           </FormField>
 
@@ -359,7 +402,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
               {result?.success ? (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <Label className="text-muted-foreground text-xs">
+                    <Label className="text-muted-foreground text-sm">
                       Airline
                     </Label>
                     <p className="text-sm font-medium">
@@ -367,7 +410,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                     </p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-xs">
+                    <Label className="text-muted-foreground text-sm">
                       Aircraft
                     </Label>
                     <p className="text-sm font-medium">
@@ -375,7 +418,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                     </p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-xs">
+                    <Label className="text-muted-foreground text-sm">
                       Departure Port
                     </Label>
                     <p className="text-sm font-medium">
@@ -383,7 +426,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                     </p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-xs">
+                    <Label className="text-muted-foreground text-sm">
                       Arrival Port
                     </Label>
                     <p className="text-sm font-medium">
@@ -406,30 +449,14 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
 
                   <form.AppField name="flightInfo.aircraft">
                     {(field: AnyFieldApi) => (
-                      <div className="grid w-full items-center gap-1.5">
-                        <Label
-                          htmlFor="aircraft"
-                          className="text-muted-foreground text-sm font-medium"
-                        >
-                          Aircraft Type
-                        </Label>
-                        <Input
-                          id="aircraft"
-                          type="text"
-                          placeholder="We&rsquo;ll show this when we find your flight"
-                          value={field.state.value}
-                          className="text-muted-foreground bg-muted"
-                          disabled
-                          readOnly
-                          aria-describedby="aircraft-description"
-                        />
-                        <p
-                          id="aircraft-description"
-                          className="text-muted-foreground text-xs"
-                        >
-                          We&rsquo;ll fill this in when we find your flight
-                        </p>
-                      </div>
+                      <FormField
+                        field={field}
+                        label="Aircraft Type"
+                        description="We'll fill this in when we find your flight"
+                        disabled
+                        placeholder="We'll show this when we find your flight"
+                        className="text-muted-foreground bg-muted"
+                      />
                     )}
                   </form.AppField>
 
@@ -462,23 +489,13 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
           {/* Confirmation Number */}
           <form.AppField name="flightInfo.confirmationNumber">
             {(field: AnyFieldApi) => (
-              <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="confirmation" className="text-sm font-medium">
-                  Booking Confirmation Number (Optional)
-                </Label>
-                <Input
-                  id="confirmation"
-                  placeholder="e.g., ABC123 (if available)"
-                  value={field.state.value || ""}
-                  onChange={(e) =>
-                    field.handleChange(e.target.value.toUpperCase())
-                  }
-                  className="max-w-sm"
-                />
-                <p className="text-muted-foreground text-xs">
-                  Your airline booking reference number
-                </p>
-              </div>
+              <FormField
+                field={field}
+                label="Booking Confirmation Number (Optional)"
+                placeholder="e.g., ABC123 (if available)"
+                className="max-w-sm"
+                description="Your airline booking reference number"
+              />
             )}
           </form.AppField>
         </CardContent>

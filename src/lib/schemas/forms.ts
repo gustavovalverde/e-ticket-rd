@@ -25,11 +25,7 @@ export const applicationFormOptions = formOptions({
     personalInfo: {
       firstName: "",
       lastName: "",
-      birthDate: {
-        year: 1990,
-        month: 1,
-        day: 1,
-      },
+      birthDate: "", // Simplified to string format (YYYY-MM-DD)
       gender: "MALE" as const,
       birthCountry: "",
       maritalStatus: "SINGLE" as const,
@@ -38,6 +34,7 @@ export const applicationFormOptions = formOptions({
         number: "",
         confirmNumber: "",
         nationality: "",
+        expiryDate: "", // Simplified passport expiry to string format
         isDifferentNationality: false,
         additionalNationality: "",
       },
@@ -53,14 +50,11 @@ export const applicationFormOptions = formOptions({
     },
     flightInfo: {
       travelDirection: "ENTRY" as const,
+      travelDate: "", // Simplified to string format (YYYY-MM-DD)
       departurePort: "",
       arrivalPort: "",
       airline: "",
-      flightDate: {
-        year: new Date().getFullYear(),
-        month: new Date().getMonth() + 1,
-        day: new Date().getDate(),
-      },
+      aircraft: "",
       flightNumber: "",
       confirmationNumber: "",
       hasStops: false,

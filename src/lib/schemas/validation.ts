@@ -20,6 +20,7 @@ const passportSchema = z
       ),
     confirmNumber: z.string().min(6, "Please confirm your passport number"),
     nationality: z.string().min(1, "Nationality is required"),
+    expiryDate: z.string().min(1, "Passport expiry date is required"),
     isDifferentNationality: z.boolean().default(false),
     additionalNationality: z.string().optional(),
   })
@@ -148,11 +149,7 @@ export const generalInfoSchema = z.object({
 export const personalInfoSchema = z.object({
   firstName: firstNameSchema,
   lastName: lastNameSchema,
-  birthDate: z.object({
-    year: z.number().min(1900).max(new Date().getFullYear()),
-    month: z.number().min(1).max(12),
-    day: z.number().min(1).max(31),
-  }),
+  birthDate: dateOfBirthSchema, // Simplified to string format
   gender: genderSchema,
   birthCountry: z.string().min(1, "Country of birth is required"),
   maritalStatus: z.enum(
@@ -176,14 +173,11 @@ export const contactInfoSchema = z.object({
 // Flight information schema (Step 3)
 export const flightInfoSchema = z.object({
   travelDirection: entryOrExitSchema,
+  travelDate: z.string().min(1, "Travel date is required"), // Simplified to string format
   departurePort: departurePortSchema,
   arrivalPort: arrivalPortSchema,
   airline: airlineSchema,
-  flightDate: z.object({
-    year: z.number().min(new Date().getFullYear()),
-    month: z.number().min(1).max(12),
-    day: z.number().min(1).max(31),
-  }),
+  aircraft: z.string().optional(), // Optional aircraft field
   flightNumber: flightNumberSchema,
   confirmationNumber: z.string().optional(),
   hasStops: hasStopsSchema,

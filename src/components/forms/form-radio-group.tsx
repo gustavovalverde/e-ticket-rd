@@ -2,6 +2,8 @@
 
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
+import { getFieldRequirement } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 import type { ReactNode } from "react";
@@ -27,6 +29,7 @@ interface FieldValidators {
 interface FormRadioGroupProps {
   field: AnyFieldApi;
   options: RadioOption[];
+  label?: string;
   layout?: "grid" | "stack";
   columns?: "1" | "2";
   padding?: "small" | "large";
@@ -37,12 +40,14 @@ interface FormRadioGroupProps {
 export function FormRadioGroup({
   field,
   options,
+  label,
   layout = "stack",
   columns = "1",
   padding = "small",
   size = "large",
 }: FormRadioGroupProps) {
   const errorId = `${field.name}-error`;
+  const isRequired = getFieldRequirement(field.name);
 
   // Calculate padding class based on size and padding props
   let paddingClass: string;
@@ -62,6 +67,17 @@ export function FormRadioGroup({
 
   return (
     <div className="space-y-3">
+      {label && (
+        <Label
+          className={cn(
+            "text-base leading-none font-medium",
+            isRequired &&
+              "after:text-destructive after:ml-0.5 after:content-['*']"
+          )}
+        >
+          {label}
+        </Label>
+      )}
       <RadioGroup
         name={field.name}
         value={field.state.value}

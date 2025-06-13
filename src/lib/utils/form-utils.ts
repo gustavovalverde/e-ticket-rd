@@ -40,9 +40,7 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   // Personal Information - All required
   ["personalInfo.firstName", true],
   ["personalInfo.lastName", true],
-  ["personalInfo.birthDate.year", true],
-  ["personalInfo.birthDate.month", true],
-  ["personalInfo.birthDate.day", true],
+  ["personalInfo.birthDate", true], // Simplified to string
   ["personalInfo.gender", true],
   ["personalInfo.birthCountry", true],
   ["personalInfo.maritalStatus", true],
@@ -50,16 +48,16 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   ["personalInfo.passport.number", true],
   ["personalInfo.passport.confirmNumber", true],
   ["personalInfo.passport.nationality", true],
+  ["personalInfo.passport.expiryDate", true],
 
   // Flight Information - Required fields
   ["flightInfo.travelDirection", true],
+  ["flightInfo.travelDate", true], // Simplified to string
   ["flightInfo.flightNumber", true],
   ["flightInfo.airline", true],
+  ["flightInfo.aircraft", false], // Optional
   ["flightInfo.departurePort", true],
   ["flightInfo.arrivalPort", true],
-  ["flightInfo.flightDate.year", true],
-  ["flightInfo.flightDate.month", true],
-  ["flightInfo.flightDate.day", true],
   ["flightInfo.hasStops", true],
   ["flightInfo.confirmationNumber", false], // Optional
 
