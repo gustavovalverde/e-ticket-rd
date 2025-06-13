@@ -256,7 +256,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                   <form.AppField
                     name="flightInfo.flightNumber"
                     validators={{
-                      onBlur: async ({ value }: { value: string }) => {
+                      onBlur: ({ value }: { value: string }) => {
                         if (!value || !value.trim()) return undefined;
                         const validation = validateFlightNumber(value);
                         return validation.isValid

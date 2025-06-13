@@ -71,42 +71,112 @@ export function FormField({
       return { inputMode, autoComplete };
     }
 
-    // Auto-detect based on field name and type
     const fieldName = field.name.toLowerCase();
+    const COUNTRY_NAME_AUTOCOMPLETE = "country-name";
 
-    if (type === "email" || fieldName.includes("email")) {
-      return { inputMode: "email" as const, autoComplete: "email" };
-    }
-    if (type === "tel" || fieldName.includes("phone")) {
-      return { inputMode: "tel" as const, autoComplete: "tel" };
-    }
-    if (
-      type === "number" ||
-      fieldName.includes("number") ||
-      fieldName.includes("companions") ||
-      fieldName.includes("year") ||
-      fieldName.includes("month") ||
-      fieldName.includes("day")
-    ) {
-      return { inputMode: "numeric" as const, autoComplete: "off" };
-    }
-    if (fieldName.includes("name")) {
-      return { inputMode: "text" as const, autoComplete: "name" };
-    }
-    if (fieldName.includes("address")) {
-      return { inputMode: "text" as const, autoComplete: "address-line1" };
-    }
-    if (fieldName.includes("city")) {
-      return { inputMode: "text" as const, autoComplete: "address-level2" };
-    }
-    if (fieldName.includes("country")) {
-      return { inputMode: "text" as const, autoComplete: "country-name" };
-    }
-    if (fieldName.includes("flight") || fieldName.includes("confirmation")) {
-      return { inputMode: "text" as const, autoComplete: "off" };
-    }
-    if (fieldName.includes("passport")) {
-      return { inputMode: "text" as const, autoComplete: "off" };
+    // Field type mappings for cleaner logic
+    const fieldMappings = [
+      // Email fields
+      {
+        condition: () => type === "email" || fieldName.includes("email"),
+        result: { inputMode: "email" as const, autoComplete: "email" },
+      },
+      // Phone fields
+      {
+        condition: () => type === "tel" || fieldName.includes("phone"),
+        result: { inputMode: "tel" as const, autoComplete: "tel" },
+      },
+      // Numeric fields
+      {
+        condition: () =>
+          type === "number" ||
+          fieldName.includes("number") ||
+          fieldName.includes("companions") ||
+          fieldName.includes("year") ||
+          fieldName.includes("month") ||
+          fieldName.includes("day"),
+        result: { inputMode: "numeric" as const, autoComplete: "off" },
+      },
+      // Name fields - specific first
+      {
+        condition: () =>
+          fieldName.includes("firstname") ||
+          fieldName.includes("first-name") ||
+          fieldName.includes("givenname") ||
+          fieldName.includes("given-name"),
+        result: { inputMode: "text" as const, autoComplete: "given-name" },
+      },
+      {
+        condition: () =>
+          fieldName.includes("lastname") ||
+          fieldName.includes("last-name") ||
+          fieldName.includes("familyname") ||
+          fieldName.includes("family-name"),
+        result: { inputMode: "text" as const, autoComplete: "family-name" },
+      },
+      // Address fields
+      {
+        condition: () => fieldName.includes("address"),
+        result: { inputMode: "text" as const, autoComplete: "address-line1" },
+      },
+      {
+        condition: () => fieldName.includes("city"),
+        result: { inputMode: "text" as const, autoComplete: "address-level2" },
+      },
+      {
+        condition: () =>
+          fieldName.includes("state") || fieldName.includes("province"),
+        result: { inputMode: "text" as const, autoComplete: "address-level1" },
+      },
+      {
+        condition: () =>
+          fieldName.includes("postal") || fieldName.includes("zip"),
+        result: { inputMode: "text" as const, autoComplete: "postal-code" },
+      },
+      // Country/nationality fields
+      {
+        condition: () =>
+          fieldName.includes("nationality") ||
+          (fieldName.includes("birth") && fieldName.includes("country")) ||
+          fieldName.includes("country"),
+        result: {
+          inputMode: "text" as const,
+          autoComplete: COUNTRY_NAME_AUTOCOMPLETE,
+        },
+      },
+      // Occupation fields
+      {
+        condition: () =>
+          fieldName.includes("occupation") || fieldName.includes("job"),
+        result: {
+          inputMode: "text" as const,
+          autoComplete: "organization-title",
+        },
+      },
+      // Travel-specific fields (no autocomplete)
+      {
+        condition: () =>
+          fieldName.includes("airline") ||
+          fieldName.includes("aircraft") ||
+          fieldName.includes("flight") ||
+          fieldName.includes("confirmation") ||
+          fieldName.includes("passport") ||
+          (fieldName.includes("port") &&
+            (fieldName.includes("departure") || fieldName.includes("arrival"))),
+        result: { inputMode: "text" as const, autoComplete: "off" },
+      },
+      // Generic name fields (fallback)
+      {
+        condition: () => fieldName.includes("name"),
+        result: { inputMode: "text" as const, autoComplete: "name" },
+      },
+    ];
+
+    // Find first matching mapping
+    for (const mapping of fieldMappings) {
+      if (mapping.condition()) {
+        return mapping.result;
+      }
     }
 
     // Default for text inputs
