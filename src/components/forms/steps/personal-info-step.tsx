@@ -64,7 +64,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <form.AppField
               name="personalInfo.firstName"
               validators={{
@@ -232,7 +232,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             )}
           </form.AppField>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <form.AppField
               name="personalInfo.gender"
               validators={{
@@ -351,7 +351,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <form.AppField
               name="personalInfo.passport.number"
               validators={{

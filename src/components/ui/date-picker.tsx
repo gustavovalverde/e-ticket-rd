@@ -172,11 +172,14 @@ export function DatePicker({
         onBlur={handleInputBlur}
         placeholder={`DD/MM/YYYY (e.g., ${lightFormat(addDays(today, 7), INPUT_DATE_FORMAT)})`}
         className={cn(
-          "pl-10",
+          "min-h-[44px] pl-10 text-base", // Touch-friendly height and readable text
+          "transition-colors duration-200", // Smooth interactions
           isInvalidDate && "border-destructive focus-visible:ring-destructive",
           className
         )}
         disabled={disabled}
+        inputMode="numeric" // Mobile numeric keyboard
+        autoComplete="bday" // Better mobile autocomplete
         aria-invalid={ariaInvalid || isInvalidDate}
         aria-describedby={ariaDescribedBy}
       />

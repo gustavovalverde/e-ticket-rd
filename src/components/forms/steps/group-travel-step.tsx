@@ -108,7 +108,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                     Group Size
                   </CardTitle>
                   <CardDescription>
-                    How many people are traveling with you?
+                    How many people are traveling with you? (1-20 companions)
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -119,6 +119,9 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                         label="Number of Companions"
                         type="number"
                         placeholder="Enter number of companions"
+                        min={1}
+                        max={20}
+                        step={1}
                         required
                         className="max-w-xs"
                       />
