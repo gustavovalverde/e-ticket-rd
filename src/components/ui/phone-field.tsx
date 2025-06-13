@@ -9,12 +9,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  FieldProvider,
   FormItem,
   FormLabel,
   FormControl,
   FormDescription,
-  FormMessage,
-  useFieldContext,
 } from "@/components/ui/tanstack-form";
 import { cn } from "@/lib/utils";
 import { getFieldRequirement } from "@/lib/utils/form-utils";
@@ -31,7 +30,43 @@ interface PhoneFieldProps {
   className?: string;
 }
 
-// Internal component that uses useFieldContext for proper accessibility
+// Country codes for Dominican Republic system
+const COUNTRY_CODES = [
+  {
+    code: "+1",
+    country: "DO",
+    label: "+1 (Dominican Republic)",
+    value: "+1-DO",
+  },
+  { code: "+1", country: "US", label: "+1 (United States)", value: "+1-US" },
+  { code: "+1", country: "CA", label: "+1 (Canada)", value: "+1-CA" },
+  {
+    code: "+44",
+    country: "GB",
+    label: "+44 (United Kingdom)",
+    value: "+44-GB",
+  },
+  { code: "+34", country: "ES", label: "+34 (Spain)", value: "+34-ES" },
+  { code: "+33", country: "FR", label: "+33 (France)", value: "+33-FR" },
+  { code: "+49", country: "DE", label: "+49 (Germany)", value: "+49-DE" },
+  { code: "+39", country: "IT", label: "+39 (Italy)", value: "+39-IT" },
+  { code: "+52", country: "MX", label: "+52 (Mexico)", value: "+52-MX" },
+  { code: "+57", country: "CO", label: "+57 (Colombia)", value: "+57-CO" },
+  { code: "+58", country: "VE", label: "+58 (Venezuela)", value: "+58-VE" },
+  { code: "+507", country: "PA", label: "+507 (Panama)", value: "+507-PA" },
+  { code: "+506", country: "CR", label: "+506 (Costa Rica)", value: "+506-CR" },
+  {
+    code: "+503",
+    country: "SV",
+    label: "+503 (El Salvador)",
+    value: "+503-SV",
+  },
+  { code: "+502", country: "GT", label: "+502 (Guatemala)", value: "+502-GT" },
+  { code: "+504", country: "HN", label: "+504 (Honduras)", value: "+504-HN" },
+  { code: "+505", country: "NI", label: "+505 (Nicaragua)", value: "+505-NI" },
+] as const;
+
+// Enhanced phone input component with country code selection
 function PhoneInputWithCountryCode({
   numberField,
   countryCodeField,
@@ -45,62 +80,57 @@ function PhoneInputWithCountryCode({
   disabled: boolean;
   hasError: boolean;
 }) {
-  // Get accessibility attributes from TanStack Form context
-  const { formItemId, hasError: contextHasError } = useFieldContext();
+  // Get the current country code value, default to Dominican Republic
+  const currentValue = countryCodeField.state.value || "+1";
 
-  // Ensure country code always has a value
-  const countryCodeValue = countryCodeField.state.value || "+1";
-
-  // Set default value immediately if not already set
-  React.useEffect(() => {
-    if (!countryCodeField.state.value) {
-      countryCodeField.handleChange("+1");
-    }
-  }, [countryCodeField]);
+  // Find the matching country option or default to Dominican Republic
+  const currentOption =
+    COUNTRY_CODES.find((item) => item.code === currentValue) ||
+    COUNTRY_CODES[0];
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
+    <div className="flex max-w-sm">
       <Select
-        name={countryCodeField.name}
-        value={countryCodeValue}
-        onValueChange={countryCodeField.handleChange}
+        value={currentOption.value}
+        onValueChange={(value) => {
+          // Extract the country code from the compound value
+          const selectedOption = COUNTRY_CODES.find(
+            (item) => item.value === value
+          );
+          if (selectedOption) {
+            countryCodeField.handleChange(selectedOption.code);
+          }
+        }}
         disabled={disabled}
       >
         <SelectTrigger
-          id={`${formItemId}-country-code`} // Unique ID for country code
-          aria-invalid={hasError}
           className={cn(
-            "min-h-[44px] w-full sm:w-32", // Touch-friendly height, full width on mobile
-            "transition-colors duration-200", // Smooth interactions
-            hasError && "border-destructive focus-visible:ring-destructive/20"
+            "min-h-[44px] w-32 rounded-r-none border-r-0",
+            hasError && "border-destructive"
           )}
         >
-          <SelectValue />
+          <SelectValue placeholder="Code" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="+1">+1 (US/Canada)</SelectItem>
-          <SelectItem value="+1809">+1809 (DR)</SelectItem>
-          <SelectItem value="+34">+34 (Spain)</SelectItem>
-          <SelectItem value="+33">+33 (France)</SelectItem>
-          <SelectItem value="+44">+44 (UK)</SelectItem>
-          <SelectItem value="+49">+49 (Germany)</SelectItem>
+          {COUNTRY_CODES.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       <Input
-        id={formItemId} // Use the proper form item ID for the main input
         name={numberField.name}
         type="tel"
-        inputMode="tel" // Mobile numeric keyboard
-        autoComplete="tel-national" // Better mobile autocomplete
         placeholder={placeholder}
         value={numberField.state.value || ""}
         onBlur={numberField.handleBlur}
         onChange={(e) => numberField.handleChange(e.target.value)}
         disabled={disabled}
-        aria-invalid={contextHasError}
+        inputMode="tel"
+        autoComplete="tel"
         className={cn(
-          "min-h-[44px] flex-1 text-base", // Touch-friendly height and readable text
-          "transition-colors duration-200", // Smooth interactions
+          "min-h-[44px] flex-1 rounded-l-none border-l-0 text-base",
           hasError && "border-destructive focus-visible:ring-destructive/20"
         )}
       />
@@ -119,39 +149,46 @@ export function PhoneField({
 }: PhoneFieldProps) {
   const isRequired = getFieldRequirement(numberField.name);
   const hasError =
-    numberField.state.meta.errors.length > 0 ||
-    countryCodeField.state.meta.errors.length > 0;
+    !numberField.state.meta.isValid || !countryCodeField.state.meta.isValid;
 
+  // Use the number field as the primary field for error display
+  // since it's the main input and typically has the validation logic
   return (
-    <FormItem className={cn("space-y-3", className)}>
-      <FormLabel
-        className={cn(
-          "text-base leading-none font-medium", // Better mobile readability
-          isRequired &&
-            "after:text-destructive after:ml-0.5 after:content-['*']"
+    <FieldProvider field={numberField}>
+      <FormItem className={cn("space-y-3", className)}>
+        <FormLabel
+          className={cn(
+            "text-base leading-none font-medium", // Better mobile readability
+            isRequired &&
+              "after:text-destructive after:ml-0.5 after:content-['*']"
+          )}
+        >
+          {label}
+        </FormLabel>
+        <FormControl>
+          <PhoneInputWithCountryCode
+            numberField={numberField}
+            countryCodeField={countryCodeField}
+            placeholder={placeholder}
+            disabled={disabled}
+            hasError={hasError}
+          />
+        </FormControl>
+        {description && (
+          <FormDescription className="text-sm leading-relaxed">
+            {description}
+          </FormDescription>
         )}
-      >
-        {label}
-      </FormLabel>
-      <FormControl>
-        <PhoneInputWithCountryCode
-          numberField={numberField}
-          countryCodeField={countryCodeField}
-          placeholder={placeholder}
-          disabled={disabled}
-          hasError={hasError}
-        />
-      </FormControl>
-      {description && (
-        <FormDescription className="text-sm leading-relaxed">
-          {description}
-        </FormDescription>
-      )}
-      <FormMessage className="text-sm font-medium">
-        {/* Show error from either field */}
-        {numberField.state.meta.errors[0] ||
-          countryCodeField.state.meta.errors[0]}
-      </FormMessage>
-    </FormItem>
+        {/* TanStack Form error display pattern */}
+        {(!numberField.state.meta.isValid ||
+          !countryCodeField.state.meta.isValid) && (
+          <p className="text-destructive text-sm" role="alert">
+            {!numberField.state.meta.isValid
+              ? numberField.state.meta.errors.join(", ")
+              : countryCodeField.state.meta.errors.join(", ")}
+          </p>
+        )}
+      </FormItem>
+    </FieldProvider>
   );
 }

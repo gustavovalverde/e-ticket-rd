@@ -1,7 +1,13 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  FieldProvider,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+} from "@/components/ui/tanstack-form";
 import { cn } from "@/lib/utils";
 import { getFieldRequirement } from "@/lib/utils/form-utils";
 
@@ -18,23 +24,16 @@ interface RadioOption {
   iconColor?: string;
 }
 
-// Type for field validation
-interface FieldValidators {
-  onChange?: (params: { value: string }) => string | undefined;
-  onBlur?: (params: { value: string }) => string | undefined;
-  onChangeAsync?: (params: { value: string }) => Promise<string | undefined>;
-  onChangeAsyncDebounceMs?: number;
-}
-
 interface FormRadioGroupProps {
   field: AnyFieldApi;
   options: RadioOption[];
   label?: string;
-  layout?: "grid" | "stack";
-  columns?: "1" | "2";
-  padding?: "small" | "large";
-  size?: "small" | "large"; // Controls icon container size
-  validators?: FieldValidators;
+  layout?: "stack" | "grid";
+  columns?: "1" | "2" | "3";
+  padding?: "small" | "medium" | "large";
+  size?: "small" | "large";
+  description?: string;
+  className?: string;
 }
 
 export function FormRadioGroup({
@@ -45,83 +44,147 @@ export function FormRadioGroup({
   columns = "1",
   padding = "small",
   size = "large",
+  description,
+  className,
 }: FormRadioGroupProps) {
-  const errorId = `${field.name}-error`;
   const isRequired = getFieldRequirement(field.name);
 
-  // Calculate padding class based on size and padding props
-  let paddingClass: string;
-  if (size === "small") {
-    paddingClass = padding === "small" ? "p-2" : "p-3";
-  } else {
-    paddingClass = padding === "small" ? "p-4" : "p-6";
-  }
+  // Safe grid class selection
+  const getGridClass = (cols: "1" | "2" | "3") => {
+    switch (cols) {
+      case "1":
+        return "grid-cols-1";
+      case "2":
+        return "grid-cols-1 sm:grid-cols-2";
+      case "3":
+        return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+      default:
+        return "grid-cols-1";
+    }
+  };
 
-  const spacingClass = size === "small" ? "space-x-2" : "space-x-4";
-  const layoutClass =
-    layout === "grid"
-      ? `grid gap-4 ${columns === "2" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`
-      : "space-y-3";
+  // Safe padding class selection
+  const getPaddingClass = (p: "small" | "medium" | "large") => {
+    switch (p) {
+      case "small":
+        return "p-3";
+      case "medium":
+        return "p-4";
+      case "large":
+        return "p-5";
+      default:
+        return "p-3";
+    }
+  };
 
-  const iconSizeClass = size === "small" ? "h-6 w-6" : "h-12 w-12";
+  // Safe size class selection
+  const getSizeClasses = (s: "small" | "large") => {
+    switch (s) {
+      case "small":
+        return {
+          icon: "h-4 w-4",
+          text: "text-sm",
+          description: "text-xs",
+        };
+      case "large":
+      default:
+        return {
+          icon: "h-6 w-6",
+          text: "text-base",
+          description: "text-sm",
+        };
+    }
+  };
+
+  const currentSize = getSizeClasses(size);
+  const gridClass = getGridClass(columns);
+  const paddingClass = getPaddingClass(padding);
 
   return (
-    <div className="space-y-3">
-      {label && (
-        <Label
-          className={cn(
-            "text-base leading-none font-medium",
-            isRequired &&
-              "after:text-destructive after:ml-0.5 after:content-['*']"
-          )}
-        >
-          {label}
-        </Label>
-      )}
-      <RadioGroup
-        name={field.name}
-        value={field.state.value}
-        onValueChange={field.handleChange}
-        className={layoutClass}
-        aria-invalid={field.state.meta.errors.length > 0}
-        aria-describedby={
-          field.state.meta.errors.length > 0 ? errorId : undefined
-        }
-      >
-        {options.map((option) => (
-          <Label
-            key={option.value}
-            htmlFor={option.id}
-            className={`border-border hover:bg-muted/50 data-[state=checked]:border-primary data-[state=checked]:bg-primary/5 flex cursor-pointer items-center ${spacingClass} rounded-lg border ${paddingClass} transition-colors`}
+    <FieldProvider field={field}>
+      <FormItem className={cn("space-y-4", className)}>
+        {label && (
+          <FormLabel
+            className={cn(
+              "text-base leading-none font-medium",
+              isRequired &&
+                "after:text-destructive after:ml-0.5 after:content-['*']"
+            )}
           >
-            <RadioGroupItem value={option.value} id={option.id} />
-            <div className="flex flex-1 items-center gap-4">
-              {option.icon && (
-                <div
-                  className={`flex ${iconSizeClass} flex-shrink-0 items-center justify-center rounded-full ${
-                    option.iconBg || "bg-white-100"
-                  } ${option.iconColor || "text-gray-700"}`}
-                >
-                  {option.icon}
-                </div>
-              )}
-              <div className="flex-1">
-                <div className="text-base font-medium">{option.label}</div>
-                {option.description && (
-                  <p className="text-muted-foreground text-sm">
-                    {option.description}
-                  </p>
+            {label}
+          </FormLabel>
+        )}
+        <FormControl>
+          <RadioGroup
+            value={field.state.value || ""}
+            onValueChange={field.handleChange}
+            onBlur={field.handleBlur}
+            className={cn(
+              layout === "grid"
+                ? `grid gap-3 ${gridClass}`
+                : "flex flex-col gap-3"
+            )}
+          >
+            {options.map((option) => (
+              <div
+                key={option.id}
+                className={cn(
+                  "border-border hover:bg-muted/50 flex items-center space-x-4 rounded-lg border transition-colors",
+                  paddingClass
                 )}
+              >
+                <RadioGroupItem value={option.value} id={option.id} />
+                <div className="flex flex-1 items-center gap-3">
+                  {option.icon && (
+                    <div
+                      className={cn(
+                        "flex items-center justify-center rounded-lg",
+                        option.iconBg || "bg-primary/10",
+                        option.iconColor || "text-primary",
+                        currentSize.icon
+                      )}
+                    >
+                      {option.icon}
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <label
+                      htmlFor={option.id}
+                      className={cn(
+                        "cursor-pointer leading-none font-medium",
+                        currentSize.text
+                      )}
+                    >
+                      {option.label}
+                    </label>
+                    {option.description && (
+                      <p
+                        className={cn(
+                          "text-muted-foreground mt-1",
+                          currentSize.description
+                        )}
+                      >
+                        {option.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </Label>
-        ))}
-      </RadioGroup>
-      {field.state.meta.errors.length > 0 && (
-        <p id={errorId} className="text-destructive text-sm" role="alert">
-          {field.state.meta.errors[0]}
-        </p>
-      )}
-    </div>
+            ))}
+          </RadioGroup>
+        </FormControl>
+        {description && (
+          <FormDescription className="text-sm leading-relaxed">
+            {description}
+          </FormDescription>
+        )}
+        {/* TanStack Form error display pattern */}
+        {!field.state.meta.isValid && (
+          <p className="text-destructive text-sm" role="alert">
+            {field.state.meta.errors.join(", ")}
+          </p>
+        )}
+      </FormItem>
+    </FieldProvider>
   );
 }

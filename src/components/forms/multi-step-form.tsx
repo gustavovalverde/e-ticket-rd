@@ -195,9 +195,11 @@ export function MultiStepForm({
         );
       case STEP_IDS.CUSTOMS_DECLARATION:
         return (
-          values.customsDeclaration?.carriesOverTenThousand !== undefined &&
-          values.customsDeclaration?.carriesAnimalsOrFood !== undefined &&
-          values.customsDeclaration?.carriesTaxableGoods !== undefined
+          typeof values.customsDeclaration?.carriesOverTenThousand ===
+            "boolean" &&
+          typeof values.customsDeclaration?.carriesAnimalsOrFood ===
+            "boolean" &&
+          typeof values.customsDeclaration?.carriesTaxableGoods === "boolean"
         );
       default:
         return false;

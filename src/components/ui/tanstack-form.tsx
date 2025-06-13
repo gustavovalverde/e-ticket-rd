@@ -3,6 +3,7 @@ import {
   createFormHook,
   createFormHookContexts,
   useStore,
+  type AnyFieldApi,
 } from "@tanstack/react-form";
 import * as React from "react";
 
@@ -36,6 +37,23 @@ type FormItemContextValue = {
 const FormItemContext = React.createContext<FormItemContextValue>(
   {} as FormItemContextValue
 );
+
+// Field Provider to bridge TanStack Form field props to context
+interface FieldProviderProps {
+  field: AnyFieldApi;
+  children: React.ReactNode;
+}
+
+function FieldProvider({ field, children }: FieldProviderProps) {
+  // Provide the complete field API to the context
+  const fieldContextValue = React.useMemo(() => field, [field]);
+
+  return (
+    <fieldContext.Provider value={fieldContextValue}>
+      {children}
+    </fieldContext.Provider>
+  );
+}
 
 function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId();
@@ -162,6 +180,7 @@ export {
   useFormContext,
   useFieldContext,
   withForm,
+  FieldProvider,
   FormItem,
   FormLabel,
   FormControl,

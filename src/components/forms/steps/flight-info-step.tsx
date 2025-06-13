@@ -14,7 +14,7 @@ import {
   Info,
   MapPin,
 } from "lucide-react";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, forwardRef } from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useFieldContext } from "@/components/ui/tanstack-form";
 import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
 import {
@@ -46,75 +45,12 @@ interface FlightInfoStepProps {
   onPrevious: () => void;
 }
 
-// Custom component for flight search input with proper accessibility
-function FlightSearchInput({
-  hasDate,
-  hasValidFormat,
-  isLoading,
-  flightField,
-  formattedFlightNumberHandler,
-  handleFlightLookup,
-}: {
-  hasDate: boolean;
-  hasValidFormat: boolean;
-  isLoading: boolean;
-  flightField: AnyFieldApi;
-  formattedFlightNumberHandler: (value: string) => string;
-  handleFlightLookup: (flightNumber: string) => void;
-}) {
-  // Get accessibility attributes from TanStack Form context
-  const { formItemId, hasError } = useFieldContext();
-
-  return (
-    <div className="flex max-w-sm">
-      <Input
-        id={formItemId} // Use the proper form item ID
-        name={flightField.name}
-        type="text"
-        placeholder={
-          hasDate ? "e.g., AA1234, DL567, UA123" : "Choose your date first"
-        }
-        value={flightField.state.value}
-        onBlur={flightField.handleBlur}
-        onChange={(e) => {
-          const formatted = formattedFlightNumberHandler(e.target.value);
-          flightField.handleChange(formatted);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            if (hasDate && hasValidFormat && !isLoading) {
-              handleFlightLookup(flightField.state.value);
-            }
-          }
-        }}
-        className="flex-1 rounded-r-none border-r-0"
-        disabled={!hasDate}
-        aria-invalid={hasError}
-      />
-      <Button
-        type="button"
-        onClick={() => handleFlightLookup(flightField.state.value)}
-        disabled={!hasDate || !hasValidFormat || isLoading}
-        size="default"
-        variant="outline"
-        className="shrink-0 rounded-l-none border-l-0"
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Searching
-          </>
-        ) : (
-          <>
-            <Search className="h-4 w-4" />
-            Search
-          </>
-        )}
-      </Button>
-    </div>
-  );
-}
+// Forwarded Input component that receives FormControl accessibility attributes
+const ForwardedInput = forwardRef<
+  React.ElementRef<typeof Input>,
+  React.ComponentPropsWithoutRef<typeof Input>
+>((props, ref) => <Input ref={ref} {...props} />);
+ForwardedInput.displayName = "ForwardedInput";
 
 // Custom DatePicker that uses FormControl context for proper accessibility
 function DatePickerWithFormContext({
@@ -206,7 +142,17 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.AppField name="flightInfo.travelDirection">
+          <form.AppField
+            name="flightInfo.travelDirection"
+            validators={{
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") {
+                  return "Please select your travel direction";
+                }
+                return undefined;
+              },
+            }}
+          >
             {(field: AnyFieldApi) => (
               <FormRadioGroup
                 field={field}
@@ -252,7 +198,24 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Travel Date */}
-          <form.AppField name="flightInfo.travelDate">
+          <form.AppField
+            name="flightInfo.travelDate"
+            validators={{
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") {
+                  return "Travel date is required";
+                }
+                // Check if the date is in the future (for arrivals)
+                const selectedDate = new Date(value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                  return "Travel date must be today or in the future";
+                }
+                return undefined;
+              },
+            }}
+          >
             {(dateField: AnyFieldApi) => (
               <FormField
                 field={dateField}
@@ -334,16 +297,66 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                                 </Button>
                               </div>
                             ) : (
-                              <FlightSearchInput
-                                hasDate={hasDate}
-                                hasValidFormat={hasValidFormat}
-                                isLoading={isLoading}
-                                flightField={flightField}
-                                formattedFlightNumberHandler={
-                                  formattedFlightNumberHandler
-                                }
-                                handleFlightLookup={handleFlightLookup}
-                              />
+                              <div className="flex max-w-sm">
+                                <ForwardedInput
+                                  name={flightField.name}
+                                  type="text"
+                                  placeholder={
+                                    hasDate
+                                      ? "e.g., AA1234, DL567, UA123"
+                                      : "Choose your date first"
+                                  }
+                                  value={flightField.state.value}
+                                  onBlur={flightField.handleBlur}
+                                  onChange={(e) => {
+                                    const formatted =
+                                      formattedFlightNumberHandler(
+                                        e.target.value
+                                      );
+                                    flightField.handleChange(formatted);
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      if (
+                                        hasDate &&
+                                        hasValidFormat &&
+                                        !isLoading
+                                      ) {
+                                        handleFlightLookup(
+                                          flightField.state.value
+                                        );
+                                      }
+                                    }
+                                  }}
+                                  className="flex-1 rounded-r-none border-r-0"
+                                  disabled={!hasDate}
+                                />
+                                <Button
+                                  type="button"
+                                  onClick={() =>
+                                    handleFlightLookup(flightField.state.value)
+                                  }
+                                  disabled={
+                                    !hasDate || !hasValidFormat || isLoading
+                                  }
+                                  size="default"
+                                  variant="outline"
+                                  className="shrink-0 rounded-l-none border-l-0"
+                                >
+                                  {isLoading ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                      Searching
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Search className="h-4 w-4" />
+                                      Search
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
                             )}
                           </FormField>
 
@@ -402,33 +415,33 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
               {result?.success ? (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <Label className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-sm font-medium">
                       Airline
-                    </Label>
+                    </p>
                     <p className="text-sm font-medium">
                       {result.flight?.airline}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-sm font-medium">
                       Aircraft
-                    </Label>
+                    </p>
                     <p className="text-sm font-medium">
                       {result.flight?.aircraft}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-sm font-medium">
                       Departure Port
-                    </Label>
+                    </p>
                     <p className="text-sm font-medium">
                       {result.flight?.origin.iata}
                     </p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-sm font-medium">
                       Arrival Port
-                    </Label>
+                    </p>
                     <p className="text-sm font-medium">
                       {result.flight?.destination.iata}
                     </p>
@@ -436,7 +449,17 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <form.AppField name="flightInfo.airline">
+                  <form.AppField
+                    name="flightInfo.airline"
+                    validators={{
+                      onBlur: ({ value }: { value: string }) => {
+                        if (!value || value.trim() === "") {
+                          return "Airline is required";
+                        }
+                        return undefined;
+                      },
+                    }}
+                  >
                     {(field: AnyFieldApi) => (
                       <FormField
                         field={field}
@@ -460,7 +483,17 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                     )}
                   </form.AppField>
 
-                  <form.AppField name="flightInfo.departurePort">
+                  <form.AppField
+                    name="flightInfo.departurePort"
+                    validators={{
+                      onBlur: ({ value }: { value: string }) => {
+                        if (!value || value.trim() === "") {
+                          return "Departure airport is required";
+                        }
+                        return undefined;
+                      },
+                    }}
+                  >
                     {(field: AnyFieldApi) => (
                       <FormField
                         field={field}
@@ -471,7 +504,17 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
                     )}
                   </form.AppField>
 
-                  <form.AppField name="flightInfo.arrivalPort">
+                  <form.AppField
+                    name="flightInfo.arrivalPort"
+                    validators={{
+                      onBlur: ({ value }: { value: string }) => {
+                        if (!value || value.trim() === "") {
+                          return "Arrival airport is required";
+                        }
+                        return undefined;
+                      },
+                    }}
+                  >
                     {(field: AnyFieldApi) => (
                       <FormField
                         field={field}
@@ -513,7 +556,17 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.AppField name="flightInfo.hasStops">
+          <form.AppField
+            name="flightInfo.hasStops"
+            validators={{
+              onBlur: ({ value }: { value: boolean }) => {
+                if (value === null || value === undefined) {
+                  return "Please select if your flight is direct or has connections";
+                }
+                return undefined;
+              },
+            }}
+          >
             {(field: AnyFieldApi) => {
               // Handle boolean conversion for hasStops field
               const currentValue = field.state.value ? "yes" : "no";

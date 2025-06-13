@@ -59,8 +59,8 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
           <form.AppField
             name="contactInfo.email"
             validators={{
-              onChange: ({ value }: { value: string }) => {
-                if (!value || value.trim() === "") return undefined; // Optional field
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") return undefined;
                 const result = emailSchema.safeParse(value);
                 return result.success
                   ? undefined
@@ -79,9 +79,33 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
             )}
           </form.AppField>
 
-          <form.AppField name="contactInfo.phone.number">
+          <form.AppField
+            name="contactInfo.phone.number"
+            validators={{
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") {
+                  return "Phone number is required for travel notifications";
+                }
+                // Basic phone number validation
+                const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+                return phoneRegex.test(value.replace(/\s+/g, ""))
+                  ? undefined
+                  : "Please enter a valid phone number";
+              },
+            }}
+          >
             {(numberField: AnyFieldApi) => (
-              <form.AppField name="contactInfo.phone.countryCode">
+              <form.AppField
+                name="contactInfo.phone.countryCode"
+                validators={{
+                  onBlur: ({ value }: { value: string }) => {
+                    if (!value || value.trim() === "") {
+                      return "Country code is required";
+                    }
+                    return undefined;
+                  },
+                }}
+              >
                 {(countryCodeField: AnyFieldApi) => (
                   <PhoneField
                     numberField={numberField}

@@ -60,9 +60,9 @@ export const applicationFormOptions = formOptions({
       hasStops: false,
     },
     customsDeclaration: {
-      carriesOverTenThousand: false,
-      carriesAnimalsOrFood: false,
-      carriesTaxableGoods: false,
+      carriesOverTenThousand: false as boolean,
+      carriesAnimalsOrFood: false as boolean,
+      carriesTaxableGoods: false as boolean,
     },
   },
 });

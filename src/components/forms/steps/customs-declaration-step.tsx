@@ -38,7 +38,10 @@ interface CustomsDeclarationStepProps {
 export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
   // Helper function to handle boolean to string conversion for radio groups
   const createBooleanFieldAdapter = (field: AnyFieldApi) => {
-    const currentValue = field.state.value ? "yes" : "no";
+    // Handle undefined values by defaulting to false (which shows as "no")
+    const booleanValue = field.state.value === true;
+    const currentValue = booleanValue ? "yes" : "no";
+
     const handleValueChange = (value: string) => {
       field.handleChange(value === "yes");
     };
@@ -144,53 +147,39 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => {
-              // Handle boolean conversion for customs fields
-              const currentValue = field.state.value ? "yes" : "no";
-              const handleValueChange = (value: string) => {
-                field.handleChange(value === "yes");
-              };
-
-              return (
-                <div className="space-y-4">
-                  <FormRadioGroup
-                    field={
-                      {
-                        ...field,
-                        state: { ...field.state, value: currentValue },
-                        handleChange: handleValueChange,
-                      } as AnyFieldApi
-                    }
-                    options={[
-                      {
-                        value: "no",
-                        id: "bio-no",
-                        label: "No",
-                        description: "No biological materials",
-                        icon: <Shield className="h-5 w-5" />,
-                        iconColor: ICON_COLORS.GREEN,
-                      },
-                      {
-                        value: "yes",
-                        id: "bio-yes",
-                        label: "Yes",
-                        description: "Carrying biological items",
-                        icon: <Leaf className="h-5 w-5" />,
-                        iconColor: ICON_COLORS.ORANGE,
-                      },
-                    ]}
-                    layout="grid"
-                    columns="2"
-                    padding="small"
-                    size="small"
-                  />
-                  <p className="text-muted-foreground text-sm">
-                    This includes fruits, vegetables, meat, dairy products,
-                    seeds, plants, live animals, or soil
-                  </p>
-                </div>
-              );
-            }}
+            {(field: AnyFieldApi) => (
+              <div className="space-y-4">
+                <FormRadioGroup
+                  field={createBooleanFieldAdapter(field)}
+                  options={[
+                    {
+                      value: "no",
+                      id: "bio-no",
+                      label: "No",
+                      description: "No biological materials",
+                      icon: <Shield className="h-5 w-5" />,
+                      iconColor: ICON_COLORS.GREEN,
+                    },
+                    {
+                      value: "yes",
+                      id: "bio-yes",
+                      label: "Yes",
+                      description: "Carrying biological items",
+                      icon: <Leaf className="h-5 w-5" />,
+                      iconColor: ICON_COLORS.ORANGE,
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
+                <p className="text-muted-foreground text-sm">
+                  This includes fruits, vegetables, meat, dairy products, seeds,
+                  plants, live animals, or soil
+                </p>
+              </div>
+            )}
           </form.AppField>
         </CardContent>
       </Card>
@@ -218,53 +207,39 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => {
-              // Handle boolean conversion for customs fields
-              const currentValue = field.state.value ? "yes" : "no";
-              const handleValueChange = (value: string) => {
-                field.handleChange(value === "yes");
-              };
-
-              return (
-                <div className="space-y-4">
-                  <FormRadioGroup
-                    field={
-                      {
-                        ...field,
-                        state: { ...field.state, value: currentValue },
-                        handleChange: handleValueChange,
-                      } as AnyFieldApi
-                    }
-                    options={[
-                      {
-                        value: "no",
-                        id: "goods-no",
-                        label: "No",
-                        description: "Personal items only",
-                        icon: <Shield className="h-5 w-5" />,
-                        iconColor: ICON_COLORS.GREEN,
-                      },
-                      {
-                        value: "yes",
-                        id: "goods-yes",
-                        label: "Yes",
-                        description: "Commercial or taxable goods",
-                        icon: <Package className="h-5 w-5" />,
-                        iconColor: ICON_COLORS.RED,
-                      },
-                    ]}
-                    layout="grid"
-                    columns="2"
-                    padding="small"
-                    size="small"
-                  />
-                  <p className="text-muted-foreground text-sm">
-                    This includes items for sale, business samples, gifts over
-                    duty-free limits, or restricted items
-                  </p>
-                </div>
-              );
-            }}
+            {(field: AnyFieldApi) => (
+              <div className="space-y-4">
+                <FormRadioGroup
+                  field={createBooleanFieldAdapter(field)}
+                  options={[
+                    {
+                      value: "no",
+                      id: "goods-no",
+                      label: "No",
+                      description: "Personal items only",
+                      icon: <Shield className="h-5 w-5" />,
+                      iconColor: ICON_COLORS.GREEN,
+                    },
+                    {
+                      value: "yes",
+                      id: "goods-yes",
+                      label: "Yes",
+                      description: "Commercial or taxable goods",
+                      icon: <Package className="h-5 w-5" />,
+                      iconColor: ICON_COLORS.RED,
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
+                <p className="text-muted-foreground text-sm">
+                  This includes items for sale, business samples, gifts over
+                  duty-free limits, or restricted items
+                </p>
+              </div>
+            )}
           </form.AppField>
         </CardContent>
       </Card>

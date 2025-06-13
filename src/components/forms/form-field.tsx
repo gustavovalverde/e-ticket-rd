@@ -6,7 +6,7 @@ import {
   FormLabel,
   FormControl,
   FormDescription,
-  FormMessage,
+  FieldProvider,
 } from "@/components/ui/tanstack-form";
 import { cn } from "@/lib/utils";
 import { getFieldRequirement } from "@/lib/utils/form-utils";
@@ -60,7 +60,9 @@ export function FormField({
   // Determine if field is required (manual override or automatic detection)
   const isRequired =
     required !== undefined ? required : getFieldRequirement(field.name);
-  const hasError = field.state.meta.errors.length > 0;
+
+  // Use TanStack Form's recommended error checking pattern
+  const hasError = !field.state.meta.isValid;
 
   // Auto-detect mobile optimization attributes based on field type and name
   const getMobileAttributes = () => {
@@ -114,60 +116,66 @@ export function FormField({
   const mobileAttributes = getMobileAttributes();
 
   return (
-    <FormItem className={cn("space-y-3", className)}>
-      {" "}
-      {/* Enhanced mobile spacing */}
-      <FormLabel
-        className={cn(
-          "text-base leading-none font-medium", // Better mobile readability
-          isRequired &&
-            "after:text-destructive after:ml-0.5 after:content-['*']"
+    <FieldProvider field={field}>
+      <FormItem className={cn("space-y-3", className)}>
+        <FormLabel
+          className={cn(
+            "text-base leading-none font-medium", // Better mobile readability
+            isRequired &&
+              "after:text-destructive after:ml-0.5 after:content-['*']"
+          )}
+        >
+          {label}
+        </FormLabel>
+        <FormControl>
+          {children ? (
+            // Custom input component (like DatePicker)
+            children
+          ) : (
+            // Standard input with mobile enhancements
+            <Input
+              name={field.name}
+              type={type}
+              placeholder={placeholder}
+              value={field.state.value || ""}
+              onBlur={field.handleBlur} // Important: enables onBlur validation
+              onChange={(e) => {
+                const value = e.target.value;
+                // Convert to number for number inputs, otherwise keep as string
+                if (type === "number") {
+                  field.handleChange(value === "" ? undefined : Number(value));
+                } else {
+                  field.handleChange(value);
+                }
+              }}
+              disabled={disabled}
+              min={min}
+              max={max}
+              step={step}
+              inputMode={mobileAttributes.inputMode}
+              autoComplete={mobileAttributes.autoComplete}
+              className={cn(
+                // Mobile-first styling enhancements
+                "min-h-[44px] text-base", // Touch-friendly height and readable text
+                "transition-colors duration-200", // Smooth interactions
+                hasError &&
+                  "border-destructive focus-visible:ring-destructive/20"
+              )}
+            />
+          )}
+        </FormControl>
+        {description && (
+          <FormDescription className="text-sm leading-relaxed">
+            {description}
+          </FormDescription>
         )}
-      >
-        {label}
-      </FormLabel>
-      <FormControl>
-        {children ? (
-          // Custom input component (like DatePicker)
-          children
-        ) : (
-          // Standard input with mobile enhancements
-          <Input
-            name={field.name}
-            type={type}
-            placeholder={placeholder}
-            value={field.state.value || ""}
-            onBlur={field.handleBlur}
-            onChange={(e) => {
-              const value = e.target.value;
-              // Convert to number for number inputs, otherwise keep as string
-              if (type === "number") {
-                field.handleChange(value === "" ? undefined : Number(value));
-              } else {
-                field.handleChange(value);
-              }
-            }}
-            disabled={disabled}
-            min={min}
-            max={max}
-            step={step}
-            inputMode={mobileAttributes.inputMode}
-            autoComplete={mobileAttributes.autoComplete}
-            className={cn(
-              // Mobile-first styling enhancements
-              "min-h-[44px] text-base", // Touch-friendly height and readable text
-              "transition-colors duration-200", // Smooth interactions
-              hasError && "border-destructive focus-visible:ring-destructive/20"
-            )}
-          />
+        {/* TanStack Form error display pattern */}
+        {!field.state.meta.isValid && (
+          <p className="text-destructive text-sm" role="alert">
+            {field.state.meta.errors.join(", ")}
+          </p>
         )}
-      </FormControl>
-      {description && (
-        <FormDescription className="text-sm leading-relaxed">
-          {description}
-        </FormDescription>
-      )}
-      <FormMessage className="text-sm font-medium" />
-    </FormItem>
+      </FormItem>
+    </FieldProvider>
   );
 }
