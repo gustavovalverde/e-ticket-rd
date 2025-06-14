@@ -1,3 +1,4 @@
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 // ===== FLIGHT NUMBER VALIDATION UTILITIES =====
@@ -72,13 +73,17 @@ export function formatFlightNumber(flightNumber: string): string {
 // ===== BASE VALIDATION SCHEMAS =====
 
 // Enhanced phone schema with better international validation
-const phoneSchema = z.object({
-  countryCode: z.string().min(1, "Country code is required"),
-  number: z
-    .string()
-    .min(7, "Phone number must be at least 7 digits")
-    .regex(/^[+]?[1-9][\d]{0,15}$/, "Please enter a valid phone number"),
-});
+const phoneSchema = z.string().refine(
+  (value) => {
+    if (!value || value.trim() === "") {
+      return false; // Required field, so empty is invalid
+    }
+    return isValidPhoneNumber(value);
+  },
+  {
+    message: "Please enter a valid phone number",
+  }
+);
 
 // Enhanced passport schema with better validation
 const passportSchema = z
@@ -92,24 +97,38 @@ const passportSchema = z
         "Passport number must contain only uppercase letters and numbers"
       ),
     confirmNumber: z.string().min(6, "Please confirm your passport number"),
-    nationality: z.string().min(1, "Nationality is required"),
+    isDifferentNationality: z.boolean(),
+    nationality: z.string().optional(),
     expiryDate: z
       .string()
       .min(1, "Passport expiry date is required")
       .refine((date) => {
         const expiryDate = new Date(date);
-        // Passport should be valid for at least 6 months from today
-        const sixMonthsFromNow = new Date();
-        sixMonthsFromNow.setMonth(sixMonthsFromNow.getMonth() + 6);
-        return expiryDate >= sixMonthsFromNow;
-      }, "Passport must be valid for at least 6 months"),
-    isDifferentNationality: z.boolean().default(false),
+        // Passport should be valid for at least 3 months from today
+        const threeMonthsFromNow = new Date();
+        threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+        return expiryDate >= threeMonthsFromNow;
+      }, "Passport must be valid for at least 3 months"),
     additionalNationality: z.string().optional(),
   })
   .refine((data) => data.number === data.confirmNumber, {
     message: "Passport numbers must match",
     path: ["confirmNumber"],
-  });
+  })
+  .refine(
+    (data) => {
+      // If different nationality is true, nationality must be provided
+      return (
+        !data.isDifferentNationality ||
+        (data.nationality && data.nationality.trim() !== "")
+      );
+    },
+    {
+      message:
+        "Nationality is required when passport nationality is different from country of birth",
+      path: ["nationality"],
+    }
+  );
 
 // ===== INDIVIDUAL FIELD VALIDATION RULES =====
 
@@ -135,7 +154,7 @@ export const validateResidenceCountry = z
 export const validateCity = z.string().min(1, "City is required");
 export const validateState = z.string().optional();
 export const validatePostalCode = z.string().optional();
-export const validateHasStops = z.boolean().default(false);
+export const validateHasStops = z.boolean();
 export const validateTravelDirection = z.enum(["ENTRY", "EXIT"], {
   required_error: "Please select entry or exit",
 });
@@ -157,9 +176,19 @@ export const validateLastName = z
     /^[a-zA-ZÀ-ÿ\s'-]+$/,
     "Last name can only contain letters, spaces, apostrophes, and hyphens"
   );
-export const validateGender = z.enum(["MALE", "FEMALE", "OTHER"], {
-  required_error: "Gender is required",
+export const validateSex = z.enum(["MALE", "FEMALE"], {
+  required_error: "Sex is required",
 });
+
+// Civil status constants - single source of truth
+export const CIVIL_STATUS_OPTIONS = [
+  "SINGLE",
+  "MARRIED",
+  "CONCUBINAGE",
+  "FREE_UNION",
+  "OTHERS",
+] as const;
+
 export const validatePassportNumber = z
   .string()
   .min(6, "Passport number must be at least 6 characters")
@@ -172,6 +201,23 @@ export const validateNationality = z.string().min(1, "Nationality is required");
 export const validateDateOfBirth = z
   .string()
   .min(1, "Date of birth is required");
+
+// Occupation constants - single source of truth
+export const OCCUPATION_OPTIONS = [
+  "UNEMPLOYED",
+  "CREW_MEMBER",
+  "DIPLOMATIC",
+  "RETIRED",
+  "STUDENT",
+  "FREELANCER",
+  "PRIVATE_EMPLOYEE",
+  "PUBLIC_EMPLOYEE",
+  "ENTREPRENEUR",
+] as const;
+
+export const validateOccupation = z.enum(OCCUPATION_OPTIONS, {
+  required_error: "Occupation is required",
+});
 
 // Contact info field rules
 export const validatePreferredName = z
@@ -217,16 +263,16 @@ export const validateTravelDate = z
   }, "Travel date must be today or in the future");
 
 // Customs declaration field rules
-export const validateCarriesOverTenThousand = z.boolean().default(false);
-export const validateCarriesAnimalsOrFood = z.boolean().default(false);
-export const validateCarriesTaxableGoods = z.boolean().default(false);
+export const validateCarriesOverTenThousand = z.boolean();
+export const validateCarriesAnimalsOrFood = z.boolean();
+export const validateCarriesTaxableGoods = z.boolean();
 
 // ===== COMPOSITE SCHEMAS =====
 
-// Enhanced group travel validation rules with conditional logic
-export const validateGroupTravelData = z
+// Enhanced travel companions validation rules with conditional logic
+export const validateTravelCompanionsData = z
   .object({
-    isGroupTravel: validateIsGroupTravel.default(false),
+    isGroupTravel: validateIsGroupTravel,
     numberOfCompanions: validateNumberOfCompanions,
     groupNature: validateGroupNature,
   })
@@ -252,22 +298,19 @@ export const validateGeneralInfoData = z.object({
   postalCode: validatePostalCode,
 });
 
-// Enhanced personal information validation rules (Step 2)
+// Enhanced migratory information validation rules (Step 2)
 export const validatePersonalInfoData = z.object({
   firstName: validateFirstName,
   lastName: validateLastName,
   birthDate: validateDateOfBirth, // Simplified to string format
-  gender: validateGender,
+  sex: validateSex,
   birthCountry: z.string().min(1, "Country of birth is required"),
-  maritalStatus: z.enum(
-    ["SINGLE", "MARRIED", "DIVORCED", "WIDOWED", "COMMON_LAW"],
-    {
-      required_error: "Marital status is required",
-    }
-  ),
-  occupation: z.string().min(1, "Occupation is required"),
+  civilStatus: z.enum(CIVIL_STATUS_OPTIONS, {
+    required_error: "Civil status is required",
+  }),
+  occupation: validateOccupation,
   passport: passportSchema,
-  isForeignResident: z.boolean().default(false),
+  isForeignResident: z.boolean(),
 });
 
 // Contact information validation rules
@@ -277,7 +320,7 @@ export const validateContactInfoData = z.object({
   phone: phoneSchema, // Required for travel notifications
 });
 
-// Enhanced flight information validation rules (Step 3)
+// Enhanced travel information validation rules (Step 3)
 export const validateFlightInfoData = z.object({
   travelDirection: validateTravelDirection,
   travelDate: validateTravelDate, // Enhanced with future date validation
@@ -299,7 +342,7 @@ export const validateCustomsDeclarationData = z.object({
 
 // Complete application validation rules with conditional validations
 export const validateApplicationData = z.object({
-  groupTravel: validateGroupTravelData,
+  travelCompanions: validateTravelCompanionsData,
   generalInfo: validateGeneralInfoData,
   personalInfo: validatePersonalInfoData,
   contactInfo: validateContactInfoData,
@@ -309,7 +352,7 @@ export const validateApplicationData = z.object({
 
 // ===== TYPE EXPORTS =====
 
-export type GroupTravelData = z.infer<typeof validateGroupTravelData>;
+export type TravelCompanionsData = z.infer<typeof validateTravelCompanionsData>;
 export type GeneralInfoData = z.infer<typeof validateGeneralInfoData>;
 export type PersonalInfoData = z.infer<typeof validatePersonalInfoData>;
 export type ContactInfoData = z.infer<typeof validateContactInfoData>;

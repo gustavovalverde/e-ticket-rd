@@ -38,9 +38,8 @@ export function ApplicationSummary({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Personal Information */}
           <div className="space-y-2">
-            <h4 className="font-medium">Personal Information</h4>
+            <h4 className="font-medium">Migratory Information</h4>
             <div className="space-y-1 text-sm">
               <p>
                 <span className="text-muted-foreground">Name:</span>{" "}
@@ -81,7 +80,7 @@ export function ApplicationSummary({
               </p>
               <p>
                 <span className="text-muted-foreground">Flight Type:</span>{" "}
-                {data.flightInfo.hasStops
+                {data.flightInfo.hasStops === "yes"
                   ? "With Connections"
                   : "Direct Flight"}
               </p>
@@ -95,7 +94,7 @@ export function ApplicationSummary({
           {/* Contact Information (if provided) */}
           {(data.contactInfo.preferredName ||
             data.contactInfo.email ||
-            data.contactInfo.phone?.number) && (
+            data.contactInfo.phone) && (
             <div className="space-y-2">
               <h4 className="font-medium">Contact Information</h4>
               <div className="space-y-1 text-sm">
@@ -113,11 +112,10 @@ export function ApplicationSummary({
                     {data.contactInfo.email}
                   </p>
                 )}
-                {data.contactInfo.phone?.number && (
+                {data.contactInfo.phone && (
                   <p>
                     <span className="text-muted-foreground">Phone:</span>{" "}
-                    {data.contactInfo.phone.countryCode}{" "}
-                    {data.contactInfo.phone.number}
+                    {data.contactInfo.phone}
                   </p>
                 )}
               </div>
@@ -125,17 +123,17 @@ export function ApplicationSummary({
           )}
 
           {/* Group Information (if group travel) */}
-          {data.groupTravel.isGroupTravel && (
+          {data.travelCompanions.isGroupTravel && (
             <div className="space-y-2">
               <h4 className="font-medium">Group Travel</h4>
               <div className="space-y-1 text-sm">
                 <p>
                   <span className="text-muted-foreground">Companions:</span>{" "}
-                  {data.groupTravel.numberOfCompanions}
+                  {data.travelCompanions.numberOfCompanions}
                 </p>
                 <p>
                   <span className="text-muted-foreground">Group Type:</span>{" "}
-                  {data.groupTravel.groupNature}
+                  {data.travelCompanions.groupNature}
                 </p>
               </div>
             </div>

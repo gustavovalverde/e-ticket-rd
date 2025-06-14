@@ -12,7 +12,19 @@ const fetcher = async (url: string): Promise<FlightLookupResult> => {
     throw new Error(`Request failed: ${response.status}`);
   }
 
-  return response.json();
+  const data = await response.json();
+
+  // Development logging for debugging
+  if (process.env.NODE_ENV === "development") {
+    // eslint-disable-next-line no-console
+    console.log("Flight Lookup API Response:", {
+      url,
+      status: response.status,
+      data,
+    });
+  }
+
+  return data;
 };
 
 export function useFlightLookup() {
@@ -52,7 +64,7 @@ export function useFlightLookup() {
 
   return {
     result: data || null,
-    error: error?.message || null,
+    error: error?.message || (data && !data.success ? data.error : null),
     isLoading,
     lookupFlight,
     reset,

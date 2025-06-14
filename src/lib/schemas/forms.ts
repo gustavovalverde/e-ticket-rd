@@ -1,12 +1,17 @@
 import { formOptions } from "@tanstack/react-form";
 
+import type {
+  OCCUPATION_OPTIONS,
+  CIVIL_STATUS_OPTIONS,
+} from "@/lib/schemas/validation";
+
 // ===== APPLICATION FORM OPTIONS =====
 
 // Main application form configuration
 export const applicationFormOptions = formOptions({
   defaultValues: {
-    groupTravel: {
-      isGroupTravel: false,
+    travelCompanions: {
+      isGroupTravel: undefined as boolean | undefined,
       numberOfCompanions: undefined as number | undefined,
       groupNature: undefined as
         | "Family"
@@ -26,43 +31,47 @@ export const applicationFormOptions = formOptions({
       firstName: "",
       lastName: "",
       birthDate: "", // Simplified to string format (YYYY-MM-DD)
-      gender: "MALE" as const,
+      sex: "" as "MALE" | "FEMALE" | "",
       birthCountry: "",
-      maritalStatus: "SINGLE" as const,
-      occupation: "",
+      civilStatus: "" as (typeof CIVIL_STATUS_OPTIONS)[number] | "",
+      occupation: "" as (typeof OCCUPATION_OPTIONS)[number] | "",
       passport: {
         number: "",
         confirmNumber: "",
+        isDifferentNationality: undefined as boolean | undefined,
         nationality: "",
         expiryDate: "", // Simplified passport expiry to string format
-        isDifferentNationality: false,
         additionalNationality: "",
       },
-      isForeignResident: false,
+      isForeignResident: undefined as boolean | undefined,
     },
     contactInfo: {
       preferredName: "",
       email: "",
-      phone: {
-        countryCode: "+1",
-        number: "",
-      },
+      phone: "",
     },
     flightInfo: {
-      travelDirection: "ENTRY" as const,
-      travelDate: "", // Simplified to string format (YYYY-MM-DD)
+      travelDirection: "" as "ENTRY" | "EXIT" | "",
+      travelDate: "",
       departurePort: "",
       arrivalPort: "",
       airline: "",
       aircraft: "",
       flightNumber: "",
       confirmationNumber: "",
-      hasStops: false,
+      hasStops: undefined as "yes" | "no" | undefined,
+      // Origin flight details (for connections)
+      originFlightNumber: "",
+      originAirline: "",
+      originDeparturePort: "",
+      originArrivalPort: "",
+      originTravelDate: "",
+      originAircraft: "",
     },
     customsDeclaration: {
-      carriesOverTenThousand: false as boolean,
-      carriesAnimalsOrFood: false as boolean,
-      carriesTaxableGoods: false as boolean,
+      carriesOverTenThousand: undefined as boolean | undefined,
+      carriesAnimalsOrFood: undefined as boolean | undefined,
+      carriesTaxableGoods: undefined as boolean | undefined,
     },
   },
 });
@@ -77,7 +86,7 @@ export const legacyApplicationFormOptions = formOptions({
       travelingAlone: "" as "alone" | "with-others" | "",
       groupType: "" as "friends" | "coworkers" | "family" | "couple" | "",
     },
-    // Flight information (now part of travel info step)
+    // Travel information (flight and journey details)
     flightInfo: {
       flightNumber: "",
       travelDate: "",
@@ -88,7 +97,7 @@ export const legacyApplicationFormOptions = formOptions({
       arrivalPort: "", // Destination airport IATA code
       estimatedArrival: "",
     },
-    // Personal information
+    // Migratory information
     firstName: "",
     lastName: "",
     email: "",

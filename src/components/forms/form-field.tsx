@@ -188,16 +188,23 @@ export function FormField({
 
   return (
     <FieldProvider field={field}>
-      <FormItem className={cn("space-y-3", className)}>
-        <FormLabel
-          className={cn(
-            "text-base leading-none font-medium", // Better mobile readability
-            isRequired &&
-              "after:text-destructive after:ml-0.5 after:content-['*']"
+      <FormItem className={cn("space-y-2", className)}>
+        <div className="space-y-1">
+          <FormLabel
+            className={cn(
+              "text-base leading-none font-medium", // Better mobile readability
+              isRequired &&
+                "after:text-destructive after:ml-0.5 after:content-['*']"
+            )}
+          >
+            {label}
+          </FormLabel>
+          {description && (
+            <FormDescription className="text-muted-foreground text-sm leading-relaxed">
+              {description}
+            </FormDescription>
           )}
-        >
-          {label}
-        </FormLabel>
+        </div>
         <FormControl>
           {children ? (
             // Custom input component (like DatePicker)
@@ -235,11 +242,6 @@ export function FormField({
             />
           )}
         </FormControl>
-        {description && (
-          <FormDescription className="text-sm leading-relaxed">
-            {description}
-          </FormDescription>
-        )}
         {/* Use proper FormMessage component following TanStack Form best practices */}
         <FormMessage />
       </FormItem>

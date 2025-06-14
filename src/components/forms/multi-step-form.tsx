@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Save, FileCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileCheck } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 
 import { ModeToggle } from "@/components/mode-toggle";
@@ -23,11 +23,11 @@ import {
   type ApplicationData,
 } from "@/lib/schemas/forms";
 import {
-  validateGroupTravelData,
-  validateGeneralInfoData,
-  validatePersonalInfoData,
   validateContactInfoData,
   validateFlightInfoData,
+  validateTravelCompanionsData,
+  validateGeneralInfoData,
+  validatePersonalInfoData,
   validateCustomsDeclarationData,
 } from "@/lib/schemas/validation";
 import { cn } from "@/lib/utils";
@@ -41,8 +41,8 @@ import { ContactInfoStep } from "./steps/contact-info-step";
 import { CustomsDeclarationStep } from "./steps/customs-declaration-step";
 import { FlightInfoStep } from "./steps/flight-info-step";
 import { GeneralInfoStep } from "./steps/general-info-step";
-import { GroupTravelStep } from "./steps/group-travel-step";
-import { PersonalInfoStep } from "./steps/personal-info-step";
+import { TravelCompanionsStep } from "./steps/group-travel-step";
+import { MigratoryInfoStep } from "./steps/migratory-info-step";
 
 interface FormProps {
   onSubmit?: (data: ApplicationData) => void;
@@ -53,20 +53,20 @@ interface FormProps {
 
 // Constants for step IDs to avoid duplication
 const STEP_IDS = {
-  GROUP_TRAVEL: "group-travel",
-  GENERAL_INFO: "general-info",
-  PERSONAL_INFO: "personal-info",
   CONTACT_INFO: "contact-info",
   FLIGHT_INFO: "flight-info",
+  TRAVEL_COMPANIONS: "travel-companions",
+  GENERAL_INFO: "general-info",
+  PERSONAL_INFO: "personal-info",
   CUSTOMS_DECLARATION: "customs-declaration",
 } as const;
 
 const STEP_TITLES = {
-  TRAVEL_GROUP: "Travel Group",
+  TRAVEL_COMPANIONS: "Travel Companions",
   GENERAL_INFORMATION: "General Information",
-  PERSONAL_INFORMATION: "Personal Information",
+  PERSONAL_INFORMATION: "Migratory Information",
   CONTACT_INFORMATION: "Contact Information",
-  FLIGHT_INFORMATION: "Flight Information",
+  TRAVEL_INFORMATION: "Travel Information",
   CUSTOMS_DECLARATION: "Customs Declaration",
 } as const;
 
@@ -77,11 +77,11 @@ const FORM_STEPS: Step[] = [
   },
   {
     id: STEP_IDS.FLIGHT_INFO,
-    title: STEP_TITLES.FLIGHT_INFORMATION,
+    title: STEP_TITLES.TRAVEL_INFORMATION,
   },
   {
-    id: STEP_IDS.GROUP_TRAVEL,
-    title: STEP_TITLES.TRAVEL_GROUP,
+    id: STEP_IDS.TRAVEL_COMPANIONS,
+    title: STEP_TITLES.TRAVEL_COMPANIONS,
   },
   {
     id: STEP_IDS.GENERAL_INFO,
@@ -160,13 +160,41 @@ export function MultiStepForm({
     if (savedDraft && !initialData) {
       try {
         const draftData = JSON.parse(savedDraft) as ApplicationData;
+
+        // Check if draft data has old phone structure and clear it
+        if (
+          draftData.contactInfo?.phone &&
+          typeof draftData.contactInfo.phone === "object" &&
+          "number" in draftData.contactInfo.phone
+        ) {
+          // Clear old cached data with incompatible structure
+          localStorage.removeItem(STORAGE_KEY);
+          return;
+        }
+
         // Reset form with draft data
         form.reset(draftData);
       } catch {
-        // Handle error silently
+        // Handle error silently and clear corrupted data
+        localStorage.removeItem(STORAGE_KEY);
       }
     }
   }, [form, initialData]);
+
+  // Helper function to safely get phone value as string
+  const getPhoneValue = (phoneValue: unknown): string => {
+    if (typeof phoneValue === "string") {
+      return phoneValue.trim();
+    } else if (
+      phoneValue &&
+      typeof phoneValue === "object" &&
+      "number" in phoneValue
+    ) {
+      // Legacy object structure - convert to empty string to trigger re-initialization
+      return "";
+    }
+    return "";
+  };
 
   // Helper function to check if a step has valid data
   const isStepDataValid = (stepId: string): boolean => {
@@ -175,17 +203,36 @@ export function MultiStepForm({
       case STEP_IDS.CONTACT_INFO: {
         // Contact info is optional, but if user entered email or phone, it should be valid
         const hasEmail = values.contactInfo?.email?.trim();
-        const hasPhone = values.contactInfo?.phone?.number?.trim();
+        const hasPhone = getPhoneValue(values.contactInfo?.phone);
         return !hasEmail && !hasPhone ? true : Boolean(hasEmail || hasPhone);
       }
-      case STEP_IDS.FLIGHT_INFO:
-        return Boolean(
-          values.flightInfo?.flightNumber &&
-            values.flightInfo?.airline &&
-            values.flightInfo?.departurePort
+      case STEP_IDS.FLIGHT_INFO: {
+        const flightInfo = values.flightInfo;
+        const hasBasicFlightInfo = Boolean(
+          flightInfo?.flightNumber &&
+            flightInfo?.airline &&
+            flightInfo?.departurePort
         );
-      case STEP_IDS.GROUP_TRAVEL:
-        return values.groupTravel?.isGroupTravel !== undefined;
+
+        // If entering DR with connections, also check origin flight details
+        const isEntryWithConnections =
+          flightInfo?.travelDirection === "ENTRY" &&
+          flightInfo?.hasStops === "yes";
+
+        if (isEntryWithConnections) {
+          const hasOriginFlightInfo = Boolean(
+            flightInfo?.originFlightNumber &&
+              flightInfo?.originAirline &&
+              flightInfo?.originDeparturePort &&
+              flightInfo?.originArrivalPort
+          );
+          return hasBasicFlightInfo && hasOriginFlightInfo;
+        }
+
+        return hasBasicFlightInfo;
+      }
+      case STEP_IDS.TRAVEL_COMPANIONS:
+        return values.travelCompanions?.isGroupTravel !== undefined;
       case STEP_IDS.GENERAL_INFO:
         return Boolean(
           values.generalInfo?.permanentAddress &&
@@ -237,16 +284,17 @@ export function MultiStepForm({
       case STEP_IDS.CONTACT_INFO:
         return {
           title: STEP_TITLES.CONTACT_INFORMATION,
-          subtitle: "Email and phone",
+          subtitle:
+            "Who's filling out this application? And how can we contact you?",
         };
       case STEP_IDS.FLIGHT_INFO:
         return {
-          title: STEP_TITLES.FLIGHT_INFORMATION,
-          subtitle: "Flight details and airline",
+          title: STEP_TITLES.TRAVEL_INFORMATION,
+          subtitle: "What are your travel plans?",
         };
-      case STEP_IDS.GROUP_TRAVEL:
+      case STEP_IDS.TRAVEL_COMPANIONS:
         return {
-          title: STEP_TITLES.TRAVEL_GROUP,
+          title: STEP_TITLES.TRAVEL_COMPANIONS,
           subtitle: "Are you traveling with companions?",
         };
       case STEP_IDS.GENERAL_INFO:
@@ -257,7 +305,7 @@ export function MultiStepForm({
       case STEP_IDS.PERSONAL_INFO:
         return {
           title: STEP_TITLES.PERSONAL_INFORMATION,
-          subtitle: "Identity and passport details",
+          subtitle: "Identity verification for migration control",
         };
       case STEP_IDS.CUSTOMS_DECLARATION:
         return {
@@ -293,8 +341,10 @@ export function MultiStepForm({
         case STEP_IDS.FLIGHT_INFO:
           await validateFlightInfoData.parseAsync(values.flightInfo);
           break;
-        case STEP_IDS.GROUP_TRAVEL:
-          await validateGroupTravelData.parseAsync(values.groupTravel);
+        case STEP_IDS.TRAVEL_COMPANIONS:
+          await validateTravelCompanionsData.parseAsync(
+            values.travelCompanions
+          );
           break;
         case STEP_IDS.GENERAL_INFO:
           await validateGeneralInfoData.parseAsync(values.generalInfo);
@@ -382,12 +432,12 @@ export function MultiStepForm({
         return <ContactInfoStep {...stepProps} />;
       case STEP_IDS.FLIGHT_INFO:
         return <FlightInfoStep {...stepProps} />;
-      case STEP_IDS.GROUP_TRAVEL:
-        return <GroupTravelStep {...stepProps} />;
+      case STEP_IDS.TRAVEL_COMPANIONS:
+        return <TravelCompanionsStep {...stepProps} />;
       case STEP_IDS.GENERAL_INFO:
         return <GeneralInfoStep {...stepProps} />;
       case STEP_IDS.PERSONAL_INFO:
-        return <PersonalInfoStep {...stepProps} />;
+        return <MigratoryInfoStep {...stepProps} />;
       case STEP_IDS.CUSTOMS_DECLARATION:
         return <CustomsDeclarationStep {...stepProps} />;
       default:
@@ -402,8 +452,8 @@ export function MultiStepForm({
         return Boolean(stepErrors[STEP_IDS.CONTACT_INFO]);
       case STEP_IDS.FLIGHT_INFO:
         return Boolean(stepErrors[STEP_IDS.FLIGHT_INFO]);
-      case STEP_IDS.GROUP_TRAVEL:
-        return Boolean(stepErrors[STEP_IDS.GROUP_TRAVEL]);
+      case STEP_IDS.TRAVEL_COMPANIONS:
+        return Boolean(stepErrors[STEP_IDS.TRAVEL_COMPANIONS]);
       case STEP_IDS.GENERAL_INFO:
         return Boolean(stepErrors[STEP_IDS.GENERAL_INFO]);
       case STEP_IDS.PERSONAL_INFO:
@@ -421,8 +471,8 @@ export function MultiStepForm({
         return stepValidationErrors[STEP_IDS.CONTACT_INFO] || [];
       case STEP_IDS.FLIGHT_INFO:
         return stepValidationErrors[STEP_IDS.FLIGHT_INFO] || [];
-      case STEP_IDS.GROUP_TRAVEL:
-        return stepValidationErrors[STEP_IDS.GROUP_TRAVEL] || [];
+      case STEP_IDS.TRAVEL_COMPANIONS:
+        return stepValidationErrors[STEP_IDS.TRAVEL_COMPANIONS] || [];
       case STEP_IDS.GENERAL_INFO:
         return stepValidationErrors[STEP_IDS.GENERAL_INFO] || [];
       case STEP_IDS.PERSONAL_INFO:
@@ -475,39 +525,6 @@ export function MultiStepForm({
                     currentStepId={currentStepId}
                     variant={isMobile ? "mobile" : "default"}
                   />
-
-                  {/* Quick Actions */}
-                  <div className="space-y-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start gap-2"
-                      onClick={() => {
-                        const currentData = form.state.values;
-                        localStorage.setItem(
-                          STORAGE_KEY,
-                          JSON.stringify(currentData)
-                        );
-                      }}
-                    >
-                      <Save className="h-4 w-4" />
-                      Save Progress
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        localStorage.removeItem(STORAGE_KEY);
-                        form.reset();
-                        setStepErrors({});
-                        setStepValidationErrors({});
-                      }}
-                    >
-                      Clear Draft
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -536,10 +553,16 @@ export function MultiStepForm({
 
                 <Separator />
 
-                {/* Step Validation Errors */}
+                <CardContent className="space-y-8">
+                  <form onSubmit={handleSubmit} id="eticket-application-form">
+                    {renderCurrentStep()}
+                  </form>
+                </CardContent>
+
+                {/* Step Validation Errors - Moved to bottom for better UX */}
                 {currentStepHasErrors &&
                   currentStepValidationErrors.length > 0 && (
-                    <div className="px-6 pt-6">
+                    <div className="px-6 pb-6">
                       <ValidationError
                         errors={currentStepValidationErrors}
                         title="Please fix the following issues:"
@@ -558,12 +581,6 @@ export function MultiStepForm({
                       />
                     </div>
                   )}
-
-                <CardContent className="space-y-8">
-                  <form onSubmit={handleSubmit} id="eticket-application-form">
-                    {renderCurrentStep()}
-                  </form>
-                </CardContent>
 
                 <CardFooter className="flex items-center justify-between">
                   <Button

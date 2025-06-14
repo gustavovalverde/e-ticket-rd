@@ -6,6 +6,8 @@ import React from "react";
 import { FormField } from "@/components/forms/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CountrySelect } from "@/components/ui/country-select";
+import { useStore } from "@/components/ui/tanstack-form";
 import {
   validatePermanentAddress,
   validateResidenceCountry,
@@ -24,14 +26,19 @@ interface GeneralInfoStepProps {
 }
 
 export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
+  const isGroupTravel = useStore(
+    form.store,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (state: any) => state.values.travelCompanions.isGroupTravel
+  );
+
   return (
     <div className="space-y-6">
-      {/* Current Residence */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Current Residence
+            Permanent Address
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -122,12 +129,12 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
               }}
             >
               {(field: AnyFieldApi) => (
-                <FormField
-                  field={field}
-                  label="Country"
-                  placeholder="Enter your country of residence"
-                  required
-                />
+                <FormField field={field} label="Country" required>
+                  <CountrySelect
+                    field={field}
+                    placeholder="Select your country of residence"
+                  />
+                </FormField>
               )}
             </form.AppField>
 
@@ -156,21 +163,15 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
       </Card>
 
       {/* Benefits for Group Travel */}
-      <form.AppField name="groupTravel.isGroupTravel">
-        {(groupField: AnyFieldApi) => {
-          if (!groupField.state.value) return null;
-
-          return (
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Group travel:</strong> Address information can be shared
-                with travel companions.
-              </AlertDescription>
-            </Alert>
-          );
-        }}
-      </form.AppField>
+      {isGroupTravel && (
+        <Alert>
+          <InfoIcon className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Group travel:</strong> Address information can be shared
+            with family members if applicable.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

@@ -1,17 +1,25 @@
 "use client";
 
-import { Shield, DollarSign, Leaf, Package, InfoIcon } from "lucide-react";
+import {
+  Shield,
+  DollarSign,
+  Leaf,
+  Package,
+  InfoIcon,
+  CheckCircle,
+  AlertTriangle,
+  FileCheck,
+} from "lucide-react";
 import React from "react";
 
-import { FormRadioGroup } from "@/components/forms/form-radio-group";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BooleanRadioGroup } from "@/components/forms/form-radio-group";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   validateCarriesOverTenThousand,
   validateCarriesAnimalsOrFood,
   validateCarriesTaxableGoods,
 } from "@/lib/schemas/validation";
-import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
@@ -45,7 +53,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           <form.AppField
             name="customsDeclaration.carriesOverTenThousand"
             validators={{
-              onBlur: ({ value }: { value: boolean }) => {
+              onChange: ({ value }: { value: boolean }) => {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying over $10,000";
                 }
@@ -57,11 +65,11 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             }}
           >
             {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
+              <BooleanRadioGroup
+                field={field}
                 options={[
                   {
-                    value: "no",
+                    value: false,
                     id: "money-no",
                     label: "No",
                     description: "Less than US$10,000",
@@ -69,7 +77,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                     iconColor: ICON_COLORS.GREEN,
                   },
                   {
-                    value: "yes",
+                    value: true,
                     id: "money-yes",
                     label: "Yes",
                     description: "US$10,000 or more",
@@ -100,7 +108,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           <form.AppField
             name="customsDeclaration.carriesAnimalsOrFood"
             validators={{
-              onBlur: ({ value }: { value: boolean }) => {
+              onChange: ({ value }: { value: boolean }) => {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying biological materials";
                 }
@@ -112,11 +120,11 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             }}
           >
             {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
+              <BooleanRadioGroup
+                field={field}
                 options={[
                   {
-                    value: "no",
+                    value: false,
                     id: "bio-no",
                     label: "No",
                     description: "No biological materials",
@@ -124,7 +132,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                     iconColor: ICON_COLORS.GREEN,
                   },
                   {
-                    value: "yes",
+                    value: true,
                     id: "bio-yes",
                     label: "Yes",
                     description: "Carrying biological items",
@@ -155,7 +163,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           <form.AppField
             name="customsDeclaration.carriesTaxableGoods"
             validators={{
-              onBlur: ({ value }: { value: boolean }) => {
+              onChange: ({ value }: { value: boolean }) => {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying taxable goods";
                 }
@@ -167,11 +175,11 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             }}
           >
             {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
+              <BooleanRadioGroup
+                field={field}
                 options={[
                   {
-                    value: "no",
+                    value: false,
                     id: "goods-no",
                     label: "No",
                     description: "Personal items only",
@@ -179,7 +187,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                     iconColor: ICON_COLORS.GREEN,
                   },
                   {
-                    value: "yes",
+                    value: true,
                     id: "goods-yes",
                     label: "Yes",
                     description: "Commercial or taxable goods",
@@ -198,14 +206,51 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
         </CardContent>
       </Card>
 
-      {/* Information Alert */}
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Important:</strong> Providing false customs information may
-          result in legal consequences.
-        </AlertDescription>
-      </Alert>
+      {/* Legal Information and Requirements */}
+      <div className="space-y-4">
+        {/* Allowance Information */}
+        <Alert>
+          <CheckCircle className="h-4 w-4" />
+          <AlertTitle>Customs Allowance</AlertTitle>
+          <AlertDescription>
+            Passengers may bring or carry goods or gift items worth up to USD
+            $500.00 (five hundred dollars). This allowance may only be used once
+            every three (3) months.
+          </AlertDescription>
+        </Alert>
+
+        {/* Mandatory Declaration */}
+        <Alert>
+          <InfoIcon className="h-4 w-4" />
+          <AlertTitle>Mandatory Declaration</AlertTitle>
+          <AlertDescription>
+            The presentation of this declaration is mandatory for all passengers
+            who leave or enter the Dominican Republic. For minors, this form
+            must be completed and signed by the responsible adult.
+          </AlertDescription>
+        </Alert>
+
+        {/* Legal Consequences Warning */}
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Legal Warning</AlertTitle>
+          <AlertDescription>
+            False or incomplete declaration of information may result in
+            penalties such as seizure of goods and deprivation of freedom,
+            according to Article 200 of Law 3489 of the Customs Regime, and
+            Article 4 of Law No. 155-17 against Money Laundering.
+          </AlertDescription>
+        </Alert>
+
+        {/* Signature Requirement */}
+        <Alert>
+          <FileCheck className="h-4 w-4" />
+          <AlertTitle>Signature Required</AlertTitle>
+          <AlertDescription>
+            This declaration must be signed by the passenger where indicated.
+          </AlertDescription>
+        </Alert>
+      </div>
     </div>
   );
 }

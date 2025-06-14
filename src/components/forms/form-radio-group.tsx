@@ -35,8 +35,25 @@ interface FormRadioGroupProps {
   size?: "small" | "large";
   description?: string;
   className?: string;
+  required?: boolean;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
+/**
+ * Standard Radio Group for string fields
+ *
+ * Use this for fields that store string values directly (e.g., "ENTRY"/"EXIT").
+ *
+ * @example
+ * <FormRadioGroup
+ *   field={field}
+ *   options={[
+ *     { value: "ENTRY", id: "entry", label: "Entering" },
+ *     { value: "EXIT", id: "exit", label: "Leaving" }
+ *   ]}
+ * />
+ */
 export function FormRadioGroup({
   field,
   options,
@@ -47,8 +64,12 @@ export function FormRadioGroup({
   size = "large",
   description,
   className,
+  required,
+  value,
+  onValueChange,
 }: FormRadioGroupProps) {
-  const isRequired = getFieldRequirement(field.name);
+  const isRequired =
+    required !== undefined ? required : getFieldRequirement(field.name);
 
   // Safe grid class selection
   const getGridClass = (cols: "1" | "2" | "3") => {
@@ -117,8 +138,8 @@ export function FormRadioGroup({
         )}
         <FormControl>
           <RadioGroup
-            value={field.state.value || ""}
-            onValueChange={field.handleChange}
+            value={value ?? field.state.value ?? ""}
+            onValueChange={onValueChange ?? field.handleChange}
             onBlur={field.handleBlur}
             className={cn(
               layout === "grid"
@@ -141,7 +162,7 @@ export function FormRadioGroup({
                     <div
                       className={cn(
                         "flex items-center justify-center rounded-lg",
-                        option.iconBg || "bg-primary/10",
+                        option.iconBg || "",
                         option.iconColor || "text-primary",
                         currentSize.icon
                       )}
@@ -183,5 +204,90 @@ export function FormRadioGroup({
         <FormMessage />
       </FormItem>
     </FieldProvider>
+  );
+}
+
+// Enhanced Boolean Radio Group for consistent boolean field handling
+interface BooleanRadioOption {
+  value: boolean;
+  id: string;
+  label: string;
+  description?: string;
+  icon?: ReactNode;
+  iconBg?: string;
+  iconColor?: string;
+}
+
+interface BooleanRadioGroupProps {
+  field: AnyFieldApi;
+  options: BooleanRadioOption[];
+  label?: string;
+  layout?: "stack" | "grid";
+  columns?: "1" | "2" | "3";
+  padding?: "small" | "medium" | "large";
+  size?: "small" | "large";
+  description?: string;
+  className?: string;
+}
+
+/**
+ * Boolean Radio Group for boolean fields
+ *
+ * Use this for fields that store boolean values (true/false).
+ * Automatically handles conversion between boolean values and radio string values.
+ *
+ * @example
+ * <BooleanRadioGroup
+ *   field={field}
+ *   options={[
+ *     { value: false, id: "no", label: "No" },
+ *     { value: true, id: "yes", label: "Yes" }
+ *   ]}
+ * />
+ */
+export function BooleanRadioGroup({
+  field,
+  options,
+  label,
+  layout = "stack",
+  columns = "1",
+  padding = "small",
+  size = "large",
+  description,
+  className,
+}: BooleanRadioGroupProps) {
+  // Convert boolean options to string options for RadioGroup
+  const stringOptions = options.map((option) => ({
+    value: String(option.value), // Convert boolean to string
+    id: option.id,
+    label: option.label,
+    description: option.description,
+    icon: option.icon,
+    iconBg: option.iconBg,
+    iconColor: option.iconColor,
+  }));
+
+  // Convert current boolean value to string for RadioGroup
+  const currentStringValue =
+    field.state.value !== undefined ? String(field.state.value) : "";
+
+  return (
+    <FormRadioGroup
+      field={field}
+      options={stringOptions}
+      label={label}
+      layout={layout}
+      columns={columns}
+      padding={padding}
+      size={size}
+      description={description}
+      className={className}
+      value={currentStringValue}
+      onValueChange={(stringValue) => {
+        // Convert string back to boolean
+        const booleanValue = stringValue === "true";
+        field.handleChange(booleanValue);
+      }}
+    />
   );
 }
