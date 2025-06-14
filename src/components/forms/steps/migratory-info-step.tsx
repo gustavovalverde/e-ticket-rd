@@ -383,14 +383,34 @@ export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
             <form.AppField
               name="personalInfo.passport.number"
               validators={{
-                onBlur: ({ value }: { value: string }) => {
+                onChange: ({
+                  value,
+                  fieldApi,
+                }: {
+                  value: string;
+                  fieldApi: AnyFieldApi;
+                }) => {
                   if (!value || value.trim() === "") {
                     return "Passport number is required";
                   }
                   const result = validatePassportNumber.safeParse(value);
-                  return result.success
-                    ? undefined
-                    : result.error.issues[0]?.message;
+                  if (!result.success) {
+                    return result.error.issues[0]?.message;
+                  }
+
+                  // Trigger re-validation of confirm field if it has a value
+                  const confirmField =
+                    fieldApi.form.state.values.personalInfo?.passport
+                      ?.confirmNumber;
+                  if (confirmField && confirmField.trim() !== "") {
+                    // Re-validate the confirm field by calling its validator
+                    fieldApi.form.validateField(
+                      "personalInfo.passport.confirmNumber",
+                      "change"
+                    );
+                  }
+
+                  return undefined;
                 },
               }}
             >
@@ -404,7 +424,32 @@ export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
               )}
             </form.AppField>
 
-            <form.AppField name="personalInfo.passport.confirmNumber">
+            <form.AppField
+              name="personalInfo.passport.confirmNumber"
+              validators={{
+                onChange: ({
+                  value,
+                  fieldApi,
+                }: {
+                  value: string;
+                  fieldApi: AnyFieldApi;
+                }) => {
+                  if (!value || value.trim() === "") {
+                    return "Please confirm your passport number";
+                  }
+
+                  // Get the main passport number from form state
+                  const mainPassportNumber =
+                    fieldApi.form.state.values.personalInfo?.passport?.number;
+
+                  if (mainPassportNumber && value !== mainPassportNumber) {
+                    return "Passport numbers must match";
+                  }
+
+                  return undefined;
+                },
+              }}
+            >
               {(field: AnyFieldApi) => (
                 <FormField
                   field={field}
