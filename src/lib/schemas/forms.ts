@@ -48,10 +48,7 @@ export const applicationFormOptions = formOptions({
     contactInfo: {
       preferredName: "",
       email: "",
-      phone: {
-        countryCode: "+1",
-        number: "",
-      },
+      phone: "",
     },
     flightInfo: {
       travelDirection: "" as "ENTRY" | "EXIT" | "",

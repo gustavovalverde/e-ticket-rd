@@ -1,3 +1,4 @@
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 // ===== FLIGHT NUMBER VALIDATION UTILITIES =====
@@ -72,13 +73,17 @@ export function formatFlightNumber(flightNumber: string): string {
 // ===== BASE VALIDATION SCHEMAS =====
 
 // Enhanced phone schema with better international validation
-const phoneSchema = z.object({
-  countryCode: z.string().min(1, "Country code is required"),
-  number: z
-    .string()
-    .min(7, "Phone number must be at least 7 digits")
-    .regex(/^[+]?[1-9][\d]{0,15}$/, "Please enter a valid phone number"),
-});
+const phoneSchema = z.string().refine(
+  (value) => {
+    if (!value || value.trim() === "") {
+      return false; // Required field, so empty is invalid
+    }
+    return isValidPhoneNumber(value);
+  },
+  {
+    message: "Please enter a valid phone number",
+  }
+);
 
 // Enhanced passport schema with better validation
 const passportSchema = z

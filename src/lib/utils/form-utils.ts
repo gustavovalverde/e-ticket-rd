@@ -9,8 +9,7 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   // Contact Information - Email required for e-ticket delivery
   ["contactInfo.preferredName", false],
   ["contactInfo.email", true], // Required for e-ticket confirmation
-  ["contactInfo.phone.number", true], // Required for travel notifications
-  ["contactInfo.phone.countryCode", true], // Required when phone is provided
+  ["contactInfo.phone", true], // Required for travel notifications
 
   // Migratory Information - All required
   ["personalInfo.firstName", true],
@@ -46,16 +45,16 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
 
   // Travel Companions - Conditional requirements
   ["travelCompanions.isGroupTravel", true],
-  ["travelCompanions.numberOfCompanions", false], // Required only if group travel
-  ["travelCompanions.groupNature", false], // Required only if group travel
+  ["travelCompanions.numberOfCompanions", false], // Conditional: only required if isGroupTravel is true
+  ["travelCompanions.groupNature", false], // Conditional: only required if isGroupTravel is true
 
   // Customs Declaration - All required
   ["customsDeclaration.carriesOverTenThousand", true],
   ["customsDeclaration.carriesAnimalsOrFood", true],
   ["customsDeclaration.carriesTaxableGoods", true],
 
-  // Migratory Information - Conditional fields
-  ["personalInfo.isForeignResident", false], // Only required when entering DR
+  // Foreign Resident - Conditional requirement
+  ["personalInfo.isForeignResident", false], // Conditional: only required for ENTRY
 ]);
 
 /**

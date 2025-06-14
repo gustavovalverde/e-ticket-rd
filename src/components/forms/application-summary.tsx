@@ -94,7 +94,7 @@ export function ApplicationSummary({
           {/* Contact Information (if provided) */}
           {(data.contactInfo.preferredName ||
             data.contactInfo.email ||
-            data.contactInfo.phone?.number) && (
+            data.contactInfo.phone) && (
             <div className="space-y-2">
               <h4 className="font-medium">Contact Information</h4>
               <div className="space-y-1 text-sm">
@@ -112,11 +112,10 @@ export function ApplicationSummary({
                     {data.contactInfo.email}
                   </p>
                 )}
-                {data.contactInfo.phone?.number && (
+                {data.contactInfo.phone && (
                   <p>
                     <span className="text-muted-foreground">Phone:</span>{" "}
-                    {data.contactInfo.phone.countryCode}{" "}
-                    {data.contactInfo.phone.number}
+                    {data.contactInfo.phone}
                   </p>
                 )}
               </div>

@@ -160,13 +160,41 @@ export function MultiStepForm({
     if (savedDraft && !initialData) {
       try {
         const draftData = JSON.parse(savedDraft) as ApplicationData;
+
+        // Check if draft data has old phone structure and clear it
+        if (
+          draftData.contactInfo?.phone &&
+          typeof draftData.contactInfo.phone === "object" &&
+          "number" in draftData.contactInfo.phone
+        ) {
+          // Clear old cached data with incompatible structure
+          localStorage.removeItem(STORAGE_KEY);
+          return;
+        }
+
         // Reset form with draft data
         form.reset(draftData);
       } catch {
-        // Handle error silently
+        // Handle error silently and clear corrupted data
+        localStorage.removeItem(STORAGE_KEY);
       }
     }
   }, [form, initialData]);
+
+  // Helper function to safely get phone value as string
+  const getPhoneValue = (phoneValue: unknown): string => {
+    if (typeof phoneValue === "string") {
+      return phoneValue.trim();
+    } else if (
+      phoneValue &&
+      typeof phoneValue === "object" &&
+      "number" in phoneValue
+    ) {
+      // Legacy object structure - convert to empty string to trigger re-initialization
+      return "";
+    }
+    return "";
+  };
 
   // Helper function to check if a step has valid data
   const isStepDataValid = (stepId: string): boolean => {
@@ -175,7 +203,7 @@ export function MultiStepForm({
       case STEP_IDS.CONTACT_INFO: {
         // Contact info is optional, but if user entered email or phone, it should be valid
         const hasEmail = values.contactInfo?.email?.trim();
-        const hasPhone = values.contactInfo?.phone?.number?.trim();
+        const hasPhone = getPhoneValue(values.contactInfo?.phone);
         return !hasEmail && !hasPhone ? true : Boolean(hasEmail || hasPhone);
       }
       case STEP_IDS.FLIGHT_INFO: {
