@@ -22,6 +22,9 @@ import {
   validatePassportNumber,
   validateNationality,
   validateSex,
+  validateOccupation,
+  OCCUPATION_OPTIONS,
+  CIVIL_STATUS_OPTIONS,
 } from "@/lib/schemas/validation";
 import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
@@ -89,6 +92,10 @@ function SelectWithFormContext({
 }
 
 export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
+  // Get travel direction to conditionally show residency status
+  const travelDirection = form.getFieldValue("flightInfo.travelDirection");
+  const isEnteringDR = travelDirection === "ENTRY";
+
   return (
     <div className="space-y-6">
       {/* Name Information */}
@@ -247,11 +254,13 @@ export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
                     field={field}
                     placeholder="Select civil status"
                   >
-                    <SelectItem value="SINGLE">Single</SelectItem>
-                    <SelectItem value="MARRIED">Married</SelectItem>
-                    <SelectItem value="CONCUBINAGE">Concubinage</SelectItem>
-                    <SelectItem value="FREE_UNION">Free Union</SelectItem>
-                    <SelectItem value="OTHERS">Others</SelectItem>
+                    {CIVIL_STATUS_OPTIONS.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </SelectItem>
+                    ))}
                   </SelectWithFormContext>
                 </FormField>
               )}
@@ -264,21 +273,88 @@ export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
               onBlur: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "")
                   return "Occupation is required";
-                return undefined;
+                const result = validateOccupation.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
               },
             }}
           >
             {(field: AnyFieldApi) => (
-              <FormField
-                field={field}
-                label="Occupation"
-                placeholder="Enter your occupation/profession"
-                required
-              />
+              <FormField field={field} label="Occupation" required>
+                <SelectWithFormContext
+                  field={field}
+                  placeholder="Select occupation"
+                >
+                  {OCCUPATION_OPTIONS.map((occupation) => (
+                    <SelectItem key={occupation} value={occupation}>
+                      {occupation
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </SelectItem>
+                  ))}
+                </SelectWithFormContext>
+              </FormField>
             )}
           </form.AppField>
         </CardContent>
       </Card>
+
+      {/* Residency Status - Only show when entering Dominican Republic */}
+      {isEnteringDR && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Residency Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <form.AppField
+              name="personalInfo.isForeignResident"
+              validators={{
+                onChange: ({ value }: { value: boolean }) => {
+                  // Only validate when entering DR
+                  if (isEnteringDR && (value === null || value === undefined)) {
+                    return "Please indicate your residency status in Dominican Republic";
+                  }
+                  return undefined;
+                },
+              }}
+            >
+              {(field: AnyFieldApi) => (
+                <FormRadioGroup
+                  field={booleanFieldAdapter(field)}
+                  label="Are you a foreign resident in the Dominican Republic?"
+                  required={isEnteringDR}
+                  options={[
+                    {
+                      value: "no",
+                      id: "not-foreign-resident",
+                      label: "No",
+                      description: "I am not a foreign resident",
+                      icon: <Check className="h-5 w-5" />,
+                      iconColor: "text-green-600",
+                    },
+                    {
+                      value: "yes",
+                      id: "foreign-resident",
+                      label: "Yes",
+                      description: "I am a foreign resident",
+                      icon: <Info className="h-5 w-5" />,
+                      iconColor: "text-blue-600",
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
+              )}
+            </form.AppField>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Passport Information */}
       <Card>

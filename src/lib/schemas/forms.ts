@@ -1,5 +1,10 @@
 import { formOptions } from "@tanstack/react-form";
 
+import type {
+  OCCUPATION_OPTIONS,
+  CIVIL_STATUS_OPTIONS,
+} from "@/lib/schemas/validation";
+
 // ===== APPLICATION FORM OPTIONS =====
 
 // Main application form configuration
@@ -28,14 +33,8 @@ export const applicationFormOptions = formOptions({
       birthDate: "", // Simplified to string format (YYYY-MM-DD)
       sex: "" as "MALE" | "FEMALE" | "",
       birthCountry: "",
-      civilStatus: "" as
-        | "SINGLE"
-        | "MARRIED"
-        | "CONCUBINAGE"
-        | "FREE_UNION"
-        | "OTHERS"
-        | "",
-      occupation: "",
+      civilStatus: "" as (typeof CIVIL_STATUS_OPTIONS)[number] | "",
+      occupation: "" as (typeof OCCUPATION_OPTIONS)[number] | "",
       passport: {
         number: "",
         confirmNumber: "",

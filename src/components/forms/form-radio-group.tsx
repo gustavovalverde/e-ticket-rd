@@ -35,6 +35,7 @@ interface FormRadioGroupProps {
   size?: "small" | "large";
   description?: string;
   className?: string;
+  required?: boolean;
 }
 
 export function FormRadioGroup({
@@ -47,8 +48,10 @@ export function FormRadioGroup({
   size = "large",
   description,
   className,
+  required,
 }: FormRadioGroupProps) {
-  const isRequired = getFieldRequirement(field.name);
+  const isRequired =
+    required !== undefined ? required : getFieldRequirement(field.name);
 
   // Safe grid class selection
   const getGridClass = (cols: "1" | "2" | "3") => {

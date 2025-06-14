@@ -174,6 +174,16 @@ export const validateLastName = z
 export const validateSex = z.enum(["MALE", "FEMALE"], {
   required_error: "Sex is required",
 });
+
+// Civil status constants - single source of truth
+export const CIVIL_STATUS_OPTIONS = [
+  "SINGLE",
+  "MARRIED",
+  "CONCUBINAGE",
+  "FREE_UNION",
+  "OTHERS",
+] as const;
+
 export const validatePassportNumber = z
   .string()
   .min(6, "Passport number must be at least 6 characters")
@@ -186,6 +196,23 @@ export const validateNationality = z.string().min(1, "Nationality is required");
 export const validateDateOfBirth = z
   .string()
   .min(1, "Date of birth is required");
+
+// Occupation constants - single source of truth
+export const OCCUPATION_OPTIONS = [
+  "UNEMPLOYED",
+  "CREW_MEMBER",
+  "DIPLOMATIC",
+  "RETIRED",
+  "STUDENT",
+  "FREELANCER",
+  "PRIVATE_EMPLOYEE",
+  "PUBLIC_EMPLOYEE",
+  "ENTREPRENEUR",
+] as const;
+
+export const validateOccupation = z.enum(OCCUPATION_OPTIONS, {
+  required_error: "Occupation is required",
+});
 
 // Contact info field rules
 export const validatePreferredName = z
@@ -273,13 +300,10 @@ export const validatePersonalInfoData = z.object({
   birthDate: validateDateOfBirth, // Simplified to string format
   sex: validateSex,
   birthCountry: z.string().min(1, "Country of birth is required"),
-  civilStatus: z.enum(
-    ["SINGLE", "MARRIED", "CONCUBINAGE", "FREE_UNION", "OTHERS"],
-    {
-      required_error: "Civil status is required",
-    }
-  ),
-  occupation: z.string().min(1, "Occupation is required"),
+  civilStatus: z.enum(CIVIL_STATUS_OPTIONS, {
+    required_error: "Civil status is required",
+  }),
+  occupation: validateOccupation,
   passport: passportSchema,
   isForeignResident: z.boolean(),
 });

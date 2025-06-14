@@ -1,3 +1,4 @@
+import type { ApplicationData } from "@/lib/schemas/forms";
 import type { AnyFieldApi } from "@tanstack/react-form";
 
 /**
@@ -52,12 +53,25 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   ["customsDeclaration.carriesOverTenThousand", true],
   ["customsDeclaration.carriesAnimalsOrFood", true],
   ["customsDeclaration.carriesTaxableGoods", true],
+
+  // Migratory Information - Conditional fields
+  ["personalInfo.isForeignResident", false], // Only required when entering DR
 ]);
 
 /**
  * Helper function to check if a field is required
+ * Supports conditional requirements based on form data
  */
-export function getFieldRequirement(fieldPath: string): boolean {
+export function getFieldRequirement(
+  fieldPath: string,
+  formData?: ApplicationData
+): boolean {
+  // Handle conditional field requirements
+  if (fieldPath === "personalInfo.isForeignResident") {
+    // Only required when entering Dominican Republic
+    return formData?.flightInfo?.travelDirection === "ENTRY";
+  }
+
   return FIELD_REQUIREMENTS.get(fieldPath) ?? false;
 }
 

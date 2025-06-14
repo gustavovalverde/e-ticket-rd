@@ -1,10 +1,19 @@
 "use client";
 
-import { Shield, DollarSign, Leaf, Package, InfoIcon } from "lucide-react";
+import {
+  Shield,
+  DollarSign,
+  Leaf,
+  Package,
+  InfoIcon,
+  CheckCircle,
+  AlertTriangle,
+  FileCheck,
+} from "lucide-react";
 import React from "react";
 
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   validateCarriesOverTenThousand,
@@ -198,14 +207,51 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
         </CardContent>
       </Card>
 
-      {/* Information Alert */}
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Important:</strong> Providing false customs information may
-          result in legal consequences.
-        </AlertDescription>
-      </Alert>
+      {/* Legal Information and Requirements */}
+      <div className="space-y-4">
+        {/* Allowance Information */}
+        <Alert>
+          <CheckCircle className="h-4 w-4" />
+          <AlertTitle>Customs Allowance</AlertTitle>
+          <AlertDescription>
+            Passengers may bring or carry goods or gift items worth up to USD
+            $500.00 (five hundred dollars). This allowance may only be used once
+            every three (3) months.
+          </AlertDescription>
+        </Alert>
+
+        {/* Mandatory Declaration */}
+        <Alert>
+          <InfoIcon className="h-4 w-4" />
+          <AlertTitle>Mandatory Declaration</AlertTitle>
+          <AlertDescription>
+            The presentation of this declaration is mandatory for all passengers
+            who leave or enter the Dominican Republic. For minors, this form
+            must be completed and signed by the responsible adult.
+          </AlertDescription>
+        </Alert>
+
+        {/* Legal Consequences Warning */}
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Legal Warning</AlertTitle>
+          <AlertDescription>
+            False or incomplete declaration of information may result in
+            penalties such as seizure of goods and deprivation of freedom,
+            according to Article 200 of Law 3489 of the Customs Regime, and
+            Article 4 of Law No. 155-17 against Money Laundering.
+          </AlertDescription>
+        </Alert>
+
+        {/* Signature Requirement */}
+        <Alert>
+          <FileCheck className="h-4 w-4" />
+          <AlertTitle>Signature Required</AlertTitle>
+          <AlertDescription>
+            This declaration must be signed by the passenger where indicated.
+          </AlertDescription>
+        </Alert>
+      </div>
     </div>
   );
 }
