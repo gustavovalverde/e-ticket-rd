@@ -131,6 +131,16 @@ export function DatePicker({
     setOpen(false);
   };
 
+  const getEndMonth = () => {
+    if (mode === "past") {
+      return new Date(today.getFullYear(), 11);
+    }
+    if (maxDate) {
+      return new Date(maxDate.getFullYear(), maxDate.getMonth());
+    }
+    return new Date(today.getFullYear() + 10, 11);
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -162,13 +172,7 @@ export function DatePicker({
               ? new Date(1930, 0)
               : new Date(today.getFullYear(), 0)
           }
-          endMonth={
-            mode === "past"
-              ? new Date(today.getFullYear(), 11)
-              : maxDate
-                ? new Date(maxDate.getFullYear(), maxDate.getMonth())
-                : new Date(today.getFullYear() + 10, 11)
-          }
+          endMonth={getEndMonth()}
           components={{
             DayButton: DatePickerDayButton,
           }}
