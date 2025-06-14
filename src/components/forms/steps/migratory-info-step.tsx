@@ -1,12 +1,11 @@
 "use client";
 
 import { lightFormat } from "date-fns";
-import { User, FileText, InfoIcon } from "lucide-react";
+import { User, FileText, Check, Info } from "lucide-react";
 import * as React from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
@@ -22,12 +21,13 @@ import {
   validateLastName,
   validatePassportNumber,
   validateNationality,
-  validateGender,
+  validateSex,
 } from "@/lib/schemas/validation";
+import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
-interface PersonalInfoStepProps {
+interface MigratoryInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
   onNext: () => void;
@@ -88,7 +88,7 @@ function SelectWithFormContext({
   );
 }
 
-export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
+export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
   return (
     <div className="space-y-6">
       {/* Name Information */}
@@ -200,13 +200,13 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <form.AppField
-              name="personalInfo.gender"
+              name="personalInfo.sex"
               validators={{
-                onBlur: ({ value }: { value: string }) => {
+                onChange: ({ value }: { value: string }) => {
                   if (!value || value.trim() === "") {
-                    return "Gender is required";
+                    return "Sex is required";
                   }
-                  const result = validateGender.safeParse(value);
+                  const result = validateSex.safeParse(value);
                   return result.success
                     ? undefined
                     : result.error.issues[0]?.message;
@@ -216,14 +216,13 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
               {(field: AnyFieldApi) => (
                 <FormRadioGroup
                   field={field}
-                  label="Gender"
+                  label="Sex"
                   options={[
                     {
                       value: "MALE",
                       id: "male",
                       label: "Male",
                       icon: <User className="h-5 w-5" />,
-                      iconBg: undefined,
                       iconColor: "text-blue-600",
                     },
                     {
@@ -231,16 +230,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                       id: "female",
                       label: "Female",
                       icon: <User className="h-5 w-5" />,
-                      iconBg: undefined,
                       iconColor: "text-pink-600",
-                    },
-                    {
-                      value: "OTHER",
-                      id: "other",
-                      label: "Other",
-                      icon: <User className="h-5 w-5" />,
-                      iconBg: undefined,
-                      iconColor: "text-gray-600",
                     },
                   ]}
                   layout="stack"
@@ -250,18 +240,18 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
               )}
             </form.AppField>
 
-            <form.AppField name="personalInfo.maritalStatus">
+            <form.AppField name="personalInfo.civilStatus">
               {(field: AnyFieldApi) => (
-                <FormField field={field} label="Marital Status" required>
+                <FormField field={field} label="Civil Status" required>
                   <SelectWithFormContext
                     field={field}
-                    placeholder="Select marital status"
+                    placeholder="Select civil status"
                   >
                     <SelectItem value="SINGLE">Single</SelectItem>
                     <SelectItem value="MARRIED">Married</SelectItem>
-                    <SelectItem value="DIVORCED">Divorced</SelectItem>
-                    <SelectItem value="WIDOWED">Widowed</SelectItem>
-                    <SelectItem value="COMMON_LAW">Common Law</SelectItem>
+                    <SelectItem value="CONCUBINAGE">Concubinage</SelectItem>
+                    <SelectItem value="FREE_UNION">Free Union</SelectItem>
+                    <SelectItem value="OTHERS">Others</SelectItem>
                   </SelectWithFormContext>
                 </FormField>
               )}
@@ -336,28 +326,70 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
             </form.AppField>
           </div>
 
-          <form.AppField
-            name="personalInfo.passport.nationality"
-            validators={{
-              onBlur: ({ value }: { value: string }) => {
-                if (!value || value.trim() === "") {
-                  return "Nationality is required";
-                }
-                const result = validateNationality.safeParse(value);
-                return result.success
-                  ? undefined
-                  : result.error.issues[0]?.message;
-              },
-            }}
-          >
+          {/* Passport Nationality Question */}
+          <form.AppField name="personalInfo.passport.isDifferentNationality">
             {(field: AnyFieldApi) => (
-              <FormField
-                field={field}
-                label="Nationality"
-                placeholder="Enter your nationality"
-                required
+              <FormRadioGroup
+                field={booleanFieldAdapter(field)}
+                label="Is your passport nationality different from your country of birth?"
+                options={[
+                  {
+                    value: "no",
+                    id: "same-nationality",
+                    label: "No",
+                    description: "Same nationality as country of birth",
+                    icon: <Check className="h-5 w-5" />,
+                    iconColor: "text-green-600",
+                  },
+                  {
+                    value: "yes",
+                    id: "different-nationality",
+                    label: "Yes",
+                    description: "Passport has different nationality",
+                    icon: <Info className="h-5 w-5" />,
+                    iconColor: "text-amber-600",
+                  },
+                ]}
+                layout="grid"
+                columns="2"
+                padding="small"
+                size="small"
               />
             )}
+          </form.AppField>
+
+          {/* Conditional Nationality Field */}
+          <form.AppField name="personalInfo.passport.isDifferentNationality">
+            {(nationalityField: AnyFieldApi) => {
+              if (!nationalityField.state.value) return null;
+
+              return (
+                <form.AppField
+                  name="personalInfo.passport.nationality"
+                  validators={{
+                    onBlur: ({ value }: { value: string }) => {
+                      if (!value || value.trim() === "") {
+                        return "Nationality is required";
+                      }
+                      const result = validateNationality.safeParse(value);
+                      return result.success
+                        ? undefined
+                        : result.error.issues[0]?.message;
+                    },
+                  }}
+                >
+                  {(field: AnyFieldApi) => (
+                    <FormField
+                      field={field}
+                      label="Passport Nationality"
+                      placeholder="Enter your passport nationality"
+                      required
+                      description="Enter the nationality that appears in the passport with which you are going to travel."
+                    />
+                  )}
+                </form.AppField>
+              );
+            }}
           </form.AppField>
 
           <form.AppField name="personalInfo.passport.expiryDate">
@@ -366,7 +398,7 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
                 field={field}
                 label="Passport Expiry Date"
                 required
-                description="Must be valid for at least 6 months"
+                description="Must be valid for at least 3 months. Some countries require 6 months."
               >
                 <DatePickerWithFormContext
                   mode="future"
@@ -385,23 +417,6 @@ export function PersonalInfoStep({ form }: PersonalInfoStepProps) {
           </form.AppField>
         </CardContent>
       </Card>
-
-      {/* Benefits for Group Travel */}
-      <form.AppField name="groupTravel.isGroupTravel">
-        {(groupField: AnyFieldApi) => {
-          if (!groupField.state.value) return null;
-
-          return (
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Group travel:</strong> Some information can be shared
-                with family members if applicable.
-              </AlertDescription>
-            </Alert>
-          );
-        }}
-      </form.AppField>
     </div>
   );
 }

@@ -31,7 +31,7 @@ erDiagram
         string first_names
         string last_names
         date birth_date
-        string gender
+        string sex
         string birth_country
         string marital_status
         string occupation

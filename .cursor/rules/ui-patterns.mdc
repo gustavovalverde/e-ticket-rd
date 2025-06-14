@@ -102,7 +102,7 @@ export const FIELD_REQUIREMENTS: Record<string, boolean> = {
   "personalInfo.lastName": true,
   "personalInfo.passportNumber": true,
   "personalInfo.nationality": true,
-  "personalInfo.gender": true,
+  "personalInfo.sex": true,
   "personalInfo.dateOfBirth": true,
 
   // Flight Information - Required for processing

@@ -141,7 +141,7 @@ export function FormRadioGroup({
                     <div
                       className={cn(
                         "flex items-center justify-center rounded-lg",
-                        option.iconBg || "bg-primary/10",
+                        option.iconBg || "",
                         option.iconColor || "text-primary",
                         currentSize.icon
                       )}

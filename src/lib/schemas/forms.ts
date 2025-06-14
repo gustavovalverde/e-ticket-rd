@@ -5,8 +5,8 @@ import { formOptions } from "@tanstack/react-form";
 // Main application form configuration
 export const applicationFormOptions = formOptions({
   defaultValues: {
-    groupTravel: {
-      isGroupTravel: false,
+    travelCompanions: {
+      isGroupTravel: undefined as boolean | undefined,
       numberOfCompanions: undefined as number | undefined,
       groupNature: undefined as
         | "Family"
@@ -26,19 +26,25 @@ export const applicationFormOptions = formOptions({
       firstName: "",
       lastName: "",
       birthDate: "", // Simplified to string format (YYYY-MM-DD)
-      gender: "MALE" as const,
+      sex: "" as "MALE" | "FEMALE" | "",
       birthCountry: "",
-      maritalStatus: "SINGLE" as const,
+      civilStatus: "" as
+        | "SINGLE"
+        | "MARRIED"
+        | "CONCUBINAGE"
+        | "FREE_UNION"
+        | "OTHERS"
+        | "",
       occupation: "",
       passport: {
         number: "",
         confirmNumber: "",
+        isDifferentNationality: undefined as boolean | undefined,
         nationality: "",
         expiryDate: "", // Simplified passport expiry to string format
-        isDifferentNationality: false,
         additionalNationality: "",
       },
-      isForeignResident: false,
+      isForeignResident: undefined as boolean | undefined,
     },
     contactInfo: {
       preferredName: "",
@@ -49,20 +55,20 @@ export const applicationFormOptions = formOptions({
       },
     },
     flightInfo: {
-      travelDirection: "ENTRY" as const,
-      travelDate: "", // Simplified to string format (YYYY-MM-DD)
+      travelDirection: "" as "ENTRY" | "EXIT" | "",
+      travelDate: "",
       departurePort: "",
       arrivalPort: "",
       airline: "",
       aircraft: "",
       flightNumber: "",
       confirmationNumber: "",
-      hasStops: false,
+      hasStops: undefined as boolean | undefined,
     },
     customsDeclaration: {
-      carriesOverTenThousand: false as boolean,
-      carriesAnimalsOrFood: false as boolean,
-      carriesTaxableGoods: false as boolean,
+      carriesOverTenThousand: undefined as boolean | undefined,
+      carriesAnimalsOrFood: undefined as boolean | undefined,
+      carriesTaxableGoods: undefined as boolean | undefined,
     },
   },
 });
@@ -88,7 +94,7 @@ export const legacyApplicationFormOptions = formOptions({
       arrivalPort: "", // Destination airport IATA code
       estimatedArrival: "",
     },
-    // Personal information
+    // Migratory information
     firstName: "",
     lastName: "",
     email: "",

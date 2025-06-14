@@ -45,7 +45,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           <form.AppField
             name="customsDeclaration.carriesOverTenThousand"
             validators={{
-              onBlur: ({ value }: { value: boolean }) => {
+              onChange: ({ value }: { value: boolean }) => {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying over $10,000";
                 }
@@ -100,7 +100,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           <form.AppField
             name="customsDeclaration.carriesAnimalsOrFood"
             validators={{
-              onBlur: ({ value }: { value: boolean }) => {
+              onChange: ({ value }: { value: boolean }) => {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying biological materials";
                 }
@@ -155,7 +155,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
           <form.AppField
             name="customsDeclaration.carriesTaxableGoods"
             validators={{
-              onBlur: ({ value }: { value: boolean }) => {
+              onChange: ({ value }: { value: boolean }) => {
                 if (value === null || value === undefined) {
                   return "Please select if you're carrying taxable goods";
                 }

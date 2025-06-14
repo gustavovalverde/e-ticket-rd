@@ -38,9 +38,8 @@ export function ApplicationSummary({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Personal Information */}
           <div className="space-y-2">
-            <h4 className="font-medium">Personal Information</h4>
+            <h4 className="font-medium">Migratory Information</h4>
             <div className="space-y-1 text-sm">
               <p>
                 <span className="text-muted-foreground">Name:</span>{" "}
@@ -125,17 +124,17 @@ export function ApplicationSummary({
           )}
 
           {/* Group Information (if group travel) */}
-          {data.groupTravel.isGroupTravel && (
+          {data.travelCompanions.isGroupTravel && (
             <div className="space-y-2">
               <h4 className="font-medium">Group Travel</h4>
               <div className="space-y-1 text-sm">
                 <p>
                   <span className="text-muted-foreground">Companions:</span>{" "}
-                  {data.groupTravel.numberOfCompanions}
+                  {data.travelCompanions.numberOfCompanions}
                 </p>
                 <p>
                   <span className="text-muted-foreground">Group Type:</span>{" "}
-                  {data.groupTravel.groupNature}
+                  {data.travelCompanions.groupNature}
                 </p>
               </div>
             </div>

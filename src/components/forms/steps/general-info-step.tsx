@@ -26,12 +26,11 @@ interface GeneralInfoStepProps {
 export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
   return (
     <div className="space-y-6">
-      {/* Current Residence */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Current Residence
+            Permanent Address
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -156,7 +155,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
       </Card>
 
       {/* Benefits for Group Travel */}
-      <form.AppField name="groupTravel.isGroupTravel">
+      <form.AppField name="travelCompanions.isGroupTravel">
         {(groupField: AnyFieldApi) => {
           if (!groupField.state.value) return null;
 
@@ -165,7 +164,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
               <InfoIcon className="h-4 w-4" />
               <AlertDescription>
                 <strong>Group travel:</strong> Address information can be shared
-                with travel companions.
+                with family members if applicable.
               </AlertDescription>
             </Alert>
           );

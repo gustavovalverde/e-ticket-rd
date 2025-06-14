@@ -1,6 +1,15 @@
 "use client";
 
-import { Users, Heart, Briefcase, UserCheck, InfoIcon } from "lucide-react";
+import {
+  Users,
+  Briefcase,
+  InfoIcon,
+  Hash,
+  Tags,
+  Home,
+  UserCheck,
+  Heart,
+} from "lucide-react";
 import React from "react";
 
 import { FormField } from "@/components/forms/form-field";
@@ -12,14 +21,14 @@ import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
-interface GroupTravelStepProps {
+interface TravelCompanionsStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
   onNext: () => void;
   onPrevious: () => void;
 }
 
-export function GroupTravelStep({ form }: GroupTravelStepProps) {
+export function TravelCompanionsStep({ form }: TravelCompanionsStepProps) {
   return (
     <div className="space-y-6">
       {/* Group Travel Question */}
@@ -27,11 +36,11 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Travel Group
+            Travel Companions
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form.AppField name="groupTravel.isGroupTravel">
+          <form.AppField name="travelCompanions.isGroupTravel">
             {(field: AnyFieldApi) => (
               <FormRadioGroup
                 field={booleanFieldAdapter(field)}
@@ -64,7 +73,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
       </Card>
 
       {/* Group Details - Only show if traveling in group */}
-      <form.AppField name="groupTravel.isGroupTravel">
+      <form.AppField name="travelCompanions.isGroupTravel">
         {(isGroupField: AnyFieldApi) => {
           if (!isGroupField.state.value) return null;
 
@@ -74,12 +83,12 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <UserCheck className="h-5 w-5" />
+                    <Hash className="h-5 w-5" />
                     Group Size
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form.AppField name="groupTravel.numberOfCompanions">
+                  <form.AppField name="travelCompanions.numberOfCompanions">
                     {(field: AnyFieldApi) => (
                       <FormField
                         field={field}
@@ -102,15 +111,15 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5" />
+                    <Tags className="h-5 w-5" />
                     Group Type
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form.AppField
-                    name="groupTravel.groupNature"
+                    name="travelCompanions.groupNature"
                     validators={{
-                      onBlur: ({ value }: { value: string }) => {
+                      onChange: ({ value }: { value: string }) => {
                         if (!value || value.trim() === "") {
                           return "Group type is required";
                         }
@@ -130,7 +139,7 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                             id: "family",
                             label: "Family",
                             description: "Traveling with family members",
-                            icon: <Heart className="h-5 w-5" />,
+                            icon: <Home className="h-5 w-5" />,
                             iconColor: "text-red-600",
                           },
                           {
@@ -142,20 +151,20 @@ export function GroupTravelStep({ form }: GroupTravelStepProps) {
                             iconColor: "text-blue-600",
                           },
                           {
-                            value: "Work_Colleagues",
-                            id: "work",
-                            label: "Work Colleagues",
-                            description: "Business or work-related travel",
-                            icon: <Briefcase className="h-5 w-5" />,
-                            iconColor: "text-gray-600",
-                          },
-                          {
                             value: "Partner",
                             id: "partner",
                             label: "Partner/Spouse",
                             description: "Traveling with partner or spouse",
                             icon: <Heart className="h-5 w-5" />,
                             iconColor: "text-pink-600",
+                          },
+                          {
+                            value: "Work_Colleagues",
+                            id: "work",
+                            label: "Work Colleagues",
+                            description: "Business or work-related travel",
+                            icon: <Briefcase className="h-5 w-5" />,
+                            iconColor: "text-gray-600",
                           },
                         ]}
                         layout="grid"

@@ -11,17 +11,18 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   ["contactInfo.phone.number", true], // Required for travel notifications
   ["contactInfo.phone.countryCode", true], // Required when phone is provided
 
-  // Personal Information - All required
+  // Migratory Information - All required
   ["personalInfo.firstName", true],
   ["personalInfo.lastName", true],
   ["personalInfo.birthDate", true], // Simplified to string
-  ["personalInfo.gender", true],
+  ["personalInfo.sex", true],
   ["personalInfo.birthCountry", true],
-  ["personalInfo.maritalStatus", true],
+  ["personalInfo.civilStatus", true],
   ["personalInfo.occupation", true],
   ["personalInfo.passport.number", true],
   ["personalInfo.passport.confirmNumber", true],
-  ["personalInfo.passport.nationality", true],
+  ["personalInfo.passport.isDifferentNationality", true],
+  ["personalInfo.passport.nationality", false], // Conditional: only required if isDifferentNationality is true
   ["personalInfo.passport.expiryDate", true],
 
   // Flight Information - Required fields
@@ -42,10 +43,10 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   ["generalInfo.state", false], // Optional
   ["generalInfo.postalCode", false], // Optional
 
-  // Group Travel - Conditional requirements
-  ["groupTravel.isGroupTravel", true],
-  ["groupTravel.numberOfCompanions", false], // Required only if group travel
-  ["groupTravel.groupNature", false], // Required only if group travel
+  // Travel Companions - Conditional requirements
+  ["travelCompanions.isGroupTravel", true],
+  ["travelCompanions.numberOfCompanions", false], // Required only if group travel
+  ["travelCompanions.groupNature", false], // Required only if group travel
 
   // Customs Declaration - All required
   ["customsDeclaration.carriesOverTenThousand", true],
@@ -65,9 +66,17 @@ export function getFieldRequirement(fieldPath: string): boolean {
  * Converts boolean field values to "yes"/"no" strings for consistent UI
  */
 export function booleanFieldAdapter(field: AnyFieldApi): AnyFieldApi {
-  // Handle undefined values by defaulting to false (which shows as "no")
-  const booleanValue = field.state.value === true;
-  const currentValue = booleanValue ? "yes" : "no";
+  // Handle different value states properly
+  let currentValue: string;
+
+  if (field.state.value === true) {
+    currentValue = "yes";
+  } else if (field.state.value === false) {
+    currentValue = "no";
+  } else {
+    // undefined or null - no selection
+    currentValue = "";
+  }
 
   const handleValueChange = (value: string) => {
     field.handleChange(value === "yes");

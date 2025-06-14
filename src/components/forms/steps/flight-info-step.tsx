@@ -127,7 +127,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
           <form.AppField
             name="flightInfo.travelDirection"
             validators={{
-              onBlur: ({ value }: { value: string }) => {
+              onChange: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "") {
                   return "Please select your travel direction";
                 }
@@ -519,7 +519,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
           <form.AppField
             name="flightInfo.hasStops"
             validators={{
-              onBlur: ({ value }: { value: boolean }) => {
+              onChange: ({ value }: { value: boolean }) => {
                 if (value === null || value === undefined) {
                   return "Please select if your flight is direct or has connections";
                 }
@@ -559,7 +559,7 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
       </Card>
 
       {/* Benefits for Group Travel */}
-      <form.AppField name="groupTravel.isGroupTravel">
+      <form.AppField name="travelCompanions.isGroupTravel">
         {(groupField: AnyFieldApi) => {
           if (!groupField.state.value) return null;
 
