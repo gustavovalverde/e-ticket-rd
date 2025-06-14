@@ -189,6 +189,7 @@ export {
   useAppForm,
   useFormContext,
   useFieldContext,
+  useStore,
   withForm,
   FieldProvider,
   FormItem,

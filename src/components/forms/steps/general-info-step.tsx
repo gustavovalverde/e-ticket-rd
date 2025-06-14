@@ -6,6 +6,7 @@ import React from "react";
 import { FormField } from "@/components/forms/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStore } from "@/components/ui/tanstack-form";
 import {
   validatePermanentAddress,
   validateResidenceCountry,
@@ -24,6 +25,12 @@ interface GeneralInfoStepProps {
 }
 
 export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
+  const isGroupTravel = useStore(
+    form.store,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (state: any) => state.values.travelCompanions.isGroupTravel
+  );
+
   return (
     <div className="space-y-6">
       <Card>
@@ -155,21 +162,15 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
       </Card>
 
       {/* Benefits for Group Travel */}
-      <form.AppField name="travelCompanions.isGroupTravel">
-        {(groupField: AnyFieldApi) => {
-          if (!groupField.state.value) return null;
-
-          return (
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Group travel:</strong> Address information can be shared
-                with family members if applicable.
-              </AlertDescription>
-            </Alert>
-          );
-        }}
-      </form.AppField>
+      {isGroupTravel && (
+        <Alert>
+          <InfoIcon className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Group travel:</strong> Address information can be shared
+            with family members if applicable.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

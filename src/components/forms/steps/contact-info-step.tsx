@@ -44,7 +44,9 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
             name="contactInfo.email"
             validators={{
               onBlur: ({ value }: { value: string }) => {
-                if (!value || value.trim() === "") return undefined;
+                if (!value || value.trim() === "") {
+                  return "Email address is required for e-ticket delivery";
+                }
                 const result = validateEmail.safeParse(value);
                 return result.success
                   ? undefined

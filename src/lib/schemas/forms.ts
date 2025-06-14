@@ -62,7 +62,14 @@ export const applicationFormOptions = formOptions({
       aircraft: "",
       flightNumber: "",
       confirmationNumber: "",
-      hasStops: undefined as boolean | undefined,
+      hasStops: undefined as "yes" | "no" | undefined,
+      // Origin flight details (for connections)
+      originFlightNumber: "",
+      originAirline: "",
+      originDeparturePort: "",
+      originArrivalPort: "",
+      originTravelDate: "",
+      originAircraft: "",
     },
     customsDeclaration: {
       carriesOverTenThousand: undefined as boolean | undefined,

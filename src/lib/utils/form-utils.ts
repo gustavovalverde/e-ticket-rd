@@ -77,28 +77,30 @@ export function getFieldRequirement(
 
 /**
  * Standardized boolean field adapter for RadioGroup components
- * Converts boolean field values to "yes"/"no" strings for consistent UI
+ * Converts boolean field values to "yes"/"no" strings for UI display only
+ * The actual form state remains boolean for consistency
  */
 export function booleanFieldAdapter(field: AnyFieldApi): AnyFieldApi {
-  // Handle different value states properly
-  let currentValue: string;
+  // Convert boolean to string for display only
+  let displayValue: string;
 
   if (field.state.value === true) {
-    currentValue = "yes";
+    displayValue = "yes";
   } else if (field.state.value === false) {
-    currentValue = "no";
+    displayValue = "no";
   } else {
-    // undefined or null - no selection
-    currentValue = "";
+    displayValue = "";
   }
-
-  const handleValueChange = (value: string) => {
-    field.handleChange(value === "yes");
-  };
 
   return {
     ...field,
-    state: { ...field.state, value: currentValue },
-    handleChange: handleValueChange,
+    state: {
+      ...field.state,
+      value: displayValue, // Display value for UI
+    },
+    handleChange: (value: string) => {
+      // Convert back to boolean and update form state
+      field.handleChange(value === "yes");
+    },
   } as AnyFieldApi;
 }

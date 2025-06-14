@@ -80,7 +80,7 @@ export function ApplicationSummary({
               </p>
               <p>
                 <span className="text-muted-foreground">Flight Type:</span>{" "}
-                {data.flightInfo.hasStops
+                {data.flightInfo.hasStops === "yes"
                   ? "With Connections"
                   : "Direct Flight"}
               </p>

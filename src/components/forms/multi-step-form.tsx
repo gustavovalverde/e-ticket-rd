@@ -178,12 +178,31 @@ export function MultiStepForm({
         const hasPhone = values.contactInfo?.phone?.number?.trim();
         return !hasEmail && !hasPhone ? true : Boolean(hasEmail || hasPhone);
       }
-      case STEP_IDS.FLIGHT_INFO:
-        return Boolean(
-          values.flightInfo?.flightNumber &&
-            values.flightInfo?.airline &&
-            values.flightInfo?.departurePort
+      case STEP_IDS.FLIGHT_INFO: {
+        const flightInfo = values.flightInfo;
+        const hasBasicFlightInfo = Boolean(
+          flightInfo?.flightNumber &&
+            flightInfo?.airline &&
+            flightInfo?.departurePort
         );
+
+        // If entering DR with connections, also check origin flight details
+        const isEntryWithConnections =
+          flightInfo?.travelDirection === "ENTRY" &&
+          flightInfo?.hasStops === "yes";
+
+        if (isEntryWithConnections) {
+          const hasOriginFlightInfo = Boolean(
+            flightInfo?.originFlightNumber &&
+              flightInfo?.originAirline &&
+              flightInfo?.originDeparturePort &&
+              flightInfo?.originArrivalPort
+          );
+          return hasBasicFlightInfo && hasOriginFlightInfo;
+        }
+
+        return hasBasicFlightInfo;
+      }
       case STEP_IDS.TRAVEL_COMPANIONS:
         return values.travelCompanions?.isGroupTravel !== undefined;
       case STEP_IDS.GENERAL_INFO:

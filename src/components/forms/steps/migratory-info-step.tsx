@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useFieldContext } from "@/components/ui/tanstack-form";
+import { useFieldContext, useStore } from "@/components/ui/tanstack-form";
 import {
   validateFirstName,
   validateLastName,
@@ -92,9 +92,17 @@ function SelectWithFormContext({
 }
 
 export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
-  // Get travel direction to conditionally show residency status
-  const travelDirection = form.getFieldValue("flightInfo.travelDirection");
-  const isEnteringDR = travelDirection === "ENTRY";
+  // Get reactive values from the form store
+  const isEnteringDR = useStore(
+    form.store,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (s: any) => s.values.flightInfo.travelDirection === "ENTRY"
+  );
+  const isDifferentNationality = useStore(
+    form.store,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (s: any) => s.values.personalInfo.passport.isDifferentNationality
+  );
 
   return (
     <div className="space-y-6">
@@ -435,38 +443,32 @@ export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
           </form.AppField>
 
           {/* Conditional Nationality Field */}
-          <form.AppField name="personalInfo.passport.isDifferentNationality">
-            {(nationalityField: AnyFieldApi) => {
-              if (!nationalityField.state.value) return null;
-
-              return (
-                <form.AppField
-                  name="personalInfo.passport.nationality"
-                  validators={{
-                    onBlur: ({ value }: { value: string }) => {
-                      if (!value || value.trim() === "") {
-                        return "Nationality is required";
-                      }
-                      const result = validateNationality.safeParse(value);
-                      return result.success
-                        ? undefined
-                        : result.error.issues[0]?.message;
-                    },
-                  }}
-                >
-                  {(field: AnyFieldApi) => (
-                    <FormField
-                      field={field}
-                      label="Passport Nationality"
-                      placeholder="Enter your passport nationality"
-                      required
-                      description="Enter the nationality that appears in the passport with which you are going to travel."
-                    />
-                  )}
-                </form.AppField>
-              );
-            }}
-          </form.AppField>
+          {isDifferentNationality && (
+            <form.AppField
+              name="personalInfo.passport.nationality"
+              validators={{
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "Nationality is required";
+                  }
+                  const result = validateNationality.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
+            >
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Passport Nationality"
+                  placeholder="Enter your passport nationality"
+                  required
+                  description="Enter the nationality that appears in the passport with which you are going to travel."
+                />
+              )}
+            </form.AppField>
+          )}
 
           <form.AppField name="personalInfo.passport.expiryDate">
             {(field: AnyFieldApi) => (

@@ -20,16 +20,21 @@ import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
-import { useFieldContext } from "@/components/ui/tanstack-form";
+import { useFieldContext, useStore } from "@/components/ui/tanstack-form";
 import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
 import {
   validateFlightNumber,
   formatFlightNumber,
 } from "@/lib/schemas/validation";
-import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
@@ -77,6 +82,13 @@ function DatePickerWithFormContext({
 export function FlightInfoStep({ form }: TravelInfoStepProps) {
   const { result, error, isLoading, lookupFlight, reset } = useFlightLookup();
 
+  // Use the form's store to subscribe to changes and ensure reactivity
+  const flightInfoValues = useStore(
+    form.store,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (state: any) => state.values.flightInfo
+  );
+
   const formattedFlightNumberHandler = useCallback((value: string) => {
     return formatFlightNumber(value);
   }, []);
@@ -97,6 +109,42 @@ export function FlightInfoStep({ form }: TravelInfoStepProps) {
     form.setFieldValue("flightInfo.aircraft", "");
     form.setFieldValue("flightInfo.estimatedArrival", "");
   }, [reset, form]);
+
+  // Helper function to check if travel details are complete
+  const areTravelDetailsComplete = () => {
+    const values = flightInfoValues; // Use reactive values from the store
+
+    // Check if basic required fields are filled
+    const hasTravelDate = values?.travelDate && values.travelDate.trim() !== "";
+    const hasFlightNumber =
+      values?.flightNumber && values.flightNumber.trim() !== "";
+
+    if (!hasTravelDate || !hasFlightNumber) {
+      return false;
+    }
+
+    // Check if flight details are available either through:
+    // 1. Successful flight lookup, OR
+    // 2. Manual entry of required fields
+    const hasFlightLookupSuccess = result?.success;
+    const hasManualFlightDetails = Boolean(
+      values?.airline?.trim() &&
+        values?.departurePort?.trim() &&
+        values?.arrivalPort?.trim()
+    );
+
+    return hasFlightLookupSuccess || hasManualFlightDetails;
+  };
+
+  // Helper function to check if this is entry to Dominican Republic
+  const isEntryToDR = () => {
+    return flightInfoValues?.travelDirection === "ENTRY";
+  };
+
+  // Helper function to check if user selected connections
+  const hasConnectionFlights = () => {
+    return flightInfoValues?.hasStops === "yes";
+  };
 
   // Fill in flight details when search succeeds
   useEffect(() => {
@@ -280,7 +328,25 @@ export function FlightInfoStep({ form }: TravelInfoStepProps) {
                                       : "Choose your date first"
                                   }
                                   value={flightField.state.value}
-                                  onBlur={flightField.handleBlur}
+                                  onBlur={(e) => {
+                                    // Handle TanStack Form blur
+                                    flightField.handleBlur();
+
+                                    // Auto-search if validation passes
+                                    const currentValue = e.target.value;
+                                    const validation =
+                                      validateFlightNumber(currentValue);
+
+                                    if (
+                                      hasDate &&
+                                      validation.isValid &&
+                                      currentValue.trim() &&
+                                      !isLoading &&
+                                      !result?.success // Don't search again if already found
+                                    ) {
+                                      handleFlightLookup(currentValue);
+                                    }
+                                  }}
                                   onChange={(e) => {
                                     const formatted =
                                       formattedFlightNumberHandler(
@@ -507,56 +573,257 @@ export function FlightInfoStep({ form }: TravelInfoStepProps) {
         </CardContent>
       </Card>
 
-      {/* Travel Route - Last Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Route className="h-5 w-5" />
-            Travel Route
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form.AppField
-            name="flightInfo.hasStops"
-            validators={{
-              onChange: ({ value }: { value: boolean }) => {
-                if (value === null || value === undefined) {
-                  return "Please select if your flight is direct or has connections";
-                }
-                return undefined;
-              },
-            }}
-          >
-            {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
-                options={[
-                  {
-                    value: "no",
-                    id: "direct",
-                    label: "Direct Flight",
-                    description: "No connecting flights or stops",
-                    icon: <Plane className="h-5 w-5" />,
-                    iconColor: "text-green-600",
+      {/* Travel Route - Only show when Travel Details are complete and entering DR */}
+      {areTravelDetailsComplete() && isEntryToDR() && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Route className="h-5 w-5" />
+              Travel Route
+            </CardTitle>
+            <CardDescription>
+              How are you arriving to the Dominican Republic?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form.AppField
+              name="flightInfo.hasStops"
+              validators={{
+                onChange: ({ value }: { value: boolean }) => {
+                  if (value === null || value === undefined) {
+                    return "Please select how you're arriving to Dominican Republic";
+                  }
+                  return undefined;
+                },
+              }}
+            >
+              {(field: AnyFieldApi) => (
+                <FormRadioGroup
+                  field={field}
+                  options={[
+                    {
+                      value: "no",
+                      id: "direct",
+                      label: "Direct Flight",
+                      description: "Flying directly to Dominican Republic",
+                      icon: <Plane className="h-5 w-5" />,
+                      iconColor: "text-green-600",
+                    },
+                    {
+                      value: "yes",
+                      id: "stops",
+                      label: "With Connections",
+                      description:
+                        "Connecting from another flight to reach Dominican Republic",
+                      icon: <Route className="h-5 w-5" />,
+                      iconColor: "text-blue-600",
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
+              )}
+            </form.AppField>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Origin Flight Details - Only show when user has connections */}
+      {areTravelDetailsComplete() &&
+        isEntryToDR() &&
+        hasConnectionFlights() && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Plane className="h-5 w-5" />
+                Origin Flight Details
+              </CardTitle>
+              <CardDescription>
+                Tell us about your first flight (from your origin country)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Origin Travel Date */}
+              <form.AppField
+                name="flightInfo.originTravelDate"
+                validators={{
+                  onBlur: ({ value }: { value: string }) => {
+                    if (!value || value.trim() === "") {
+                      return "Origin travel date is required";
+                    }
+                    return undefined;
                   },
-                  {
-                    value: "yes",
-                    id: "stops",
-                    label: "With Connections",
-                    description: "Has connecting flights or stops",
-                    icon: <Route className="h-5 w-5" />,
-                    iconColor: "text-blue-600",
-                  },
-                ]}
-                layout="grid"
-                columns="2"
-                padding="small"
-                size="small"
-              />
-            )}
-          </form.AppField>
-        </CardContent>
-      </Card>
+                }}
+              >
+                {(dateField: AnyFieldApi) => (
+                  <FormField
+                    field={dateField}
+                    label="Origin Travel Date"
+                    required
+                  >
+                    <DatePickerWithFormContext
+                      mode="future"
+                      value={
+                        dateField.state.value
+                          ? new Date(dateField.state.value)
+                          : undefined
+                      }
+                      onChange={(date) =>
+                        dateField.handleChange(
+                          date ? lightFormat(date, "yyyy-MM-dd") : ""
+                        )
+                      }
+                      className="w-full max-w-sm"
+                    />
+                  </FormField>
+                )}
+              </form.AppField>
+
+              {/* Origin Flight Number */}
+              <form.AppField name="flightInfo.originTravelDate">
+                {(originDateField: AnyFieldApi) => {
+                  const hasOriginDate =
+                    originDateField.state.value &&
+                    originDateField.state.value.trim() !== "";
+
+                  return (
+                    <div
+                      className={`space-y-6 transition-all duration-300 ${
+                        hasOriginDate ? "opacity-100" : "opacity-50"
+                      }`}
+                    >
+                      <form.AppField
+                        name="flightInfo.originFlightNumber"
+                        validators={{
+                          onBlur: ({ value }: { value: string }) => {
+                            if (!value || !value.trim()) return undefined;
+                            const validation = validateFlightNumber(value);
+                            return validation.isValid
+                              ? undefined
+                              : validation.error;
+                          },
+                        }}
+                      >
+                        {(originFlightField: AnyFieldApi) => (
+                          <FormField
+                            field={originFlightField}
+                            label={`Origin Flight Number ${!hasOriginDate ? "(Choose your origin date first)" : ""}`}
+                            required
+                            disabled={!hasOriginDate}
+                            description="Enter your first flight number (e.g., IB6275 from Madrid)"
+                            className="max-w-sm"
+                            placeholder={
+                              hasOriginDate
+                                ? "e.g., IB6275, LH441, AF447"
+                                : "Choose your origin date first"
+                            }
+                          />
+                        )}
+                      </form.AppField>
+                    </div>
+                  );
+                }}
+              </form.AppField>
+
+              {/* Origin Flight Details - Manual Entry */}
+              <div className="bg-muted/30 space-y-6 rounded-lg p-4">
+                <h4 className="text-muted-foreground text-sm font-medium">
+                  Origin Flight Details
+                </h4>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <form.AppField
+                    name="flightInfo.originAirline"
+                    validators={{
+                      onBlur: ({ value }: { value: string }) => {
+                        if (!value || value.trim() === "") {
+                          return "Origin airline is required";
+                        }
+                        return undefined;
+                      },
+                    }}
+                  >
+                    {(field: AnyFieldApi) => (
+                      <FormField
+                        field={field}
+                        label="Origin Airline"
+                        placeholder="e.g., Iberia"
+                        required
+                      />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="flightInfo.originAircraft">
+                    {(field: AnyFieldApi) => (
+                      <FormField
+                        field={field}
+                        label="Origin Aircraft Type"
+                        placeholder="Aircraft type (if known)"
+                        className="text-muted-foreground"
+                      />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField
+                    name="flightInfo.originDeparturePort"
+                    validators={{
+                      onBlur: ({ value }: { value: string }) => {
+                        if (!value || value.trim() === "") {
+                          return "Origin departure airport is required";
+                        }
+                        return undefined;
+                      },
+                    }}
+                  >
+                    {(field: AnyFieldApi) => (
+                      <FormField
+                        field={field}
+                        label="Origin Departure Airport"
+                        placeholder="e.g., LIS (your starting point)"
+                        required
+                        description="Where your journey begins"
+                      />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField
+                    name="flightInfo.originArrivalPort"
+                    validators={{
+                      onBlur: ({ value }: { value: string }) => {
+                        if (!value || value.trim() === "") {
+                          return "Origin arrival airport is required";
+                        }
+                        return undefined;
+                      },
+                    }}
+                  >
+                    {(field: AnyFieldApi) => (
+                      <FormField
+                        field={field}
+                        label="Connection Airport"
+                        placeholder="e.g., MAD (where you connect)"
+                        required
+                        description="Where you connect to your final flight"
+                      />
+                    )}
+                  </form.AppField>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+      {/* Benefits for Connection Flights */}
+      {hasConnectionFlights() && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Connection flights:</strong> This helps us understand your
+            complete journey and ensure proper immigration processing.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Benefits for Group Travel */}
       <form.AppField name="travelCompanions.isGroupTravel">
