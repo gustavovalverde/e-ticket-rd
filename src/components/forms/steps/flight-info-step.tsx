@@ -33,7 +33,7 @@ import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
-interface FlightInfoStepProps {
+interface TravelInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
   onNext: () => void;
@@ -74,7 +74,7 @@ function DatePickerWithFormContext({
   );
 }
 
-export function FlightInfoStep({ form }: FlightInfoStepProps) {
+export function FlightInfoStep({ form }: TravelInfoStepProps) {
   const { result, error, isLoading, lookupFlight, reset } = useFlightLookup();
 
   const formattedFlightNumberHandler = useCallback((value: string) => {
@@ -166,12 +166,12 @@ export function FlightInfoStep({ form }: FlightInfoStepProps) {
         </CardContent>
       </Card>
 
-      {/* Main Flight Information */}
+      {/* Main Travel Information */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plane className="h-5 w-5" />
-            Flight Details
+            Travel Details
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">

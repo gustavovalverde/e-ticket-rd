@@ -34,7 +34,8 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                 field={field}
                 label="Preferred Name"
                 type="text"
-                placeholder="How would you like to be addressed?"
+                // placeholder="How would you like to be addressed?"
+                description="(Optional) This can be your nickname or a name you prefer to be called"
               />
             )}
           </form.AppField>
@@ -56,8 +57,8 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                 field={field}
                 label="Email Address"
                 type="email"
-                placeholder="Enter your email address"
-                description="We'll send your e-ticket here"
+                // placeholder="Enter your email address"
+                description="We'll send the e-ticket to this address"
               />
             )}
           </form.AppField>

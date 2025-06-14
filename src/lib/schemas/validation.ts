@@ -315,7 +315,7 @@ export const validateContactInfoData = z.object({
   phone: phoneSchema, // Required for travel notifications
 });
 
-// Enhanced flight information validation rules (Step 3)
+// Enhanced travel information validation rules (Step 3)
 export const validateFlightInfoData = z.object({
   travelDirection: validateTravelDirection,
   travelDate: validateTravelDate, // Enhanced with future date validation

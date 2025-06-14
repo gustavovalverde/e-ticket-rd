@@ -26,7 +26,7 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   ["personalInfo.passport.nationality", false], // Conditional: only required if isDifferentNationality is true
   ["personalInfo.passport.expiryDate", true],
 
-  // Flight Information - Required fields
+  // Travel Information - Required fields
   ["flightInfo.travelDirection", true],
   ["flightInfo.travelDate", true], // Simplified to string
   ["flightInfo.flightNumber", true],

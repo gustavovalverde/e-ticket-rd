@@ -122,7 +122,7 @@ Components automatically detect requirements without manual configuration:
 - `personalInfo.birthDate.*` - Required
 - `personalInfo.passport.*` - Required
 
-### **Flight Information** (Mixed)
+### **Travel Information** (Mixed)
 
 - `flightInfo.travelDirection` - Required
 - `flightInfo.flightNumber` - Required

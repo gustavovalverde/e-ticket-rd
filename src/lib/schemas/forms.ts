@@ -82,7 +82,7 @@ export const legacyApplicationFormOptions = formOptions({
       travelingAlone: "" as "alone" | "with-others" | "",
       groupType: "" as "friends" | "coworkers" | "family" | "couple" | "",
     },
-    // Flight information (now part of travel info step)
+    // Travel information (flight and journey details)
     flightInfo: {
       flightNumber: "",
       travelDate: "",

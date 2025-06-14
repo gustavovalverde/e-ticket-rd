@@ -105,7 +105,7 @@ export const FIELD_REQUIREMENTS: Record<string, boolean> = {
   "personalInfo.sex": true,
   "personalInfo.dateOfBirth": true,
 
-  // Flight Information - Required for processing
+  // Travel Information - Required for processing
   "flightInfo.travelDirection": true,
   "flightInfo.airline": true,
   "flightInfo.flightNumber": true,
@@ -212,7 +212,7 @@ import { cn } from "@/lib/utils";
 
 #### Current Step Structure
 1. **Contact Information**: Preferred name, email (required), phone (required)
-2. **Flight Information**: Travel direction, airline, flight details, route/stops
+2. **Travel Information**: Travel direction, airline, flight details, route/stops
 3. **Group Travel**: Solo vs group selection
 4. **General Information**: Address, purpose of trip
 5. **Personal Information**: Identity and passport details

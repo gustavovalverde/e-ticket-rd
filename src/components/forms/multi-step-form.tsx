@@ -66,7 +66,7 @@ const STEP_TITLES = {
   GENERAL_INFORMATION: "General Information",
   PERSONAL_INFORMATION: "Migratory Information",
   CONTACT_INFORMATION: "Contact Information",
-  FLIGHT_INFORMATION: "Flight Information",
+  TRAVEL_INFORMATION: "Travel Information",
   CUSTOMS_DECLARATION: "Customs Declaration",
 } as const;
 
@@ -77,7 +77,7 @@ const FORM_STEPS: Step[] = [
   },
   {
     id: STEP_IDS.FLIGHT_INFO,
-    title: STEP_TITLES.FLIGHT_INFORMATION,
+    title: STEP_TITLES.TRAVEL_INFORMATION,
   },
   {
     id: STEP_IDS.TRAVEL_COMPANIONS,
@@ -237,12 +237,13 @@ export function MultiStepForm({
       case STEP_IDS.CONTACT_INFO:
         return {
           title: STEP_TITLES.CONTACT_INFORMATION,
-          subtitle: "Email and phone",
+          subtitle:
+            "Who's filling out this application? And how can we contact you?",
         };
       case STEP_IDS.FLIGHT_INFO:
         return {
-          title: STEP_TITLES.FLIGHT_INFORMATION,
-          subtitle: "Flight details and airline",
+          title: STEP_TITLES.TRAVEL_INFORMATION,
+          subtitle: "What are your travel plans?",
         };
       case STEP_IDS.TRAVEL_COMPANIONS:
         return {

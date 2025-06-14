@@ -15,10 +15,6 @@ export interface PassportDetailsFormProps {
   form: AppFormInstance;
 }
 
-export interface FlightInfoFormProps {
-  form: AppFormInstance;
-}
-
 export interface ReviewFormProps {
   form: AppFormInstance;
   onSubmit: () => void;
