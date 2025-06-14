@@ -6,6 +6,7 @@ import React from "react";
 import { FormField } from "@/components/forms/form-field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CountrySelect } from "@/components/ui/country-select";
 import { useStore } from "@/components/ui/tanstack-form";
 import {
   validatePermanentAddress,
@@ -128,12 +129,12 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
               }}
             >
               {(field: AnyFieldApi) => (
-                <FormField
-                  field={field}
-                  label="Country"
-                  placeholder="Enter your country of residence"
-                  required
-                />
+                <FormField field={field} label="Country" required>
+                  <CountrySelect
+                    field={field}
+                    placeholder="Select your country of residence"
+                  />
+                </FormField>
               )}
             </form.AppField>
 

@@ -13,12 +13,14 @@ import {
 import React from "react";
 
 import { FormField } from "@/components/forms/form-field";
-import { FormRadioGroup } from "@/components/forms/form-radio-group";
+import {
+  FormRadioGroup,
+  BooleanRadioGroup,
+} from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useStore } from "@/components/ui/tanstack-form";
 import { validateGroupNature } from "@/lib/schemas/validation";
-import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
@@ -49,11 +51,11 @@ export function TravelCompanionsStep({ form }: TravelCompanionsStepProps) {
         <CardContent>
           <form.AppField name="travelCompanions.isGroupTravel">
             {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
+              <BooleanRadioGroup
+                field={field}
                 options={[
                   {
-                    value: "no",
+                    value: false,
                     id: "solo",
                     label: "Traveling Solo",
                     description: "I'm traveling alone",
@@ -61,7 +63,7 @@ export function TravelCompanionsStep({ form }: TravelCompanionsStepProps) {
                     iconColor: "text-blue-600",
                   },
                   {
-                    value: "yes",
+                    value: true,
                     id: "group",
                     label: "Group Travel",
                     description: "I'm traveling with others",

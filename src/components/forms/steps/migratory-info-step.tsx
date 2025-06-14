@@ -7,6 +7,7 @@ import * as React from "react";
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CountrySelect } from "@/components/ui/country-select";
 import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
@@ -207,9 +208,14 @@ export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
               <FormField
                 field={field}
                 label="Country of Birth"
-                placeholder="Enter your country of birth"
                 required
-              />
+                description="Select the country where you were born"
+              >
+                <CountrySelect
+                  field={field}
+                  placeholder="Select your country of birth"
+                />
+              </FormField>
             )}
           </form.AppField>
 
@@ -459,13 +465,12 @@ export function MigratoryInfoStep({ form }: MigratoryInfoStepProps) {
               }}
             >
               {(field: AnyFieldApi) => (
-                <FormField
-                  field={field}
-                  label="Passport Nationality"
-                  placeholder="Enter your passport nationality"
-                  required
-                  description="Enter the nationality that appears in the passport with which you are going to travel."
-                />
+                <FormField field={field} label="Passport Nationality" required>
+                  <CountrySelect
+                    field={field}
+                    placeholder="Select your passport nationality"
+                  />
+                </FormField>
               )}
             </form.AppField>
           )}

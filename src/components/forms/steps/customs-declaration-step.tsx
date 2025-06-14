@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import React from "react";
 
-import { FormRadioGroup } from "@/components/forms/form-radio-group";
+import { BooleanRadioGroup } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,7 +20,6 @@ import {
   validateCarriesAnimalsOrFood,
   validateCarriesTaxableGoods,
 } from "@/lib/schemas/validation";
-import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { AnyFieldApi } from "@tanstack/react-form";
 
@@ -66,11 +65,11 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             }}
           >
             {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
+              <BooleanRadioGroup
+                field={field}
                 options={[
                   {
-                    value: "no",
+                    value: false,
                     id: "money-no",
                     label: "No",
                     description: "Less than US$10,000",
@@ -78,7 +77,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                     iconColor: ICON_COLORS.GREEN,
                   },
                   {
-                    value: "yes",
+                    value: true,
                     id: "money-yes",
                     label: "Yes",
                     description: "US$10,000 or more",
@@ -121,11 +120,11 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             }}
           >
             {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
+              <BooleanRadioGroup
+                field={field}
                 options={[
                   {
-                    value: "no",
+                    value: false,
                     id: "bio-no",
                     label: "No",
                     description: "No biological materials",
@@ -133,7 +132,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                     iconColor: ICON_COLORS.GREEN,
                   },
                   {
-                    value: "yes",
+                    value: true,
                     id: "bio-yes",
                     label: "Yes",
                     description: "Carrying biological items",
@@ -176,11 +175,11 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             }}
           >
             {(field: AnyFieldApi) => (
-              <FormRadioGroup
-                field={booleanFieldAdapter(field)}
+              <BooleanRadioGroup
+                field={field}
                 options={[
                   {
-                    value: "no",
+                    value: false,
                     id: "goods-no",
                     label: "No",
                     description: "Personal items only",
@@ -188,7 +187,7 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                     iconColor: ICON_COLORS.GREEN,
                   },
                   {
-                    value: "yes",
+                    value: true,
                     id: "goods-yes",
                     label: "Yes",
                     description: "Commercial or taxable goods",

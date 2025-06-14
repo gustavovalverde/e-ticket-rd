@@ -17,7 +17,10 @@ import {
 import React, { useCallback, useEffect, forwardRef } from "react";
 
 import { FormField } from "@/components/forms/form-field";
-import { FormRadioGroup } from "@/components/forms/form-radio-group";
+import {
+  FormRadioGroup,
+  BooleanRadioGroup,
+} from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -170,7 +173,7 @@ export function FlightInfoStep({ form }: TravelInfoStepProps) {
 
   // Helper function to check if user selected connections
   const hasConnectionFlights = () => {
-    return flightInfoValues?.hasStops === "yes";
+    return flightInfoValues?.hasStops === true;
   };
 
   // Fill in flight details when search succeeds
@@ -231,16 +234,6 @@ export function FlightInfoStep({ form }: TravelInfoStepProps) {
             {(field: AnyFieldApi) => (
               <FormRadioGroup
                 field={field}
-                value={
-                  field.state.value === true
-                    ? "yes"
-                    : field.state.value === false
-                      ? "no"
-                      : ""
-                }
-                onValueChange={(value) => {
-                  field.handleChange(value === "yes");
-                }}
                 options={[
                   {
                     value: "ENTRY",
@@ -652,47 +645,34 @@ export function FlightInfoStep({ form }: TravelInfoStepProps) {
                 },
               }}
             >
-              {(field: AnyFieldApi) => {
-                let radioValue = "";
-                if (field.state.value === true) {
-                  radioValue = "yes";
-                } else if (field.state.value === false) {
-                  radioValue = "no";
-                }
-
-                return (
-                  <FormRadioGroup
-                    field={field}
-                    value={radioValue}
-                    onValueChange={(value) => {
-                      field.handleChange(value === "yes");
-                    }}
-                    options={[
-                      {
-                        value: "no",
-                        id: "direct",
-                        label: "Direct Flight",
-                        description: "Flying directly to Dominican Republic",
-                        icon: <Plane className="h-5 w-5" />,
-                        iconColor: "text-green-600",
-                      },
-                      {
-                        value: "yes",
-                        id: "stops",
-                        label: "With Connections",
-                        description:
-                          "Connecting from another flight to reach Dominican Republic",
-                        icon: <Route className="h-5 w-5" />,
-                        iconColor: "text-blue-600",
-                      },
-                    ]}
-                    layout="grid"
-                    columns="2"
-                    padding="small"
-                    size="small"
-                  />
-                );
-              }}
+              {(field: AnyFieldApi) => (
+                <BooleanRadioGroup
+                  field={field}
+                  options={[
+                    {
+                      value: false,
+                      id: "direct",
+                      label: "Direct Flight",
+                      description: "Flying directly to Dominican Republic",
+                      icon: <Plane className="h-5 w-5" />,
+                      iconColor: "text-green-600",
+                    },
+                    {
+                      value: true,
+                      id: "stops",
+                      label: "With Connections",
+                      description:
+                        "Connecting from another flight to reach Dominican Republic",
+                      icon: <Route className="h-5 w-5" />,
+                      iconColor: "text-blue-600",
+                    },
+                  ]}
+                  layout="grid"
+                  columns="2"
+                  padding="small"
+                  size="small"
+                />
+              )}
             </form.AppField>
           </CardContent>
         </Card>
