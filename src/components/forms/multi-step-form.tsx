@@ -505,10 +505,16 @@ export function MultiStepForm({
 
                 <Separator />
 
-                {/* Step Validation Errors */}
+                <CardContent className="space-y-8">
+                  <form onSubmit={handleSubmit} id="eticket-application-form">
+                    {renderCurrentStep()}
+                  </form>
+                </CardContent>
+
+                {/* Step Validation Errors - Moved to bottom for better UX */}
                 {currentStepHasErrors &&
                   currentStepValidationErrors.length > 0 && (
-                    <div className="px-6 pt-6">
+                    <div className="px-6 pb-6">
                       <ValidationError
                         errors={currentStepValidationErrors}
                         title="Please fix the following issues:"
@@ -527,12 +533,6 @@ export function MultiStepForm({
                       />
                     </div>
                   )}
-
-                <CardContent className="space-y-8">
-                  <form onSubmit={handleSubmit} id="eticket-application-form">
-                    {renderCurrentStep()}
-                  </form>
-                </CardContent>
 
                 <CardFooter className="flex items-center justify-between">
                   <Button
