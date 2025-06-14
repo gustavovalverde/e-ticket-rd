@@ -36,6 +36,8 @@ interface FormRadioGroupProps {
   description?: string;
   className?: string;
   required?: boolean;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
 export function FormRadioGroup({
@@ -49,6 +51,8 @@ export function FormRadioGroup({
   description,
   className,
   required,
+  value,
+  onValueChange,
 }: FormRadioGroupProps) {
   const isRequired =
     required !== undefined ? required : getFieldRequirement(field.name);
@@ -120,8 +124,8 @@ export function FormRadioGroup({
         )}
         <FormControl>
           <RadioGroup
-            value={field.state.value || ""}
-            onValueChange={field.handleChange}
+            value={value ?? field.state.value ?? ""}
+            onValueChange={onValueChange ?? field.handleChange}
             onBlur={field.handleBlur}
             className={cn(
               layout === "grid"

@@ -23,6 +23,7 @@ interface DatePickerProps {
   id?: string;
   mode?: "future" | "past" | "any";
   placeholder?: string;
+  maxDate?: Date;
 }
 
 // Enhanced day button component with rounded styling from the demo
@@ -83,6 +84,7 @@ export function DatePicker({
   id,
   mode = "future",
   placeholder,
+  maxDate,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
   const today = startOfToday();
@@ -101,8 +103,13 @@ export function DatePicker({
     }
   }, [value, open]);
 
-  // Generate disabled date function based on mode
+  // Generate disabled date function based on mode and maxDate
   const getDisabledDate = (date: Date): boolean => {
+    // Check maxDate constraint first
+    if (maxDate && date > maxDate) {
+      return true;
+    }
+
     switch (mode) {
       case "future":
         return isBefore(date, today);
@@ -158,7 +165,9 @@ export function DatePicker({
           endMonth={
             mode === "past"
               ? new Date(today.getFullYear(), 11)
-              : new Date(today.getFullYear() + 10, 11)
+              : maxDate
+                ? new Date(maxDate.getFullYear(), maxDate.getMonth())
+                : new Date(today.getFullYear() + 10, 11)
           }
           components={{
             DayButton: DatePickerDayButton,
