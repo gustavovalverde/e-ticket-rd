@@ -1,14 +1,20 @@
 "use client";
 
-import { CheckCircle, FileText, ArrowLeft } from "lucide-react";
+import { CheckCircle, FileText, ArrowLeft, QrCode } from "lucide-react";
 import Link from "next/link";
+import { QRCodeSVG } from "qrcode.react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-import { ApplicationSummary } from "./application-summary";
-import { QRCodeDisplay } from "./qr-code-display";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { createApplicationUUID } from "@/lib/utils/application-utils";
 
 import type { ApplicationData } from "@/lib/schemas/forms";
 
@@ -23,6 +29,9 @@ export function SuccessPage({
   applicationCode,
   onReset,
 }: SuccessPageProps) {
+  // Generate a deterministic UUID for this application
+  const applicationUUID = createApplicationUUID(applicationCode);
+
   return (
     <div className="section-padding-y container mx-auto max-w-4xl">
       {/* Success Header */}
@@ -38,34 +47,250 @@ export function SuccessPage({
       </div>
 
       {/* Application Summary */}
-      <ApplicationSummary
-        data={submittedData}
-        applicationCode={applicationCode}
-      />
+      <div className="mb-8 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Application Summary
+            </CardTitle>
+            <CardDescription>
+              Application Code:{" "}
+              <Badge variant="outline" className="ml-2">
+                {applicationCode}
+              </Badge>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <h4 className="font-medium">Migratory Information</h4>
+                <div className="space-y-1 text-sm">
+                  <p>
+                    <span className="text-muted-foreground">Name:</span>{" "}
+                    {submittedData.personalInfo.firstName}{" "}
+                    {submittedData.personalInfo.lastName}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Passport:</span>{" "}
+                    {submittedData.personalInfo.passport.number}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Nationality:</span>{" "}
+                    {submittedData.personalInfo.passport
+                      .isDifferentNationality &&
+                    submittedData.personalInfo.passport.nationality
+                      ? submittedData.personalInfo.passport.nationality
+                      : submittedData.personalInfo.birthCountry}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">
+                      Birth Country:
+                    </span>{" "}
+                    {submittedData.personalInfo.birthCountry}
+                  </p>
+                </div>
+              </div>
 
-      {/* QR Code Section */}
-      <div className="mb-6">
-        <QRCodeDisplay data={JSON.stringify(submittedData)} />
+              {/* Travel Information */}
+              <div className="space-y-2">
+                <h4 className="font-medium">Travel Information</h4>
+                <div className="space-y-1 text-sm">
+                  <p>
+                    <span className="text-muted-foreground">Direction:</span>{" "}
+                    {submittedData.flightInfo.travelDirection === "ENTRY"
+                      ? "Entry to Dominican Republic"
+                      : "Exit from Dominican Republic"}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Flight:</span>{" "}
+                    {submittedData.flightInfo.flightNumber} (
+                    {submittedData.flightInfo.airline})
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Route:</span>{" "}
+                    {submittedData.flightInfo.departurePort} →{" "}
+                    {submittedData.flightInfo.arrivalPort}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Flight Type:</span>{" "}
+                    {submittedData.flightInfo.hasStops === "yes"
+                      ? "With Connections"
+                      : "Direct Flight"}
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Address:</span>{" "}
+                    {submittedData.generalInfo.permanentAddress}
+                  </p>
+                </div>
+              </div>
+
+              {/* Contact Information (if provided) */}
+              {(submittedData.contactInfo.preferredName ||
+                submittedData.contactInfo.email ||
+                submittedData.contactInfo.phone) && (
+                <div className="space-y-2">
+                  <h4 className="font-medium">Contact Information</h4>
+                  <div className="space-y-1 text-sm">
+                    {submittedData.contactInfo.preferredName && (
+                      <p>
+                        <span className="text-muted-foreground">
+                          Preferred Name:
+                        </span>{" "}
+                        {submittedData.contactInfo.preferredName}
+                      </p>
+                    )}
+                    {submittedData.contactInfo.email && (
+                      <p>
+                        <span className="text-muted-foreground">Email:</span>{" "}
+                        {submittedData.contactInfo.email}
+                      </p>
+                    )}
+                    {submittedData.contactInfo.phone && (
+                      <p>
+                        <span className="text-muted-foreground">Phone:</span>{" "}
+                        {submittedData.contactInfo.phone}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Group Information (if group travel) */}
+              {submittedData.travelCompanions.isGroupTravel && (
+                <div className="space-y-2">
+                  <h4 className="font-medium">Group Travel</h4>
+                  <div className="space-y-1 text-sm">
+                    <p>
+                      <span className="text-muted-foreground">Companions:</span>{" "}
+                      {submittedData.travelCompanions.numberOfCompanions}
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Group Type:</span>{" "}
+                      {submittedData.travelCompanions.groupNature}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Customs Declaration */}
+              <div className="space-y-2 md:col-span-2">
+                <h4 className="font-medium">Customs Declaration</h4>
+                <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-3">
+                  <p>
+                    <span className="text-muted-foreground">
+                      Over $10,000 USD:
+                    </span>{" "}
+                    <Badge
+                      variant={
+                        submittedData.customsDeclaration.carriesOverTenThousand
+                          ? "destructive"
+                          : "secondary"
+                      }
+                    >
+                      {submittedData.customsDeclaration.carriesOverTenThousand
+                        ? "Yes"
+                        : "No"}
+                    </Badge>
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Animals/Food:</span>{" "}
+                    <Badge
+                      variant={
+                        submittedData.customsDeclaration.carriesAnimalsOrFood
+                          ? "destructive"
+                          : "secondary"
+                      }
+                    >
+                      {submittedData.customsDeclaration.carriesAnimalsOrFood
+                        ? "Yes"
+                        : "No"}
+                    </Badge>
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">
+                      Taxable Goods:
+                    </span>{" "}
+                    <Badge
+                      variant={
+                        submittedData.customsDeclaration.carriesTaxableGoods
+                          ? "destructive"
+                          : "secondary"
+                      }
+                    >
+                      {submittedData.customsDeclaration.carriesTaxableGoods
+                        ? "Yes"
+                        : "No"}
+                    </Badge>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* QR Code Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" />
+              QR Code for Customs Validation
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* QR Code Display */}
+            <div className="flex justify-center">
+              <div className="rounded-lg bg-white p-4 shadow-sm">
+                <QRCodeSVG
+                  id="qr-code-svg"
+                  value={applicationUUID}
+                  size={200}
+                  level="M"
+                  marginSize={4}
+                />
+              </div>
+            </div>
+
+            {/* QR Code Information */}
+            <div className="text-center">
+              <p className="text-muted-foreground text-sm">
+                CÓDIGO QR DE USO EXCLUSIVO PARA VALIDACIÓN ADUANAL
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Action Buttons */}
-      <div className="mb-6 flex flex-wrap justify-center gap-4">
-        <Button size="lg">
-          <FileText className="mr-2 h-4 w-4" />
-          Download PDF
-        </Button>
-        <Button variant="outline" size="lg">
-          Send by Email
-        </Button>
-        <Button variant="outline" size="lg" onClick={onReset}>
-          Create New Application
-        </Button>
-        <Button variant="outline" size="lg" asChild>
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
+      <div className="mb-8 space-y-6">
+        {/* Primary Action */}
+        <div className="flex justify-center">
+          <Button size="lg" className="w-full sm:w-auto">
+            <FileText className="mr-2 h-4 w-4" />
+            Download PDF
+          </Button>
+        </div>
+
+        {/* Secondary Actions */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Button variant="outline" size="lg" className="w-full">
+            Send by Email
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={onReset}
+            className="w-full"
+          >
+            Create New Application
+          </Button>
+          <Button variant="outline" size="lg" asChild className="w-full">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Important Notice */}

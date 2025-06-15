@@ -2,7 +2,8 @@ import { AlertCircle, X } from "lucide-react";
 import React from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { cn, getErrorMessage } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils/form-utils";
 
 interface ValidationErrorProps {
   error?: unknown;

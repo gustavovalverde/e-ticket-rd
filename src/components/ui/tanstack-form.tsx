@@ -8,7 +8,8 @@ import {
 import * as React from "react";
 
 import { Label } from "@/components/ui/label";
-import { cn, getErrorMessage } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils/form-utils";
 
 const {
   fieldContext,
