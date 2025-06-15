@@ -162,6 +162,7 @@ const generateQRCode = async (data: string): Promise<string> => {
       },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error generating QR code:", error);
     // Fallback: return a simple placeholder data URL
     return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2Y5ZjlmOSIgc3Ryb2tlPSIjZGRkIi8+PHRleHQgeD0iNzUiIHk9Ijc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEwIj5RUiBDb2RlPC90ZXh0Pjwvc3ZnPg==";
@@ -315,13 +316,12 @@ const ETicketDocument: React.FC<ETicketDocumentProps> = ({
           <View style={styles.headerLeft}>
             <View>
               <Text style={styles.headerTitle}>E-TICKET</Text>
-              <Text style={styles.headerSubtitle}>REPÚBLICA DOMINICANA</Text>
             </View>
           </View>
           <View style={styles.headerRight}>
+            <Text style={styles.headerRightTitle}>MIGRACIÓN</Text>
             <Text style={styles.headerRightSubtitle}>GOBIERNO DE LA</Text>
             <Text style={styles.headerRightSubtitle}>REPÚBLICA DOMINICANA</Text>
-            <Text style={styles.headerRightTitle}>MIGRACIÓN</Text>
           </View>
         </View>
 
