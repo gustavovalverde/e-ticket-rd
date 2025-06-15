@@ -265,7 +265,45 @@ export function SuccessPage({
       <div className="mb-8 space-y-6">
         {/* Primary Action */}
         <div className="flex justify-center">
-          <Button size="lg" className="w-full sm:w-auto">
+          <Button
+            size="lg"
+            className="w-full sm:w-auto"
+            onClick={async () => {
+              try {
+                const response = await fetch("/api/generate-pdf", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    submittedData,
+                    applicationCode,
+                  }),
+                });
+
+                if (response.ok) {
+                  const blob = await response.blob();
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.style.display = "none";
+                  a.href = url;
+                  a.download = `eticket-${applicationCode}.pdf`;
+                  document.body.appendChild(a);
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  document.body.removeChild(a);
+                } else {
+                  // eslint-disable-next-line no-console
+                  console.error("Failed to generate PDF");
+                  // You could add a toast notification here
+                }
+              } catch (error) {
+                // eslint-disable-next-line no-console
+                console.error("Error downloading PDF:", error);
+                // You could add a toast notification here
+              }
+            }}
+          >
             <FileText className="mr-2 h-4 w-4" />
             Download PDF
           </Button>
