@@ -68,6 +68,30 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <form.AppField
+              name="generalInfo.residenceCountry"
+              validators={{
+                onBlur: ({ value }: { value: string }) => {
+                  if (!value || value.trim() === "") {
+                    return "Country is required";
+                  }
+                  const result = validateResidenceCountry.safeParse(value);
+                  return result.success
+                    ? undefined
+                    : result.error.issues[0]?.message;
+                },
+              }}
+            >
+              {(field: AnyFieldApi) => (
+                <FormField field={field} label="Country" required>
+                  <CountrySelect
+                    field={field}
+                    placeholder="Select your country of residence"
+                  />
+                </FormField>
+              )}
+            </form.AppField>
+
+            <form.AppField
               name="generalInfo.city"
               validators={{
                 onBlur: ({ value }: { value: string }) => {
@@ -90,7 +114,9 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                 />
               )}
             </form.AppField>
+          </div>
 
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <form.AppField
               name="generalInfo.state"
               validators={{
@@ -109,32 +135,6 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                   label="State/Province"
                   placeholder="Enter your state or province"
                 />
-              )}
-            </form.AppField>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <form.AppField
-              name="generalInfo.residenceCountry"
-              validators={{
-                onBlur: ({ value }: { value: string }) => {
-                  if (!value || value.trim() === "") {
-                    return "Country is required";
-                  }
-                  const result = validateResidenceCountry.safeParse(value);
-                  return result.success
-                    ? undefined
-                    : result.error.issues[0]?.message;
-                },
-              }}
-            >
-              {(field: AnyFieldApi) => (
-                <FormField field={field} label="Country" required>
-                  <CountrySelect
-                    field={field}
-                    placeholder="Select your country of residence"
-                  />
-                </FormField>
               )}
             </form.AppField>
 
