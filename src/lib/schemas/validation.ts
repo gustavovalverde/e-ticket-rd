@@ -137,7 +137,7 @@ export const validateIsGroupTravel = z.boolean();
 export const validateNumberOfCompanions = z
   .number()
   .min(1, "At least 1 companion is required")
-  .max(20, "Maximum 20 companions allowed")
+  .max(6, "Maximum 6 companions allowed")
   .optional();
 export const validateGroupNature = z
   .enum(["Family", "Friends", "Work_Colleagues", "Partner"])
@@ -220,11 +220,6 @@ export const validateOccupation = z.enum(OCCUPATION_OPTIONS, {
 });
 
 // Contact info field rules
-export const validatePreferredName = z
-  .string()
-  .max(50, "Preferred name is too long")
-  .optional()
-  .or(z.literal(""));
 export const validateEmail = z
   .string()
   .min(1, "Email address is required")
@@ -289,14 +284,7 @@ export const validateTravelCompanionsData = z
     }
   );
 
-// General information validation rules (Step 1)
-export const validateGeneralInfoData = z.object({
-  permanentAddress: validatePermanentAddress,
-  residenceCountry: validateResidenceCountry,
-  city: validateCity,
-  state: validateState,
-  postalCode: validatePostalCode,
-});
+// Note: General information validation removed - address validation now handled in travelers array
 
 // Enhanced migratory information validation rules (Step 2)
 export const validatePersonalInfoData = z.object({
@@ -315,7 +303,6 @@ export const validatePersonalInfoData = z.object({
 
 // Contact information validation rules
 export const validateContactInfoData = z.object({
-  preferredName: validatePreferredName,
   email: validateEmail,
   phone: phoneSchema, // Required for travel notifications
 });
@@ -369,7 +356,6 @@ export const validateTravelersData = z
 export const validateApplicationData = z
   .object({
     travelCompanions: validateTravelCompanionsData,
-    generalInfo: validateGeneralInfoData,
     travelers: validateTravelersData,
     contactInfo: validateContactInfoData,
     flightInfo: validateFlightInfoData,
@@ -428,7 +414,6 @@ export const validateApplicationData = z
 // ===== TYPE EXPORTS =====
 
 export type TravelCompanionsData = z.infer<typeof validateTravelCompanionsData>;
-export type GeneralInfoData = z.infer<typeof validateGeneralInfoData>;
 export type PersonalInfoData = z.infer<typeof validatePersonalInfoData>;
 export type ContactInfoData = z.infer<typeof validateContactInfoData>;
 export type FlightInfoData = z.infer<typeof validateFlightInfoData>;

@@ -27,7 +27,6 @@ import {
   validateContactInfoData,
   validateFlightInfoData,
   validateTravelCompanionsData,
-  validateGeneralInfoData,
   validatePersonalInfoData,
   validateCustomsDeclarationData,
 } from "@/lib/schemas/validation";
@@ -43,7 +42,6 @@ import { AllTravelersStep } from "./steps/all-travelers-step";
 import { ContactInfoStep } from "./steps/contact-info-step";
 import { CustomsDeclarationStep } from "./steps/customs-declaration-step";
 import { FlightInfoStep } from "./steps/flight-info-step";
-import { GeneralInfoStep } from "./steps/general-info-step";
 import { TravelCompanionsStep } from "./steps/group-travel-step";
 
 interface FormProps {
@@ -58,7 +56,6 @@ const STEP_IDS = FORM_STEP_IDS;
 
 const STEP_TITLES = {
   TRAVEL_COMPANIONS: "Travel Companions",
-  GENERAL_INFORMATION: "General Information",
   ALL_TRAVELERS_INFORMATION: "Traveler Information",
   CONTACT_INFORMATION: "Contact Information",
   TRAVEL_INFORMATION: "Travel Information",
@@ -77,10 +74,6 @@ const FORM_STEPS: Step[] = [
   {
     id: STEP_IDS.TRAVEL_COMPANIONS,
     title: STEP_TITLES.TRAVEL_COMPANIONS,
-  },
-  {
-    id: STEP_IDS.GENERAL_INFO,
-    title: STEP_TITLES.GENERAL_INFORMATION,
   },
   {
     id: STEP_IDS.ALL_TRAVELERS,
@@ -234,15 +227,9 @@ export function MultiStepForm({
       }
       case STEP_IDS.TRAVEL_COMPANIONS:
         return values.travelCompanions?.isGroupTravel !== undefined;
-      case STEP_IDS.GENERAL_INFO:
-        return Boolean(
-          values.generalInfo?.permanentAddress &&
-            values.generalInfo?.residenceCountry &&
-            values.generalInfo?.city
-        );
-      case STEP_IDS.ALL_TRAVELERS:
-        // Check if all travelers have basic required info
-        return Boolean(
+      case STEP_IDS.ALL_TRAVELERS: {
+        // Check if all travelers have basic required info including address
+        const hasValidTravelers = Boolean(
           values.travelers &&
             values.travelers.length > 0 &&
             values.travelers.every(
@@ -252,6 +239,22 @@ export function MultiStepForm({
                 traveler.personalInfo?.passport?.number
             )
         );
+
+        // Also check if address info is present (moved from General Info step)
+        const hasValidAddresses = values.travelers?.every(
+          (traveler: TravelerData) => {
+            if (traveler.addressInheritance?.usesSharedAddress) {
+              return true; // Shared address, no individual validation needed
+            }
+            const addr = traveler.addressInheritance?.individualAddress;
+            return Boolean(
+              addr?.permanentAddress && addr?.residenceCountry && addr?.city
+            );
+          }
+        );
+
+        return hasValidTravelers && hasValidAddresses;
+      }
       case STEP_IDS.CUSTOMS_DECLARATION:
         return (
           typeof values.customsDeclaration?.carriesOverTenThousand ===
@@ -304,15 +307,11 @@ export function MultiStepForm({
           title: STEP_TITLES.TRAVEL_COMPANIONS,
           subtitle: "Are you traveling with companions?",
         };
-      case STEP_IDS.GENERAL_INFO:
-        return {
-          title: STEP_TITLES.GENERAL_INFORMATION,
-          subtitle: "Address and travel direction",
-        };
       case STEP_IDS.ALL_TRAVELERS:
         return {
           title: STEP_TITLES.ALL_TRAVELERS_INFORMATION,
-          subtitle: "Identity verification for migration control",
+          subtitle:
+            "Personal information and address details for all travelers",
         };
       case STEP_IDS.CUSTOMS_DECLARATION:
         return {
@@ -328,6 +327,33 @@ export function MultiStepForm({
   };
 
   // Form submission will be handled directly in the submit button
+
+  // Helper function to validate traveler data
+  const validateTravelerData = async (
+    travelers: TravelerData[]
+  ): Promise<void> => {
+    if (!travelers || travelers.length === 0) {
+      throw new Error("At least one traveler is required");
+    }
+
+    for (const traveler of travelers) {
+      await validatePersonalInfoData.parseAsync(traveler.personalInfo);
+
+      // Validate address for each traveler (moved from General Info step)
+      if (!traveler.addressInheritance?.usesSharedAddress) {
+        // Only validate individual address if not using shared address
+        const individualAddress =
+          traveler.addressInheritance?.individualAddress;
+        if (
+          !individualAddress?.permanentAddress ||
+          !individualAddress?.residenceCountry ||
+          !individualAddress?.city
+        ) {
+          throw new Error("Address information is required for all travelers");
+        }
+      }
+    }
+  };
 
   // Step navigation functions
   const validateCurrentStep = async (): Promise<boolean> => {
@@ -345,18 +371,8 @@ export function MultiStepForm({
             values.travelCompanions
           );
           break;
-        case STEP_IDS.GENERAL_INFO:
-          await validateGeneralInfoData.parseAsync(values.generalInfo);
-          break;
         case STEP_IDS.ALL_TRAVELERS:
-          // Validate all travelers
-          if (!values.travelers || values.travelers.length === 0) {
-            throw new Error("At least one traveler is required");
-          }
-
-          for (const traveler of values.travelers) {
-            await validatePersonalInfoData.parseAsync(traveler.personalInfo);
-          }
+          await validateTravelerData(values.travelers);
           break;
         case STEP_IDS.CUSTOMS_DECLARATION:
           await validateCustomsDeclarationData.parseAsync(
@@ -448,10 +464,6 @@ export function MultiStepForm({
             stepId={STEP_IDS.TRAVEL_COMPANIONS}
           />
         );
-      case STEP_IDS.GENERAL_INFO:
-        return (
-          <GeneralInfoStep {...stepProps} stepId={STEP_IDS.GENERAL_INFO} />
-        );
       case STEP_IDS.ALL_TRAVELERS:
         return (
           <AllTravelersStep {...stepProps} stepId={STEP_IDS.ALL_TRAVELERS} />
@@ -477,8 +489,6 @@ export function MultiStepForm({
         return Boolean(stepErrors[STEP_IDS.FLIGHT_INFO]);
       case STEP_IDS.TRAVEL_COMPANIONS:
         return Boolean(stepErrors[STEP_IDS.TRAVEL_COMPANIONS]);
-      case STEP_IDS.GENERAL_INFO:
-        return Boolean(stepErrors[STEP_IDS.GENERAL_INFO]);
       case STEP_IDS.ALL_TRAVELERS:
         return Boolean(stepErrors[STEP_IDS.ALL_TRAVELERS]);
       case STEP_IDS.CUSTOMS_DECLARATION:
@@ -496,8 +506,6 @@ export function MultiStepForm({
         return stepValidationErrors[STEP_IDS.FLIGHT_INFO] || [];
       case STEP_IDS.TRAVEL_COMPANIONS:
         return stepValidationErrors[STEP_IDS.TRAVEL_COMPANIONS] || [];
-      case STEP_IDS.GENERAL_INFO:
-        return stepValidationErrors[STEP_IDS.GENERAL_INFO] || [];
       case STEP_IDS.ALL_TRAVELERS:
         return stepValidationErrors[STEP_IDS.ALL_TRAVELERS] || [];
       case STEP_IDS.CUSTOMS_DECLARATION:

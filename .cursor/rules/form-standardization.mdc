@@ -170,7 +170,6 @@ const isRequired = getFieldRequirement(field.name);
 ```typescript
 export const FIELD_REQUIREMENTS: Record<string, boolean> = {
   // Contact Information - Required for e-ticket delivery
-  "contactInfo.preferredName": false,
   "contactInfo.email": true,
   "contactInfo.phone.number": true,
 

@@ -27,6 +27,7 @@ interface CountrySelectProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  autoComplete?: string;
 }
 
 interface CountryOption {
@@ -49,6 +50,7 @@ export function CountrySelect({
   placeholder = "Select country...",
   disabled = false,
   className,
+  autoComplete = "country-name",
 }: CountrySelectProps) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -75,81 +77,115 @@ export function CountrySelect({
     setSearchValue("");
   };
 
+  // Handle autofill from hidden input
+  const handleAutofillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value) {
+      // Try to find matching country by name first
+      const matchingCountry = countryOptions.find(
+        (country) =>
+          country.name.toLowerCase() === value.toLowerCase() ||
+          country.code.toLowerCase() === value.toLowerCase()
+      );
+
+      if (matchingCountry) {
+        field.handleChange(matchingCountry.name);
+      } else {
+        // If no exact match, store the value as-is for manual entry
+        field.handleChange(value);
+      }
+    }
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={cn(
-            "min-h-[44px] w-full justify-between text-base", // Match FormField mobile styling
-            !selectedCountry && "text-muted-foreground",
-            disabled && "cursor-not-allowed opacity-50",
-            className
-          )}
-          disabled={disabled}
-        >
-          <div className="flex items-center gap-2">
-            {selectedCountry ? (
-              <>
-                <span className="text-lg" role="img" aria-label="flag">
-                  {selectedCountry.flag}
-                </span>
-                <span className="truncate">{selectedCountry.name}</span>
-              </>
-            ) : (
-              <>
-                <Globe className="h-4 w-4 opacity-50" />
-                <span>{placeholder}</span>
-              </>
+    <div className="relative">
+      {/* Hidden input for browser autofill */}
+      <input
+        type="text"
+        value={currentValue}
+        onChange={handleAutofillChange}
+        onBlur={field.handleBlur}
+        autoComplete={autoComplete}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(
+              "min-h-[44px] w-full justify-between text-base", // Match FormField mobile styling
+              !selectedCountry && "text-muted-foreground",
+              disabled && "cursor-not-allowed opacity-50",
+              className
             )}
-          </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-0"
-        align="start"
-      >
-        <Command>
-          <CommandInput
-            placeholder="Search countries..."
-            value={searchValue}
-            onValueChange={setSearchValue}
-            className="h-12"
-          />
-          <CommandList className="max-h-[300px]">
-            <CommandEmpty>No country found.</CommandEmpty>
-            <CommandGroup>
-              {filteredCountries.map((country) => (
-                <CommandItem
-                  key={country.code}
-                  value={country.name}
-                  onSelect={() => handleSelect(country.name)}
-                  className="flex items-center gap-2 px-3 py-2"
-                >
+            disabled={disabled}
+          >
+            <div className="flex items-center gap-2">
+              {selectedCountry ? (
+                <>
                   <span className="text-lg" role="img" aria-label="flag">
-                    {country.flag}
+                    {selectedCountry.flag}
                   </span>
-                  <span className="flex-1">{country.name}</span>
-                  <span className="text-muted-foreground text-sm">
-                    {country.code}
-                  </span>
-                  <Check
-                    className={cn(
-                      "ml-auto h-4 w-4",
-                      selectedCountry?.code === country.code
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                  <span className="truncate">{selectedCountry.name}</span>
+                </>
+              ) : (
+                <>
+                  <Globe className="h-4 w-4 opacity-50" />
+                  <span>{placeholder}</span>
+                </>
+              )}
+            </div>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-[--radix-popover-trigger-width] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput
+              placeholder="Search countries..."
+              value={searchValue}
+              onValueChange={setSearchValue}
+              className="h-12"
+            />
+            <CommandList className="max-h-[300px]">
+              <CommandEmpty>No country found.</CommandEmpty>
+              <CommandGroup>
+                {filteredCountries.map((country) => (
+                  <CommandItem
+                    key={country.code}
+                    value={country.name}
+                    onSelect={() => handleSelect(country.name)}
+                    className="flex items-center gap-2 px-3 py-2"
+                  >
+                    <span className="text-lg" role="img" aria-label="flag">
+                      {country.flag}
+                    </span>
+                    <span className="flex-1">{country.name}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {country.code}
+                    </span>
+                    <Check
+                      className={cn(
+                        "ml-auto h-4 w-4",
+                        selectedCountry?.code === country.code
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

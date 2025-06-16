@@ -34,7 +34,6 @@ export const FORM_STEP_IDS = {
   CONTACT_INFO: "contact-info",
   FLIGHT_INFO: "flight-info",
   TRAVEL_COMPANIONS: "travel-companions",
-  GENERAL_INFO: "general-info",
   ALL_TRAVELERS: "all-travelers",
   CUSTOMS_DECLARATION: "customs-declaration",
   UNKNOWN: "unknown", // Fallback for components without step context

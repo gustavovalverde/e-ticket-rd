@@ -53,17 +53,9 @@ export const applicationFormOptions = formOptions({
         | "Partner"
         | undefined,
     },
-    generalInfo: {
-      permanentAddress: "",
-      residenceCountry: "",
-      city: "",
-      state: "",
-      postalCode: "",
-    },
     // TanStack Form array for travelers (always used, even for solo travel)
     travelers: [] as TravelerData[],
     contactInfo: {
-      preferredName: "",
       email: "",
       phone: "",
     },
@@ -123,7 +115,6 @@ export const legacyApplicationFormOptions = formOptions({
     passportNumber: "",
     nationality: "" as "dominican" | "other" | "",
     // Additional fields from existing form
-    preferredName: "",
     countryCode: "+1",
     dateOfBirth: "",
     radioOption: "",
@@ -169,7 +160,13 @@ export function createDefaultTraveler(isLeadTraveler = false): TravelerData {
     },
     addressInheritance: {
       usesSharedAddress: false, // Will be calculated based on group type
-      individualAddress: undefined,
+      individualAddress: {
+        permanentAddress: "",
+        residenceCountry: "",
+        city: "",
+        state: "",
+        postalCode: "",
+      },
     },
   };
 }
@@ -203,13 +200,14 @@ export function updateTravelersAddressInheritance(
         groupNature,
         traveler.isLeadTraveler
       ),
-      // Clear individual address if now using shared address
-      individualAddress: shouldUseSharedAddress(
-        groupNature,
-        traveler.isLeadTraveler
-      )
-        ? undefined
-        : traveler.addressInheritance.individualAddress,
+      // Keep address structure for validation, but mark as shared
+      individualAddress: traveler.addressInheritance.individualAddress || {
+        permanentAddress: "",
+        residenceCountry: "",
+        city: "",
+        state: "",
+        postalCode: "",
+      },
     },
   }));
 }
