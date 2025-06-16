@@ -68,26 +68,27 @@ export function SuccessPage({
                 <div className="space-y-1 text-sm">
                   <p>
                     <span className="text-muted-foreground">Name:</span>{" "}
-                    {submittedData.personalInfo.firstName}{" "}
-                    {submittedData.personalInfo.lastName}
+                    {submittedData.travelers[0].personalInfo.firstName}{" "}
+                    {submittedData.travelers[0].personalInfo.lastName}
                   </p>
                   <p>
                     <span className="text-muted-foreground">Passport:</span>{" "}
-                    {submittedData.personalInfo.passport.number}
+                    {submittedData.travelers[0].personalInfo.passport.number}
                   </p>
                   <p>
                     <span className="text-muted-foreground">Nationality:</span>{" "}
-                    {submittedData.personalInfo.passport
+                    {submittedData.travelers[0].personalInfo.passport
                       .isDifferentNationality &&
-                    submittedData.personalInfo.passport.nationality
-                      ? submittedData.personalInfo.passport.nationality
-                      : submittedData.personalInfo.birthCountry}
+                    submittedData.travelers[0].personalInfo.passport.nationality
+                      ? submittedData.travelers[0].personalInfo.passport
+                          .nationality
+                      : submittedData.travelers[0].personalInfo.birthCountry}
                   </p>
                   <p>
                     <span className="text-muted-foreground">
                       Birth Country:
                     </span>{" "}
-                    {submittedData.personalInfo.birthCountry}
+                    {submittedData.travelers[0].personalInfo.birthCountry}
                   </p>
                 </div>
               </div>
@@ -114,7 +115,7 @@ export function SuccessPage({
                   </p>
                   <p>
                     <span className="text-muted-foreground">Flight Type:</span>{" "}
-                    {submittedData.flightInfo.hasStops === "yes"
+                    {submittedData.flightInfo.hasStops === true
                       ? "With Connections"
                       : "Direct Flight"}
                   </p>

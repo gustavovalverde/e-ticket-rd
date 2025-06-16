@@ -7,6 +7,39 @@ import type {
 
 // ===== APPLICATION FORM OPTIONS =====
 
+// TravelerData interface for array items
+interface TravelerData {
+  isLeadTraveler: boolean;
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    birthDate: string; // YYYY-MM-DD format
+    sex: "MALE" | "FEMALE" | "";
+    birthCountry: string;
+    civilStatus: (typeof CIVIL_STATUS_OPTIONS)[number] | "";
+    occupation: (typeof OCCUPATION_OPTIONS)[number] | "";
+    passport: {
+      number: string;
+      confirmNumber: string;
+      isDifferentNationality: boolean | undefined;
+      nationality: string;
+      expiryDate: string; // YYYY-MM-DD format
+      additionalNationality: string;
+    };
+    isForeignResident: boolean | undefined;
+  };
+  addressInheritance: {
+    usesSharedAddress: boolean;
+    individualAddress?: {
+      permanentAddress: string;
+      residenceCountry: string;
+      city: string;
+      state: string;
+      postalCode: string;
+    };
+  };
+}
+
 // Main application form configuration
 export const applicationFormOptions = formOptions({
   defaultValues: {
@@ -27,24 +60,8 @@ export const applicationFormOptions = formOptions({
       state: "",
       postalCode: "",
     },
-    personalInfo: {
-      firstName: "",
-      lastName: "",
-      birthDate: "", // Simplified to string format (YYYY-MM-DD)
-      sex: "" as "MALE" | "FEMALE" | "",
-      birthCountry: "",
-      civilStatus: "" as (typeof CIVIL_STATUS_OPTIONS)[number] | "",
-      occupation: "" as (typeof OCCUPATION_OPTIONS)[number] | "",
-      passport: {
-        number: "",
-        confirmNumber: "",
-        isDifferentNationality: undefined as boolean | undefined,
-        nationality: "",
-        expiryDate: "", // Simplified passport expiry to string format
-        additionalNationality: "",
-      },
-      isForeignResident: undefined as boolean | undefined,
-    },
+    // TanStack Form array for travelers (always used, even for solo travel)
+    travelers: [] as TravelerData[],
     contactInfo: {
       preferredName: "",
       email: "",
@@ -59,7 +76,7 @@ export const applicationFormOptions = formOptions({
       aircraft: "",
       flightNumber: "",
       confirmationNumber: "",
-      hasStops: undefined as "yes" | "no" | undefined,
+      hasStops: undefined as boolean | undefined,
       // Origin flight details (for connections)
       originFlightNumber: "",
       originAirline: "",
@@ -122,3 +139,77 @@ export const legacyApplicationFormOptions = formOptions({
 export type ApplicationData = typeof applicationFormOptions.defaultValues;
 export type LegacyApplicationData =
   typeof legacyApplicationFormOptions.defaultValues;
+export type { TravelerData };
+
+// ===== UTILITY FUNCTIONS =====
+
+/**
+ * Create a new traveler with default values
+ */
+export function createDefaultTraveler(isLeadTraveler = false): TravelerData {
+  return {
+    isLeadTraveler,
+    personalInfo: {
+      firstName: "",
+      lastName: "",
+      birthDate: "",
+      sex: "",
+      birthCountry: "",
+      civilStatus: "",
+      occupation: "",
+      passport: {
+        number: "",
+        confirmNumber: "",
+        isDifferentNationality: undefined,
+        nationality: "",
+        expiryDate: "",
+        additionalNationality: "",
+      },
+      isForeignResident: undefined,
+    },
+    addressInheritance: {
+      usesSharedAddress: false, // Will be calculated based on group type
+      individualAddress: undefined,
+    },
+  };
+}
+
+/**
+ * Calculate if a traveler should use shared address based on group type
+ */
+export function shouldUseSharedAddress(
+  groupNature: string | undefined,
+  isLeadTraveler: boolean
+): boolean {
+  // Lead traveler never uses shared address (they define it)
+  if (isLeadTraveler) return false;
+
+  // Family and Partner groups automatically share addresses
+  return groupNature === "Family" || groupNature === "Partner";
+}
+
+/**
+ * Update address inheritance for all travelers based on group type
+ */
+export function updateTravelersAddressInheritance(
+  travelers: TravelerData[],
+  groupNature: string | undefined
+): TravelerData[] {
+  return travelers.map((traveler) => ({
+    ...traveler,
+    addressInheritance: {
+      ...traveler.addressInheritance,
+      usesSharedAddress: shouldUseSharedAddress(
+        groupNature,
+        traveler.isLeadTraveler
+      ),
+      // Clear individual address if now using shared address
+      individualAddress: shouldUseSharedAddress(
+        groupNature,
+        traveler.isLeadTraveler
+      )
+        ? undefined
+        : traveler.addressInheritance.individualAddress,
+    },
+  }));
+}

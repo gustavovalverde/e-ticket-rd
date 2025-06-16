@@ -1,4 +1,11 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+} from "@react-pdf/renderer";
 import React from "react";
 
 import type { ApplicationData } from "@/lib/schemas/forms";
@@ -6,7 +13,7 @@ import type { ApplicationData } from "@/lib/schemas/forms";
 interface ETicketPDFProps {
   submittedData: ApplicationData;
   applicationCode: string;
-  applicationUUID: string;
+  qrCodeDataURL: string;
   issueDate: Date;
 }
 
@@ -31,11 +38,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerText: {
-    marginLeft: 10,
-  },
-  logo: {
-    width: 60,
-    height: 60,
+    marginLeft: 0,
   },
   eTicketTitle: {
     fontSize: 24,
@@ -74,11 +77,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   leftColumn: {
-    flex: 2,
+    flex: 1,
     marginRight: 20,
   },
   rightColumn: {
-    flex: 1,
+    flex: 1.5,
     alignItems: "center",
   },
   dateSection: {
@@ -90,20 +93,20 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   dateTable: {
-    border: 1,
+    borderWidth: 1,
     borderColor: "#000000",
     width: 200,
   },
   dateRow: {
     flexDirection: "row",
-    borderBottom: 1,
-    borderColor: "#000000",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
   },
   dateCell: {
     flex: 1,
     padding: 5,
-    borderRight: 1,
-    borderColor: "#000000",
+    borderRightWidth: 1,
+    borderRightColor: "#000000",
     textAlign: "center",
   },
   dateCellLast: {
@@ -124,10 +127,6 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     marginBottom: 10,
-    border: 2,
-    borderColor: "#000000",
-    alignItems: "center",
-    justifyContent: "center",
   },
   qrText: {
     fontSize: 8,
@@ -139,28 +138,51 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   flightTable: {
-    border: 1,
+    borderWidth: 1,
     borderColor: "#000000",
+    width: 300,
+    marginTop: 10,
   },
   flightHeader: {
     backgroundColor: "#1e40af",
     color: "#FFFFFF",
     flexDirection: "row",
-    padding: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
   },
   flightHeaderCell: {
-    flex: 1,
+    width: 75,
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 10,
+    fontSize: 9,
+    padding: 4,
+    borderRightWidth: 1,
+    borderRightColor: "#FFFFFF",
+  },
+  flightHeaderCellLast: {
+    width: 75,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 9,
+    padding: 4,
   },
   flightRow: {
     flexDirection: "row",
-    padding: 5,
+    backgroundColor: "#FFFFFF",
   },
   flightCell: {
-    flex: 1,
+    width: 75,
     textAlign: "center",
+    fontSize: 9,
+    padding: 4,
+    borderRightWidth: 1,
+    borderRightColor: "#000000",
+  },
+  flightCellLast: {
+    width: 75,
+    textAlign: "center",
+    fontSize: 9,
+    padding: 4,
   },
   passengersSection: {
     marginTop: 20,
@@ -172,7 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   passengersTable: {
-    border: 1,
+    borderWidth: 1,
     borderColor: "#000000",
   },
   passengersHeader: {
@@ -189,14 +211,15 @@ const styles = StyleSheet.create({
   },
   passengersRow: {
     flexDirection: "row",
-    borderBottom: 1,
-    borderColor: "#000000",
+    borderBottomWidth: 1,
+    borderBottomColor: "#000000",
     padding: 5,
   },
   passengersCell: {
     flex: 1,
     textAlign: "center",
     fontSize: 9,
+    padding: 5,
   },
 });
 
@@ -209,37 +232,10 @@ const formatDate = (date: Date) => {
   };
 };
 
-// Helper function to get country flag emoji
-const getCountryFlag = (countryCode: string): string => {
-  const countryFlags = new Map([
-    ["DOM", "🇩🇴"],
-    ["USA", "🇺🇸"],
-    ["CAN", "🇨🇦"],
-    ["ESP", "🇪🇸"],
-    ["FRA", "🇫🇷"],
-    ["GBR", "🇬🇧"],
-    ["DEU", "🇩🇪"],
-    ["ITA", "🇮🇹"],
-    ["NLD", "🇳🇱"],
-    ["BRA", "🇧🇷"],
-    ["COL", "🇨🇴"],
-    ["VEN", "🇻🇪"],
-    ["ARG", "🇦🇷"],
-    ["MEX", "🇲🇽"],
-    ["PAN", "🇵🇦"],
-    ["CUB", "🇨🇺"],
-    ["HTI", "🇭🇹"],
-    ["JAM", "🇯🇲"],
-    ["PRI", "🇵🇷"],
-  ]);
-
-  return countryFlags.get(countryCode) || "🏳️";
-};
-
 export const ETicketPDF: React.FC<ETicketPDFProps> = ({
   submittedData,
   applicationCode,
-  applicationUUID,
+  qrCodeDataURL,
   issueDate,
 }) => {
   const formattedIssueDate = formatDate(issueDate);
@@ -247,22 +243,12 @@ export const ETicketPDF: React.FC<ETicketPDFProps> = ({
     new Date(submittedData.flightInfo.travelDate)
   );
 
-  // Get nationality (required field, no fallback)
-  const nationality =
-    submittedData.personalInfo.passport.isDifferentNationality &&
-    submittedData.personalInfo.passport.nationality
-      ? submittedData.personalInfo.passport.nationality
-      : submittedData.personalInfo.birthCountry;
-
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.logo}>
-              <Text style={{ fontSize: 20, textAlign: "center" }}>🇩🇴</Text>
-            </View>
             <View style={styles.headerText}>
               <Text style={styles.eTicketTitle}>E-TICKET</Text>
               <Text style={styles.republicaText}>REPÚBLICA DOMINICANA</Text>
@@ -358,12 +344,8 @@ export const ETicketPDF: React.FC<ETicketPDFProps> = ({
             {/* Right Column - QR Code */}
             <View style={styles.rightColumn}>
               <View style={styles.qrContainer}>
-                <View style={styles.qrCode}>
-                  <Text style={{ textAlign: "center", fontSize: 8 }}>
-                    QR CODE{"\n"}
-                    {applicationUUID.slice(0, 8)}...
-                  </Text>
-                </View>
+                {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                <Image style={styles.qrCode} src={qrCodeDataURL} />
                 <Text style={styles.qrText}>
                   CÓDIGO QR DE USO EXCLUSIVO PARA VALIDACIÓN ADUANAL.
                 </Text>
@@ -371,10 +353,10 @@ export const ETicketPDF: React.FC<ETicketPDFProps> = ({
                 {/* Flight Information Table */}
                 <View style={styles.flightTable}>
                   <View style={styles.flightHeader}>
-                    <Text style={styles.flightHeaderCell}>NÚMERO DE VUELO</Text>
-                    <Text style={styles.flightHeaderCell}>
-                      NOMBRE DE AEROLÍNEA
-                    </Text>
+                    <Text style={styles.flightHeaderCell}>VUELO</Text>
+                    <Text style={styles.flightHeaderCell}>AEROLÍNEA</Text>
+                    <Text style={styles.flightHeaderCell}>ORIGEN</Text>
+                    <Text style={styles.flightHeaderCellLast}>DESTINO</Text>
                   </View>
                   <View style={styles.flightRow}>
                     <Text style={styles.flightCell}>
@@ -382,6 +364,12 @@ export const ETicketPDF: React.FC<ETicketPDFProps> = ({
                     </Text>
                     <Text style={styles.flightCell}>
                       {submittedData.flightInfo.airline}
+                    </Text>
+                    <Text style={styles.flightCell}>
+                      {submittedData.flightInfo.departurePort}
+                    </Text>
+                    <Text style={styles.flightCellLast}>
+                      {submittedData.flightInfo.arrivalPort}
                     </Text>
                   </View>
                 </View>
@@ -405,37 +393,30 @@ export const ETicketPDF: React.FC<ETicketPDFProps> = ({
                 </Text>
               </View>
 
-              {/* Main traveler */}
-              <View style={styles.passengersRow}>
-                <Text style={[styles.passengersCell, { flex: 2 }]}>
-                  {submittedData.personalInfo.firstName.toUpperCase()}{" "}
-                  {submittedData.personalInfo.lastName.toUpperCase()}
-                </Text>
-                <Text style={styles.passengersCell}>
-                  {nationality} {getCountryFlag(nationality)}
-                </Text>
-                <Text style={styles.passengersCell}>
-                  {submittedData.personalInfo.passport.number}
-                </Text>
-              </View>
+              {/* All travelers */}
+              {submittedData.travelers.map((traveler, index) => {
+                // Get nationality for each traveler
+                const travelerNationality =
+                  traveler.personalInfo.passport.isDifferentNationality &&
+                  traveler.personalInfo.passport.nationality
+                    ? traveler.personalInfo.passport.nationality
+                    : traveler.personalInfo.birthCountry;
 
-              {/* Additional group members if traveling as group */}
-              {submittedData.travelCompanions.isGroupTravel &&
-                submittedData.travelCompanions.numberOfCompanions &&
-                submittedData.travelCompanions.numberOfCompanions > 0 && (
-                  <View style={styles.passengersRow}>
+                return (
+                  <View key={index} style={styles.passengersRow}>
                     <Text style={[styles.passengersCell, { flex: 2 }]}>
-                      + {submittedData.travelCompanions.numberOfCompanions}{" "}
-                      ACOMPAÑANTES
+                      {traveler.personalInfo.firstName.toUpperCase()}{" "}
+                      {traveler.personalInfo.lastName.toUpperCase()}
                     </Text>
                     <Text style={styles.passengersCell}>
-                      {submittedData.travelCompanions.groupNature?.toUpperCase()}
+                      {travelerNationality}
                     </Text>
                     <Text style={styles.passengersCell}>
-                      VER TICKETS INDIVIDUALES
+                      {traveler.personalInfo.passport.number}
                     </Text>
                   </View>
-                )}
+                );
+              })}
             </View>
           </View>
         </View>
