@@ -209,6 +209,8 @@ export function NameInformationSection({
                 field={field}
                 label="Given or first name(s)"
                 required
+                inputMode="text"
+                autoComplete="given-name"
               />
             )}
           </form.AppField>
@@ -232,6 +234,8 @@ export function NameInformationSection({
                 field={field}
                 label="Last Name or family name"
                 required
+                inputMode="text"
+                autoComplete="family-name"
               />
             )}
           </form.AppField>
@@ -552,6 +556,8 @@ export function PassportInformationSection({
                 placeholder="Enter passport number"
                 required
                 className="uppercase"
+                inputMode="text"
+                autoComplete="off"
               />
             )}
           </form.AppField>
@@ -593,6 +599,8 @@ export function PassportInformationSection({
                 placeholder="Re-enter passport number"
                 required
                 className="uppercase"
+                inputMode="text"
+                autoComplete="off"
               />
             )}
           </form.AppField>
@@ -979,6 +987,7 @@ function IndividualAddressForm({
               label="Street Address"
               placeholder="Enter your complete street address"
               required
+              inputMode="text"
               autoComplete="address-line1"
             />
           )}
@@ -1035,6 +1044,7 @@ function IndividualAddressForm({
                 label="City"
                 placeholder="Enter your city"
                 required
+                inputMode="text"
                 autoComplete="address-level2"
               />
             )}
@@ -1060,6 +1070,7 @@ function IndividualAddressForm({
                 field={field}
                 label="State/Province"
                 placeholder="Enter your state or province"
+                inputMode="text"
                 autoComplete="address-level1"
               />
             )}
@@ -1082,6 +1093,7 @@ function IndividualAddressForm({
                 field={field}
                 label="Postal Code"
                 placeholder="Enter your postal/ZIP code"
+                inputMode="text"
                 autoComplete="postal-code"
               />
             )}

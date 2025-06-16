@@ -138,6 +138,7 @@ function FlightNumberField({
         disabled={!hasDate || formPending || result?.success}
         description="Auto-fill: Enter flight number to populate airline and airports"
         className="max-w-sm"
+        inputMode="text"
       />
 
       {/* Search button and clear button row */}
@@ -507,6 +508,8 @@ function FlightDetailsDisplay({
                   isOrigin ? "e.g., Iberia" : "e.g., American Airlines"
                 }
                 required
+                inputMode="text"
+                autoComplete="off"
               />
             )}
           </form.AppField>
@@ -519,6 +522,8 @@ function FlightDetailsDisplay({
                 disabled
                 placeholder="Auto-populated from flight search"
                 className="text-muted-foreground bg-muted"
+                inputMode="text"
+                autoComplete="off"
               />
             )}
           </form.AppField>
@@ -545,6 +550,7 @@ function FlightDetailsDisplay({
                 }
                 description={isOrigin ? "Where your journey begins" : undefined}
                 required
+                inputMode="text"
               />
             )}
           </form.AppField>
@@ -573,6 +579,7 @@ function FlightDetailsDisplay({
                     : undefined
                 }
                 required
+                inputMode="text"
               />
             )}
           </form.AppField>
@@ -803,6 +810,8 @@ export function FlightInfoStep({
                   label="Booking Confirmation Number (Optional)"
                   placeholder="e.g., ABC123 (if available)"
                   className="max-w-sm"
+                  inputMode="text"
+                  autoComplete="off"
                 />
               )}
             </form.AppField>

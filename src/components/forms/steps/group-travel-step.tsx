@@ -322,6 +322,8 @@ export function TravelCompanionsStep({ form }: FormStepProps) {
                     required
                     description="1-6 companions"
                     className="max-w-xs"
+                    inputMode="numeric"
+                    autoComplete="off"
                   />
                 )}
               </form.AppField>

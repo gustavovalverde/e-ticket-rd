@@ -93,6 +93,7 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                 placeholder="your@email.com"
                 required
                 description="We'll send your e-ticket confirmation to this email address"
+                inputMode="email"
                 autoComplete="email"
               />
             )}
