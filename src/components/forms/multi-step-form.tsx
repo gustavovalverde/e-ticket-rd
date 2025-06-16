@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, FileCheck } from "lucide-react";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -21,6 +21,7 @@ import { ValidationError } from "@/components/ui/validation-error";
 import {
   applicationFormOptions,
   type ApplicationData,
+  type TravelerData,
 } from "@/lib/schemas/forms";
 import {
   validateContactInfoData,
@@ -37,12 +38,12 @@ import {
   useStepProgress,
   type Step,
 } from "./progress-indicator";
+import { AllTravelersStep } from "./steps/all-travelers-step";
 import { ContactInfoStep } from "./steps/contact-info-step";
 import { CustomsDeclarationStep } from "./steps/customs-declaration-step";
 import { FlightInfoStep } from "./steps/flight-info-step";
 import { GeneralInfoStep } from "./steps/general-info-step";
 import { TravelCompanionsStep } from "./steps/group-travel-step";
-import { MigratoryInfoStep } from "./steps/migratory-info-step";
 
 interface FormProps {
   onSubmit?: (data: ApplicationData) => void;
@@ -57,14 +58,14 @@ const STEP_IDS = {
   FLIGHT_INFO: "flight-info",
   TRAVEL_COMPANIONS: "travel-companions",
   GENERAL_INFO: "general-info",
-  PERSONAL_INFO: "personal-info",
+  ALL_TRAVELERS: "all-travelers",
   CUSTOMS_DECLARATION: "customs-declaration",
 } as const;
 
 const STEP_TITLES = {
   TRAVEL_COMPANIONS: "Travel Companions",
   GENERAL_INFORMATION: "General Information",
-  PERSONAL_INFORMATION: "Migratory Information",
+  ALL_TRAVELERS_INFORMATION: "Traveler Information",
   CONTACT_INFORMATION: "Contact Information",
   TRAVEL_INFORMATION: "Travel Information",
   CUSTOMS_DECLARATION: "Customs Declaration",
@@ -88,8 +89,8 @@ const FORM_STEPS: Step[] = [
     title: STEP_TITLES.GENERAL_INFORMATION,
   },
   {
-    id: STEP_IDS.PERSONAL_INFO,
-    title: STEP_TITLES.PERSONAL_INFORMATION,
+    id: STEP_IDS.ALL_TRAVELERS,
+    title: STEP_TITLES.ALL_TRAVELERS_INFORMATION,
   },
   {
     id: STEP_IDS.CUSTOMS_DECLARATION,
@@ -115,6 +116,7 @@ export function MultiStepForm({
   >({});
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [isMobile, setIsMobile] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle responsive design
   useEffect(() => {
@@ -135,11 +137,16 @@ export function MultiStepForm({
       ...initialData,
     },
     onSubmit: async ({ value }: { value: ApplicationData }) => {
+      if (isSubmitting) return; // Prevent double submission
+
+      setIsSubmitting(true);
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
         onSubmit?.(value);
       } catch {
         // Handle error silently for now
+      } finally {
+        setIsSubmitting(false);
       }
     },
   });
@@ -217,7 +224,7 @@ export function MultiStepForm({
         // If entering DR with connections, also check origin flight details
         const isEntryWithConnections =
           flightInfo?.travelDirection === "ENTRY" &&
-          flightInfo?.hasStops === "yes";
+          flightInfo?.hasStops === true;
 
         if (isEntryWithConnections) {
           const hasOriginFlightInfo = Boolean(
@@ -239,11 +246,17 @@ export function MultiStepForm({
             values.generalInfo?.residenceCountry &&
             values.generalInfo?.city
         );
-      case STEP_IDS.PERSONAL_INFO:
+      case STEP_IDS.ALL_TRAVELERS:
+        // Check if all travelers have basic required info
         return Boolean(
-          values.personalInfo?.firstName &&
-            values.personalInfo?.lastName &&
-            values.personalInfo?.passport?.number
+          values.travelers &&
+            values.travelers.length > 0 &&
+            values.travelers.every(
+              (traveler: TravelerData) =>
+                traveler.personalInfo?.firstName &&
+                traveler.personalInfo?.lastName &&
+                traveler.personalInfo?.passport?.number
+            )
         );
       case STEP_IDS.CUSTOMS_DECLARATION:
         return (
@@ -302,9 +315,9 @@ export function MultiStepForm({
           title: STEP_TITLES.GENERAL_INFORMATION,
           subtitle: "Address and travel direction",
         };
-      case STEP_IDS.PERSONAL_INFO:
+      case STEP_IDS.ALL_TRAVELERS:
         return {
-          title: STEP_TITLES.PERSONAL_INFORMATION,
+          title: STEP_TITLES.ALL_TRAVELERS_INFORMATION,
           subtitle: "Identity verification for migration control",
         };
       case STEP_IDS.CUSTOMS_DECLARATION:
@@ -320,15 +333,7 @@ export function MultiStepForm({
     }
   };
 
-  // Proper form submission handler
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      form.handleSubmit();
-    },
-    [form]
-  );
+  // Form submission will be handled directly in the submit button
 
   // Step navigation functions
   const validateCurrentStep = async (): Promise<boolean> => {
@@ -349,8 +354,15 @@ export function MultiStepForm({
         case STEP_IDS.GENERAL_INFO:
           await validateGeneralInfoData.parseAsync(values.generalInfo);
           break;
-        case STEP_IDS.PERSONAL_INFO:
-          await validatePersonalInfoData.parseAsync(values.personalInfo);
+        case STEP_IDS.ALL_TRAVELERS:
+          // Validate all travelers
+          if (!values.travelers || values.travelers.length === 0) {
+            throw new Error("At least one traveler is required");
+          }
+
+          for (const traveler of values.travelers) {
+            await validatePersonalInfoData.parseAsync(traveler.personalInfo);
+          }
           break;
         case STEP_IDS.CUSTOMS_DECLARATION:
           await validateCustomsDeclarationData.parseAsync(
@@ -436,8 +448,8 @@ export function MultiStepForm({
         return <TravelCompanionsStep {...stepProps} />;
       case STEP_IDS.GENERAL_INFO:
         return <GeneralInfoStep {...stepProps} />;
-      case STEP_IDS.PERSONAL_INFO:
-        return <MigratoryInfoStep {...stepProps} />;
+      case STEP_IDS.ALL_TRAVELERS:
+        return <AllTravelersStep {...stepProps} />;
       case STEP_IDS.CUSTOMS_DECLARATION:
         return <CustomsDeclarationStep {...stepProps} />;
       default:
@@ -456,8 +468,8 @@ export function MultiStepForm({
         return Boolean(stepErrors[STEP_IDS.TRAVEL_COMPANIONS]);
       case STEP_IDS.GENERAL_INFO:
         return Boolean(stepErrors[STEP_IDS.GENERAL_INFO]);
-      case STEP_IDS.PERSONAL_INFO:
-        return Boolean(stepErrors[STEP_IDS.PERSONAL_INFO]);
+      case STEP_IDS.ALL_TRAVELERS:
+        return Boolean(stepErrors[STEP_IDS.ALL_TRAVELERS]);
       case STEP_IDS.CUSTOMS_DECLARATION:
         return Boolean(stepErrors[STEP_IDS.CUSTOMS_DECLARATION]);
       default:
@@ -475,8 +487,8 @@ export function MultiStepForm({
         return stepValidationErrors[STEP_IDS.TRAVEL_COMPANIONS] || [];
       case STEP_IDS.GENERAL_INFO:
         return stepValidationErrors[STEP_IDS.GENERAL_INFO] || [];
-      case STEP_IDS.PERSONAL_INFO:
-        return stepValidationErrors[STEP_IDS.PERSONAL_INFO] || [];
+      case STEP_IDS.ALL_TRAVELERS:
+        return stepValidationErrors[STEP_IDS.ALL_TRAVELERS] || [];
       case STEP_IDS.CUSTOMS_DECLARATION:
         return stepValidationErrors[STEP_IDS.CUSTOMS_DECLARATION] || [];
       default:
@@ -554,9 +566,7 @@ export function MultiStepForm({
                 <Separator />
 
                 <CardContent className="space-y-8">
-                  <form onSubmit={handleSubmit} id="eticket-application-form">
-                    {renderCurrentStep()}
-                  </form>
+                  <div id="eticket-application-form">{renderCurrentStep()}</div>
                 </CardContent>
 
                 {/* Step Validation Errors - Moved to bottom for better UX */}
@@ -595,11 +605,19 @@ export function MultiStepForm({
 
                   {isLastStep ? (
                     <Button
-                      onClick={() => form.handleSubmit()}
-                      disabled={!form.state.canSubmit}
+                      onClick={async () => {
+                        if (isSubmitting) return;
+
+                        // Validate current step first
+                        const isValid = await validateCurrentStep();
+                        if (isValid) {
+                          form.handleSubmit();
+                        }
+                      }}
+                      disabled={!form.state.canSubmit || isSubmitting}
                       className="gap-2"
                     >
-                      Submit Application
+                      {isSubmitting ? "Submitting..." : "Submit Application"}
                     </Button>
                   ) : (
                     <Button

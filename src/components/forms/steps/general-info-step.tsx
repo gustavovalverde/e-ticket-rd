@@ -16,7 +16,7 @@ import {
   validatePostalCode,
 } from "@/lib/schemas/validation";
 
-import type { AnyFieldApi } from "@tanstack/react-form";
+import type { AppFieldApi } from "@/lib/types/form-api";
 
 interface GeneralInfoStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,7 +56,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => (
+            {(field: AppFieldApi) => (
               <FormField
                 field={field}
                 label="Street Address"
@@ -81,7 +81,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                 },
               }}
             >
-              {(field: AnyFieldApi) => (
+              {(field: AppFieldApi) => (
                 <FormField field={field} label="Country" required>
                   <CountrySelect
                     field={field}
@@ -105,7 +105,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                 },
               }}
             >
-              {(field: AnyFieldApi) => (
+              {(field: AppFieldApi) => (
                 <FormField
                   field={field}
                   label="City"
@@ -129,7 +129,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                 },
               }}
             >
-              {(field: AnyFieldApi) => (
+              {(field: AppFieldApi) => (
                 <FormField
                   field={field}
                   label="State/Province"
@@ -150,7 +150,7 @@ export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
                 },
               }}
             >
-              {(field: AnyFieldApi) => (
+              {(field: AppFieldApi) => (
                 <FormField
                   field={field}
                   label="Postal Code"

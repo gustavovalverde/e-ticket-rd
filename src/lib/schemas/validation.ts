@@ -97,7 +97,7 @@ const passportSchema = z
         "Passport number must contain only uppercase letters and numbers"
       ),
     confirmNumber: z.string().min(6, "Please confirm your passport number"),
-    isDifferentNationality: z.boolean(),
+    isDifferentNationality: z.boolean().optional(), // Optional by default
     nationality: z.string().optional(),
     expiryDate: z
       .string()
@@ -263,9 +263,9 @@ export const validateTravelDate = z
   }, "Travel date must be today or in the future");
 
 // Customs declaration field rules
-export const validateCarriesOverTenThousand = z.boolean();
-export const validateCarriesAnimalsOrFood = z.boolean();
-export const validateCarriesTaxableGoods = z.boolean();
+export const validateCarriesOverTenThousand = z.boolean().optional();
+export const validateCarriesAnimalsOrFood = z.boolean().optional();
+export const validateCarriesTaxableGoods = z.boolean().optional();
 
 // ===== COMPOSITE SCHEMAS =====
 
@@ -310,7 +310,7 @@ export const validatePersonalInfoData = z.object({
   }),
   occupation: validateOccupation,
   passport: passportSchema,
-  isForeignResident: z.boolean(),
+  isForeignResident: z.boolean().optional(), // Optional by default
 });
 
 // Contact information validation rules
@@ -321,17 +321,31 @@ export const validateContactInfoData = z.object({
 });
 
 // Enhanced travel information validation rules (Step 3)
-export const validateFlightInfoData = z.object({
-  travelDirection: validateTravelDirection,
-  travelDate: validateTravelDate, // Enhanced with future date validation
-  departurePort: validateDeparturePort,
-  arrivalPort: validateArrivalPort,
-  airline: validateAirline,
-  aircraft: z.string().optional(), // Optional aircraft field
-  flightNumber: validateFlightNumberInput, // Enhanced with proper flight validation
-  confirmationNumber: z.string().optional(),
-  hasStops: validateHasStops,
-});
+export const validateFlightInfoData = z
+  .object({
+    travelDirection: validateTravelDirection,
+    travelDate: validateTravelDate, // Enhanced with future date validation
+    departurePort: validateDeparturePort,
+    arrivalPort: validateArrivalPort,
+    airline: validateAirline,
+    aircraft: z.string().optional(), // Optional aircraft field
+    flightNumber: validateFlightNumberInput, // Enhanced with proper flight validation
+    confirmationNumber: z.string().optional(),
+    hasStops: validateHasStops.optional(), // Optional for exit travel
+  })
+  .refine(
+    (data) => {
+      // Only require hasStops when entering Dominican Republic
+      if (data.travelDirection === "ENTRY") {
+        return data.hasStops !== undefined;
+      }
+      return true; // hasStops not required for EXIT
+    },
+    {
+      message: "Please select how you're arriving to Dominican Republic",
+      path: ["hasStops"],
+    }
+  );
 
 // Customs declaration validation rules (Step 4)
 export const validateCustomsDeclarationData = z.object({
@@ -340,15 +354,76 @@ export const validateCustomsDeclarationData = z.object({
   carriesTaxableGoods: validateCarriesTaxableGoods,
 });
 
+// Travelers array validation schema
+export const validateTravelersData = z
+  .array(
+    z.object({
+      isLeadTraveler: z.boolean(),
+      personalInfo: validatePersonalInfoData,
+      addressInheritance: z.boolean().optional(),
+    })
+  )
+  .min(1, "At least one traveler is required");
+
 // Complete application validation rules with conditional validations
-export const validateApplicationData = z.object({
-  travelCompanions: validateTravelCompanionsData,
-  generalInfo: validateGeneralInfoData,
-  personalInfo: validatePersonalInfoData,
-  contactInfo: validateContactInfoData,
-  flightInfo: validateFlightInfoData,
-  customsDeclaration: validateCustomsDeclarationData,
-});
+export const validateApplicationData = z
+  .object({
+    travelCompanions: validateTravelCompanionsData,
+    generalInfo: validateGeneralInfoData,
+    travelers: validateTravelersData,
+    contactInfo: validateContactInfoData,
+    flightInfo: validateFlightInfoData,
+    customsDeclaration: validateCustomsDeclarationData,
+  })
+  .refine(
+    (data) => {
+      // Validate isDifferentNationality is always answered for all travelers
+      return data.travelers.every(
+        (traveler) =>
+          traveler.personalInfo.passport.isDifferentNationality !== undefined
+      );
+    },
+    {
+      message:
+        "Please indicate if your passport nationality is different from your country of birth",
+      path: [
+        "travelers",
+        0,
+        "personalInfo",
+        "passport",
+        "isDifferentNationality",
+      ],
+    }
+  )
+  .refine(
+    (data) => {
+      // Only validate isForeignResident when entering Dominican Republic
+      if (data.flightInfo.travelDirection === "ENTRY") {
+        return data.travelers.every(
+          (traveler) => traveler.personalInfo.isForeignResident !== undefined
+        );
+      }
+      return true; // Not required for EXIT
+    },
+    {
+      message: "Please indicate your residency status in Dominican Republic",
+      path: ["travelers", 0, "personalInfo", "isForeignResident"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Validate all customs declaration fields are answered
+      return (
+        data.customsDeclaration.carriesOverTenThousand !== undefined &&
+        data.customsDeclaration.carriesAnimalsOrFood !== undefined &&
+        data.customsDeclaration.carriesTaxableGoods !== undefined
+      );
+    },
+    {
+      message: "Please complete all customs declaration questions",
+      path: ["customsDeclaration", "carriesOverTenThousand"],
+    }
+  );
 
 // ===== TYPE EXPORTS =====
 
@@ -360,4 +435,5 @@ export type FlightInfoData = z.infer<typeof validateFlightInfoData>;
 export type CustomsDeclarationData = z.infer<
   typeof validateCustomsDeclarationData
 >;
+export type TravelersData = z.infer<typeof validateTravelersData>;
 export type ApplicationData = z.infer<typeof validateApplicationData>;

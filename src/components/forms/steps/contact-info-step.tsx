@@ -16,16 +16,9 @@ import {
 } from "@/components/ui/tanstack-form";
 import { validateEmail } from "@/lib/schemas/validation";
 
-import type { AnyFieldApi } from "@tanstack/react-form";
+import type { AppFieldApi, FormStepProps } from "@/lib/types/form-api";
 
-interface ContactInfoStepProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: any;
-  onNext: () => void;
-  onPrevious: () => void;
-}
-
-export function ContactInfoStep({ form }: ContactInfoStepProps) {
+export function ContactInfoStep({ form }: FormStepProps) {
   return (
     <div className="space-y-6">
       <Card>
@@ -37,7 +30,7 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           <form.AppField name="contactInfo.preferredName">
-            {(field: AnyFieldApi) => (
+            {(field: AppFieldApi) => (
               <FormField
                 field={field}
                 label="Preferred Name"
@@ -62,7 +55,7 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => (
+            {(field: AppFieldApi) => (
               <FormField
                 field={field}
                 label="Email Address"
@@ -86,7 +79,7 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
               },
             }}
           >
-            {(field: AnyFieldApi) => (
+            {(field: AppFieldApi) => (
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
