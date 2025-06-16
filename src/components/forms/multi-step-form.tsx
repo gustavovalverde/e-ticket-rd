@@ -31,6 +31,7 @@ import {
   validatePersonalInfoData,
   validateCustomsDeclarationData,
 } from "@/lib/schemas/validation";
+import { FORM_STEP_IDS } from "@/lib/types/form-api";
 import { cn } from "@/lib/utils";
 
 import {
@@ -52,15 +53,8 @@ interface FormProps {
   className?: string;
 }
 
-// Constants for step IDs to avoid duplication
-const STEP_IDS = {
-  CONTACT_INFO: "contact-info",
-  FLIGHT_INFO: "flight-info",
-  TRAVEL_COMPANIONS: "travel-companions",
-  GENERAL_INFO: "general-info",
-  ALL_TRAVELERS: "all-travelers",
-  CUSTOMS_DECLARATION: "customs-declaration",
-} as const;
+// Constants for step IDs to avoid duplication - use centralized IDs
+const STEP_IDS = FORM_STEP_IDS;
 
 const STEP_TITLES = {
   TRAVEL_COMPANIONS: "Travel Companions",
@@ -437,21 +431,38 @@ export function MultiStepForm({
       form,
       onNext: goToNextStep,
       onPrevious: goToPreviousStep,
+      stepId: currentStepId,
     };
 
     switch (currentStepId) {
       case STEP_IDS.CONTACT_INFO:
-        return <ContactInfoStep {...stepProps} />;
+        return (
+          <ContactInfoStep {...stepProps} stepId={STEP_IDS.CONTACT_INFO} />
+        );
       case STEP_IDS.FLIGHT_INFO:
-        return <FlightInfoStep {...stepProps} />;
+        return <FlightInfoStep {...stepProps} stepId={STEP_IDS.FLIGHT_INFO} />;
       case STEP_IDS.TRAVEL_COMPANIONS:
-        return <TravelCompanionsStep {...stepProps} />;
+        return (
+          <TravelCompanionsStep
+            {...stepProps}
+            stepId={STEP_IDS.TRAVEL_COMPANIONS}
+          />
+        );
       case STEP_IDS.GENERAL_INFO:
-        return <GeneralInfoStep {...stepProps} />;
+        return (
+          <GeneralInfoStep {...stepProps} stepId={STEP_IDS.GENERAL_INFO} />
+        );
       case STEP_IDS.ALL_TRAVELERS:
-        return <AllTravelersStep {...stepProps} />;
+        return (
+          <AllTravelersStep {...stepProps} stepId={STEP_IDS.ALL_TRAVELERS} />
+        );
       case STEP_IDS.CUSTOMS_DECLARATION:
-        return <CustomsDeclarationStep {...stepProps} />;
+        return (
+          <CustomsDeclarationStep
+            {...stepProps}
+            stepId={STEP_IDS.CUSTOMS_DECLARATION}
+          />
+        );
       default:
         return null;
     }

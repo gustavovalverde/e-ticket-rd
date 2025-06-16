@@ -39,6 +39,74 @@ type FieldApi<
 > = /* ... extremely complex type definition */
 ```
 
+### Proper Component Interface Types
+While TanStack Form itself uses complex generics, component interfaces should use proper types to avoid `any`.
+
+```typescript
+// ✅ CORRECT: Use specific types from the codebase
+import type { AppFormApi, FormStepId } from "@/lib/types/form-api";
+import type { FlightLookupResult } from "@/lib/types/flight";
+import type { AnyFieldApi } from "@tanstack/react-form";
+
+interface FlightInfoStepProps {
+  form: AppFormApi;                           // Proper form type
+  stepId?: FormStepId;                        // Enum-based ID type
+  onNext?: () => void;
+  onPrevious?: () => void;
+}
+
+interface FlightSearchSectionProps {
+  form: AppFormApi;                           // Proper form instance type
+  flightResult: FlightLookupResult | null;    // Specific result type
+  flightError: string | null;                 // Clear error type
+  stepId: FormStepId;                         // Use enum type
+  hasDate: boolean;
+}
+
+// ❌ AVOID: Using any for component interfaces
+interface BadFlightInfoStepProps {
+  form: any;                    // Loses type safety
+  flightResult: any;           // No intellisense
+  flightError: any;            // Runtime errors possible
+  stepId: any;                 // No enum validation
+}
+```
+
+### Interface Consistency Pattern
+Ensure parameter names match interface definitions to avoid type casting:
+
+```typescript
+// ✅ CORRECT: Parameter names match interface
+interface FlightSearchSectionProps {
+  stepId: FormStepId;           // Interface definition
+  hasDate: boolean;
+}
+
+function FlightSearchSection({
+  stepId,                       // ✅ Matches interface
+  hasDate,                      // ✅ Matches interface
+}: FlightSearchSectionProps) {
+  return (
+    <FormRadioGroup
+      field={field}
+      stepId={stepId}              // ✅ No type casting needed
+    />
+  );
+}
+
+// ❌ AVOID: Parameter names don't match interface
+function BadFlightSearchSection({
+  _stepId,                      // ❌ Different from interface
+  _hasDate,                     // ❌ Different from interface
+}: FlightSearchSectionProps) {
+  return (
+    <FormRadioGroup
+      stepId={stepId as any}        // ❌ Type casting required
+    />
+  );
+}
+```
+
 ### Form Instance Types
 ```typescript
 // Use simplified typing for form instances
@@ -52,6 +120,49 @@ export interface TripTypeFormProps {
 
 export interface TravellerInfoFormProps {
   form: AppFormInstance;
+}
+```
+
+## React 19 Integration Patterns
+
+### Modern React 19 Hooks
+Integrate React 19 features for better user experience and performance:
+
+```typescript
+import { useFormStatus } from "react-dom";
+import { useTransition } from "react";
+
+function FlightNumberField({ field, onLookup }: FieldProps) {
+  const [isPending, startTransition] = useTransition();
+  const { pending: formPending } = useFormStatus();
+
+  const handleLookup = useCallback(() => {
+    if (canSearch && !isPending && !formPending) {
+      startTransition(() => {
+        onLookup(field.state.value);
+      });
+    }
+  }, [canSearch, isPending, formPending, onLookup, field.state.value]);
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    // Handle TanStack Form blur
+    field.handleBlur();
+
+    // Auto-search with transition for better UX
+    if (shouldAutoSearch && !isPending) {
+      startTransition(() => {
+        onLookup(e.target.value);
+      });
+    }
+  }, [field, shouldAutoSearch, isPending, onLookup]);
+
+  return (
+    <input
+      disabled={!canSearch || isPending || formPending}
+      onBlur={handleBlur}
+      // ... other props
+    />
+  );
 }
 ```
 
@@ -274,12 +385,17 @@ export const applicationFormOptions = {
 
 // Form-specific imports
 import type { AnyFieldApi } from "@tanstack/react-form";
-import type { TripTypeFormProps } from "@/lib/types/form";
+import type { AppFormApi, FormStepId } from "@/lib/types/form-api";
+import type { FlightLookupResult } from "@/lib/types/flight";
 
 // UI component imports
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FormSection } from "@/components/ui/form-section";
+
+// React 19 hooks
+import { useFormStatus } from "react-dom";
+import { useTransition } from "react";
 
 // Icon imports (if needed)
 import { PlaneIcon, Ship, Car, ArrowRight, ArrowLeft } from "lucide-react";
@@ -301,7 +417,8 @@ src/
 │       └── form-layout.tsx            # Layout wrapper
 ├── lib/
 │   ├── types/
-│   │   └── form.ts                    # Form interface types
+│   │   ├── form-api.ts                # AppFormApi, FormStepId types
+│   │   └── flight.ts                  # FlightLookupResult types
 │   └── schemas/
 │       └── form-options.ts            # Zod schemas and form options
 └── components/ui/
@@ -309,19 +426,58 @@ src/
     └── form-section.tsx               # Reusable form section
 ```
 
+## Performance Optimization
+
+### Memoized Handlers
+```typescript
+// ✅ CORRECT: Stable references prevent re-renders
+const handleFlightLookup = useCallback(
+  async (flightNumber: string) => {
+    await lookupFlight(flightNumber, true);
+  },
+  [lookupFlight] // ✅ Minimal dependencies
+);
+
+const handleClearFlight = useCallback(() => {
+  reset();
+  fieldsToReset.forEach((field) => form.setFieldValue(field, ""));
+}, [reset, form]); // ✅ Only necessary dependencies
+```
+
+### Reactive State Subscriptions
+```typescript
+// ✅ CORRECT: Reactive store subscriptions
+const flightInfoValues = useStore(
+  form.store,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (state: any) => state.values.flightInfo  // ✅ Documented exception
+);
+```
+
 ## Key Principles
 
-1. **TypeScript Pragmatism**: Use `AnyFieldApi` instead of complex generics
-2. **Separation of Concerns**: Container handles navigation, steps handle fields
-3. **Consistent Patterns**: Same field structure across all components
-4. **Design System Compliance**: Use shadcn/ui components and design tokens
-5. **Accessibility First**: Proper labels, ARIA attributes, and error handling
-6. **Mobile Optimization**: Touch-friendly controls and responsive layouts
+1. **TypeScript Pragmatism**: Use `AnyFieldApi` for fields, proper types for component interfaces
+2. **Interface Consistency**: Parameter names must match interface definitions
+3. **Separation of Concerns**: Container handles navigation, steps handle fields
+4. **Consistent Patterns**: Same field structure across all components
+5. **Design System Compliance**: Use shadcn/ui components and design tokens
+6. **Accessibility First**: Proper labels, ARIA attributes, and error handling
+7. **Mobile Optimization**: Touch-friendly controls and responsive layouts
+8. **React 19 Integration**: Use modern hooks for better UX
 
 ## Common Pitfalls to Avoid
 
-1. **Don't mix navigation with form fields** in the same component
-2. **Don't try to fully type TanStack Form** - it's impractically complex
-3. **Don't create custom form components** - use existing shadcn/ui patterns
-4. **Don't forget error handling** - always display validation errors
-5. **Don't skip accessibility** - proper labels and ARIA attributes are required
+1. **Don't use `any` in component interfaces** - use proper types from `@/lib/types/`
+2. **Don't mismatch parameter names** with interface definitions
+3. **Don't mix navigation with form fields** in the same component
+4. **Don't try to fully type TanStack Form** - it's impractically complex
+5. **Don't create custom form components** - use existing shadcn/ui patterns
+6. **Don't forget error handling** - always display validation errors
+7. **Don't skip accessibility** - proper labels and ARIA attributes are required
+8. **Don't use type casting** - fix interface consistency instead
+
+## Related Resources
+
+For comprehensive form component patterns and best practices:
+- [React Form Best Practices](mdc:.cursor/rules/react-form-best-practices.mdc) - Comprehensive patterns including nested ternary elimination, component architecture, and error handling
+- [flight-info-step.tsx](mdc:src/components/forms/steps/flight-info-step.tsx) - Fully refactored example implementation

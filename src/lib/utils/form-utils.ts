@@ -133,3 +133,47 @@ export function booleanFieldAdapter(field: AnyFieldApi): AnyFieldApi {
     },
   } as AnyFieldApi;
 }
+
+/**
+ * Generate unique IDs for form components to prevent ARIA collisions
+ * Combines step context, field context, and option values for uniqueness
+ */
+export function generateUniqueId(
+  stepId: string,
+  fieldName: string,
+  optionValue: string,
+  travelerIndex?: number
+): string {
+  // Clean field name and step ID for use in DOM IDs
+  const cleanStepId = stepId.replace(/[^a-zA-Z0-9]/g, "-");
+  const cleanFieldName = fieldName.replace(/[^a-zA-Z0-9]/g, "-");
+  const cleanOptionValue = optionValue.replace(/[^a-zA-Z0-9]/g, "-");
+
+  // Build ID components
+  const components = [cleanStepId, cleanFieldName, cleanOptionValue];
+
+  // Add traveler index if provided
+  if (travelerIndex !== undefined) {
+    components.splice(2, 0, `traveler-${travelerIndex}`);
+  }
+
+  return components.join("-").toLowerCase();
+}
+
+/**
+ * Generate step-scoped field IDs for consistent naming
+ */
+export function generateFieldId(
+  stepId: string,
+  fieldName: string,
+  travelerIndex?: number
+): string {
+  const cleanStepId = stepId.replace(/[^a-zA-Z0-9]/g, "-");
+  const cleanFieldName = fieldName.replace(/[^a-zA-Z0-9]/g, "-");
+
+  if (travelerIndex !== undefined) {
+    return `${cleanStepId}-traveler-${travelerIndex}-${cleanFieldName}`.toLowerCase();
+  }
+
+  return `${cleanStepId}-${cleanFieldName}`.toLowerCase();
+}

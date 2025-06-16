@@ -1,0 +1,323 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# React Form Component Best Practices
+
+This rule documents proven patterns for building robust, maintainable form components based on successful refactoring of complex form components.
+
+## Anti-Pattern: Nested Ternary Expressions
+
+### ❌ AVOID: Complex nested ternaries
+```typescript
+// Hard to read and maintain
+placeholder={
+  hasDate
+    ? isOrigin
+      ? "e.g., IB6275, LH441, AF447"
+      : "e.g., AA1234, DL567, UA123"
+    : "Choose your date first"
+}
+
+description={
+  isOrigin && travelDate
+    ? `Must be on or before ${lightFormat(new Date(travelDate), "MMM dd, yyyy")}`
+    : isOrigin
+      ? "Date of your first flight"
+      : undefined
+}
+```
+
+### ✅ CORRECT: Helper functions for clarity
+```typescript
+// Clear, testable, and maintainable
+const getPlaceholderText = () => {
+  if (!hasDate) {
+    return "Choose your date first";
+  }
+  return isOrigin
+    ? "e.g., IB6275, LH441, AF447"
+    : "e.g., AA1234, DL567, UA123";
+};
+
+const getDescriptionText = () => {
+  if (isOrigin && travelDate) {
+    return `Must be on or before ${lightFormat(new Date(travelDate), "MMM dd, yyyy")}`;
+  }
+  if (isOrigin) {
+    return "Date of your first flight";
+  }
+  return undefined;
+};
+```
+
+**Benefits:**
+- **Readability**: Logic is self-documenting
+- **Testability**: Helper functions can be unit tested
+- **Maintainability**: Easy to modify conditions
+- **Debugging**: Easier to set breakpoints and trace logic
+
+## TypeScript Integration Patterns
+
+### ❌ AVOID: Using `any` types
+```typescript
+interface FlightSearchSectionProps {
+  form: any;                    // Loses type safety
+  flightResult: any;           // No intellisense
+  flightError: any;            // Runtime errors possible
+}
+
+function FlightSearchStatus({
+  result: any,                 // No type checking
+  error: any,                  // Unclear API contract
+}) {
+```
+
+### ✅ CORRECT: Proper type definitions
+```typescript
+import type { AppFormApi, FormStepId } from "@/lib/types/form-api";
+import type { FlightLookupResult } from "@/lib/types/flight";
+import type { AnyFieldApi } from "@tanstack/react-form";
+
+interface FlightSearchSectionProps {
+  form: AppFormApi;                           // Proper form type
+  flightResult: FlightLookupResult | null;    // Specific result type
+  flightError: string | null;                 // Clear error type
+  stepId: FormStepId;                         // Enum-based ID
+}
+
+function FlightSearchStatus({
+  result: FlightLookupResult | null,
+  error: string | null,
+}) {
+```
+
+**Benefits:**
+- **Type Safety**: Compile-time error catching
+- **IntelliSense**: Better developer experience
+- **Documentation**: Types serve as API contracts
+- **Refactoring**: Safe automated refactoring
+
+## React 19 Integration Patterns
+
+### ✅ Modern React 19 Patterns
+```typescript
+import { useFormStatus } from "react-dom";
+import { useTransition } from "react";
+
+function FlightNumberField() {
+  const [isPending, startTransition] = useTransition();
+  const { pending: formPending } = useFormStatus();
+
+  const handleLookup = useCallback(() => {
+    if (hasDate && hasValidFormat && !isLoading && !isPending) {
+      startTransition(() => {
+        onLookup(field.state.value);
+      });
+    }
+  }, [hasDate, hasValidFormat, isLoading, isPending, onLookup, field.state.value]);
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    field.handleBlur();
+
+    // Auto-search with transition for better UX
+    if (shouldAutoSearch) {
+      startTransition(() => {
+        onLookup(currentValue);
+      });
+    }
+  }, [field, shouldAutoSearch, onLookup]);
+}
+```
+
+**Key Features:**
+- **useFormStatus**: Track form submission state
+- **useTransition**: Non-blocking state updates
+- **Optimistic Updates**: Better perceived performance
+- **Accessibility**: Proper pending states for screen readers
+
+## Component Architecture Patterns
+
+### ✅ Focused Component Functions
+Break large components into focused, single-responsibility functions:
+
+```typescript
+// ✅ CORRECT: Focused components
+function TravelDirectionSection({ form, stepId }: ComponentProps) {
+  // Handles only travel direction logic
+}
+
+function FlightSearchSection({ form, ...props }: SearchProps) {
+  // Handles only flight search functionality
+}
+
+function FlightDetailsDisplay({ result, error, form }: DisplayProps) {
+  // Handles only flight details display
+}
+
+// ✅ CORRECT: Main component orchestrates
+export function FlightInfoStep({ form, stepId }: StepProps) {
+  return (
+    <div className="space-y-6">
+      <TravelDirectionSection form={form} stepId={stepId} />
+      <FlightSearchSection {...searchProps} />
+      <FlightDetailsDisplay {...displayProps} />
+    </div>
+  );
+}
+```
+
+### ❌ AVOID: Monolithic components
+```typescript
+// ❌ AVOID: 1100+ line components doing everything
+export function FlightInfoStep() {
+  // Massive component with mixed concerns
+  // Travel direction logic
+  // Flight search logic
+  // Display logic
+  // Form validation
+  // API calls
+  // etc...
+}
+```
+
+## TanStack Form Best Practices
+
+### ✅ Proper Field Patterns
+```typescript
+// ✅ CORRECT: Consistent field usage
+<form.AppField
+  name="flightInfo.flightNumber"
+  validators={{
+    onBlur: ({ value }: { value: string }) => {
+      if (!value?.trim()) return undefined;
+      const validation = validateFlightNumber(value);
+      return validation.isValid ? undefined : validation.error;
+    },
+  }}
+>
+  {(field: AnyFieldApi) => (
+    <FormField
+      field={field}
+      label="Flight Number"
+      required
+      description="Enter your flight number for auto-fill"
+    />
+  )}
+</form.AppField>
+```
+
+### ✅ Interface Consistency
+```typescript
+// ✅ CORRECT: Parameter names match interface
+interface FlightSearchSectionProps {
+  stepId: FormStepId;           // Interface definition
+  hasDate: boolean;
+}
+
+function FlightSearchSection({
+  stepId,                       // ✅ Matches interface
+  hasDate,                      // ✅ Matches interface
+}: FlightSearchSectionProps) {
+
+// Usage without type casting
+<FormRadioGroup
+  field={field}
+  stepId={stepId}              // ✅ No 'as any' needed
+/>
+```
+
+### ❌ AVOID: Interface mismatches
+```typescript
+// ❌ AVOID: Parameter names don't match interface
+interface FlightSearchSectionProps {
+  stepId: FormStepId;
+  hasDate: boolean;
+}
+
+function FlightSearchSection({
+  _stepId,                      // ❌ Different from interface
+  _hasDate,                     // ❌ Different from interface
+}: FlightSearchSectionProps) {
+
+// ❌ Requires type casting
+<FormRadioGroup
+  stepId={stepId as any}        // ❌ Type casting needed
+/>
+```
+
+## Performance Optimization Patterns
+
+### ✅ Memoized Handlers
+```typescript
+// ✅ CORRECT: Stable references prevent re-renders
+const handleFlightLookup = useCallback(
+  async (flightNumber: string) => {
+    await lookupFlight(flightNumber, true);
+  },
+  [lookupFlight] // ✅ Minimal dependencies
+);
+
+const handleClearFlight = useCallback(() => {
+  reset();
+  fieldsToReset.forEach((field) => form.setFieldValue(field, ""));
+}, [reset, form]); // ✅ Only necessary dependencies
+```
+
+### ✅ Reactive State Subscriptions
+```typescript
+// ✅ CORRECT: Reactive store subscriptions
+const flightInfoValues = useStore(
+  form.store,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (state: any) => state.values.flightInfo  // ✅ Documented exception
+);
+```
+
+## Error Handling Patterns
+
+### ✅ Proper Error Display
+```typescript
+// ✅ CORRECT: Type-safe error handling
+function FlightSearchStatus({
+  isLoading,
+  result,
+  error,
+}: {
+  isLoading: boolean;
+  result: FlightLookupResult | null;
+  error: string | null;
+}) {
+  if (error) {
+    return (
+      <div className="animate-in fade-in flex items-center gap-2 text-sm text-red-600 duration-200">
+        <AlertCircle className="h-4 w-4" />
+        <span>Flight not found. Please enter details manually below.</span>
+      </div>
+    );
+  }
+
+  return null;
+}
+```
+
+## Implementation Guidelines
+
+When building form components:
+
+1. **Start with helper functions** for any conditional logic
+2. **Use proper TypeScript types** from the beginning
+3. **Break components** into focused functions (< 200 lines each)
+4. **Ensure interface consistency** between props and usage
+5. **Implement React 19 patterns** for better UX
+6. **Add proper error handling** with type safety
+7. **Use memoized handlers** to prevent unnecessary re-renders
+8. **Test helper functions** independently
+
+## Example Files
+
+For reference implementations:
+- [flight-info-step.tsx](mdc:src/components/forms/steps/flight-info-step.tsx) - Fully refactored example
+- [form-field.tsx](mdc:src/components/forms/form-field.tsx) - Reusable field patterns
+- [form-radio-group.tsx](mdc:src/components/forms/form-radio-group.tsx) - Radio group patterns

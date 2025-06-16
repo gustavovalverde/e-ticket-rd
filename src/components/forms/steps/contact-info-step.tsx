@@ -1,24 +1,65 @@
 "use client";
 
 import { Mail } from "lucide-react";
-import React from "react";
+import React, { useCallback } from "react";
+import { useFormStatus } from "react-dom";
 import { isValidPhoneNumber } from "react-phone-number-input";
 
 import { FormField } from "@/components/forms/form-field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PhoneInput } from "@/components/ui/phone-input";
-import {
-  FormControl,
-  FormDescription,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/tanstack-form";
 import { validateEmail } from "@/lib/schemas/validation";
 
-import type { AppFieldApi, FormStepProps } from "@/lib/types/form-api";
+import type { AppFormApi, FormStepId } from "@/lib/types/form-api";
+import type { AnyFieldApi } from "@tanstack/react-form";
 
-export function ContactInfoStep({ form }: FormStepProps) {
+// Component interface with proper typing
+interface ContactInfoStepProps {
+  form: AppFormApi;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  stepId?: FormStepId;
+}
+
+// Enhanced phone field component with consistent patterns
+function PhoneField({ field }: { field: AnyFieldApi }) {
+  const { pending: formPending } = useFormStatus();
+
+  const handlePhoneChange = useCallback(
+    (value: string | undefined) => {
+      field.handleChange(value || "");
+    },
+    [field]
+  );
+
+  const handlePhoneBlur = useCallback(() => {
+    field.handleBlur();
+  }, [field]);
+
+  return (
+    <FormField
+      field={field}
+      label="Phone Number"
+      required
+      description="Enter a phone number with country code for travel notifications"
+      disabled={formPending}
+    >
+      <PhoneInput
+        international
+        defaultCountry="DO"
+        value={field.state.value || undefined}
+        onChange={handlePhoneChange}
+        onBlur={handlePhoneBlur}
+        disabled={formPending}
+        className="w-full max-w-sm"
+      />
+    </FormField>
+  );
+}
+
+export function ContactInfoStep({ form }: ContactInfoStepProps) {
+  const { pending: formPending } = useFormStatus();
+
   return (
     <div className="space-y-6">
       <Card>
@@ -30,13 +71,14 @@ export function ContactInfoStep({ form }: FormStepProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           <form.AppField name="contactInfo.preferredName">
-            {(field: AppFieldApi) => (
+            {(field: AnyFieldApi) => (
               <FormField
                 field={field}
                 label="Preferred Name"
                 type="text"
-                // placeholder="How would you like to be addressed?"
                 description="(Optional) This can be your nickname or a name you prefer to be called"
+                disabled={formPending}
+                className="max-w-sm"
               />
             )}
           </form.AppField>
@@ -55,13 +97,17 @@ export function ContactInfoStep({ form }: FormStepProps) {
               },
             }}
           >
-            {(field: AppFieldApi) => (
+            {(field: AnyFieldApi) => (
               <FormField
                 field={field}
                 label="Email Address"
                 type="email"
-                // placeholder="Enter your email address"
+                required
                 description="We'll send the e-ticket to this address"
+                disabled={formPending}
+                className="max-w-sm"
+                autoComplete="email"
+                inputMode="email"
               />
             )}
           </form.AppField>
@@ -75,27 +121,11 @@ export function ContactInfoStep({ form }: FormStepProps) {
                 }
                 return isValidPhoneNumber(value)
                   ? undefined
-                  : "Invalid phone number";
+                  : "Please enter a valid phone number";
               },
             }}
           >
-            {(field: AppFieldApi) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <PhoneInput
-                    international
-                    defaultCountry="DO"
-                    value={field.state.value || undefined}
-                    onChange={field.handleChange}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Enter a phone number with country code.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            {(field: AnyFieldApi) => <PhoneField field={field} />}
           </form.AppField>
         </CardContent>
       </Card>

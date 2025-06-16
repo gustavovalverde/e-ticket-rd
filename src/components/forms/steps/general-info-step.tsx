@@ -16,13 +16,11 @@ import {
   validatePostalCode,
 } from "@/lib/schemas/validation";
 
-import type { AppFieldApi } from "@/lib/types/form-api";
+import type { AppFieldApi, FormStepProps } from "@/lib/types/form-api";
 
-interface GeneralInfoStepProps {
+interface GeneralInfoStepProps extends FormStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
-  onNext: () => void;
-  onPrevious: () => void;
 }
 
 export function GeneralInfoStep({ form }: GeneralInfoStepProps) {
