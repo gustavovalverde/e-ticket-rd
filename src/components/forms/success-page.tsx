@@ -121,8 +121,8 @@ export function SuccessPage({
                   </p>
                   <p>
                     <span className="text-muted-foreground">Address:</span>{" "}
-                    {submittedData.travelers[0].addressInheritance
-                      .individualAddress?.permanentAddress || "Not provided"}
+                    {submittedData.travelers?.[0]?.addressInheritance
+                      ?.individualAddress?.permanentAddress || "Not provided"}
                   </p>
                 </div>
               </div>
@@ -150,17 +150,18 @@ export function SuccessPage({
               )}
 
               {/* Group Information (if group travel) */}
-              {submittedData.travelCompanions.isGroupTravel && (
+              {submittedData.travelCompanions?.isGroupTravel && (
                 <div className="space-y-2">
                   <h4 className="font-medium">Group Travel</h4>
                   <div className="space-y-1 text-sm">
                     <p>
                       <span className="text-muted-foreground">Companions:</span>{" "}
-                      {submittedData.travelCompanions.numberOfCompanions}
+                      {submittedData.travelCompanions?.numberOfCompanions ||
+                        "N/A"}
                     </p>
                     <p>
                       <span className="text-muted-foreground">Group Type:</span>{" "}
-                      {submittedData.travelCompanions.groupNature}
+                      {submittedData.travelCompanions?.groupNature || "N/A"}
                     </p>
                   </div>
                 </div>

@@ -627,13 +627,16 @@ export function MultiStepForm({
                       onClick={async () => {
                         if (isSubmitting) return;
 
-                        // Validate current step first
+                        // Only validate current step (customs declaration)
                         const isValid = await validateCurrentStep();
                         if (isValid) {
                           form.handleSubmit();
                         }
                       }}
-                      disabled={!form.state.canSubmit || isSubmitting}
+                      disabled={
+                        isSubmitting ||
+                        !isStepDataValid(STEP_IDS.CUSTOMS_DECLARATION)
+                      }
                       className="gap-2"
                     >
                       {isSubmitting ? "Submitting..." : "Submit Application"}
