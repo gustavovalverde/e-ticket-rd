@@ -762,48 +762,53 @@ export function FlightInfoStep({
     }
   }, [originResult, form]);
 
+  // Check if travel direction is selected
+  const hasTravelDirection = Boolean(flightInfoValues?.travelDirection?.trim());
+
   return (
     <div className="space-y-6">
       {/* Travel Direction Section */}
       <TravelDirectionSection form={form} stepId={stepId} />
 
-      {/* Main Travel Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Plane className="h-5 w-5" />
-            Travel Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <FlightSearchSection
-            form={form}
-            stepId={stepId}
-            hasDate={Boolean(flightInfoValues?.travelDate?.trim())}
-            travelDate={flightInfoValues?.travelDate || ""}
-            flightResult={result}
-            flightError={error}
-            isFlightLoading={isLoading}
-            onFlightLookup={handleFlightLookup}
-            onClearFlight={handleClearFlight}
-          />
+      {/* Main Travel Information - Only show after travel direction is selected */}
+      {hasTravelDirection && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plane className="h-5 w-5" />
+              Travel Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <FlightSearchSection
+              form={form}
+              stepId={stepId}
+              hasDate={Boolean(flightInfoValues?.travelDate?.trim())}
+              travelDate={flightInfoValues?.travelDate || ""}
+              flightResult={result}
+              flightError={error}
+              isFlightLoading={isLoading}
+              onFlightLookup={handleFlightLookup}
+              onClearFlight={handleClearFlight}
+            />
 
-          {/* Flight Details Display */}
-          <FlightDetailsDisplay result={result} error={error} form={form} />
+            {/* Flight Details Display */}
+            <FlightDetailsDisplay result={result} error={error} form={form} />
 
-          {/* Confirmation Number */}
-          <form.AppField name="flightInfo.confirmationNumber">
-            {(field: AnyFieldApi) => (
-              <FormField
-                field={field}
-                label="Booking Confirmation Number (Optional)"
-                placeholder="e.g., ABC123 (if available)"
-                className="max-w-sm"
-              />
-            )}
-          </form.AppField>
-        </CardContent>
-      </Card>
+            {/* Confirmation Number */}
+            <form.AppField name="flightInfo.confirmationNumber">
+              {(field: AnyFieldApi) => (
+                <FormField
+                  field={field}
+                  label="Booking Confirmation Number (Optional)"
+                  placeholder="e.g., ABC123 (if available)"
+                  className="max-w-sm"
+                />
+              )}
+            </form.AppField>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Travel Route Section - Conditional Display */}
       {areTravelDetailsComplete() && isEntryToDR() && (
