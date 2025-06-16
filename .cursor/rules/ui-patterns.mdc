@@ -212,7 +212,7 @@ import { cn } from "@/lib/utils";
 ### Form Step Organization
 
 #### Current Step Structure
-1. **Contact Information**: Preferred name, email (required), phone (required)
+1. **Contact Information**: Email (required), phone (required)
 2. **Travel Information**: Travel direction, airline, flight details, route/stops
 3. **Group Travel**: Solo vs group selection
 4. **General Information**: Address, purpose of trip

@@ -72,17 +72,7 @@ Components automatically detect requirements without manual configuration:
 </form.AppField>
 
 // Optional field - auto-detection
-<form.AppField name="contactInfo.preferredName">
-  {(field: AnyFieldApi) => (
-    <FormField
-      field={field}
-      label="Preferred Name"
-      placeholder="How would you like to be addressed?"
-      description="For personalized communications"
-      // 'required' automatically detected as false
-    />
-  )}
-</form.AppField>
+
 ```
 
 ### **FormSection Component**
@@ -111,7 +101,6 @@ Components automatically detect requirements without manual configuration:
 
 ### **Contact Information** (All Optional)
 
-- `contactInfo.preferredName` - Optional
 - `contactInfo.email` - Optional
 - `contactInfo.phone.number` - Optional
 

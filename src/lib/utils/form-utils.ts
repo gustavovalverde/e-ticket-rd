@@ -37,7 +37,7 @@ export function getErrorMessage(error: unknown): string {
  */
 export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   // Contact Information - Email required for e-ticket delivery
-  ["contactInfo.preferredName", false],
+
   ["contactInfo.email", true], // Required for e-ticket confirmation
   ["contactInfo.phone", true], // Required for travel notifications
 

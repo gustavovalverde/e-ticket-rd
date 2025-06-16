@@ -58,10 +58,9 @@ function PhoneField({ field }: { field: AnyFieldApi }) {
 }
 
 export function ContactInfoStep({ form }: ContactInfoStepProps) {
-  const { pending: formPending } = useFormStatus();
-
   return (
     <div className="space-y-6">
+      {/* Contact Information Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -70,25 +69,13 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <form.AppField name="contactInfo.preferredName">
-            {(field: AnyFieldApi) => (
-              <FormField
-                field={field}
-                label="Preferred Name"
-                type="text"
-                description="(Optional) This can be your nickname or a name you prefer to be called"
-                disabled={formPending}
-                className="max-w-sm"
-              />
-            )}
-          </form.AppField>
-
+          {/* Email Address */}
           <form.AppField
             name="contactInfo.email"
             validators={{
               onBlur: ({ value }: { value: string }) => {
-                if (!value || value.trim() === "") {
-                  return "Email address is required for e-ticket delivery";
+                if (!value || !value.trim()) {
+                  return "Email is required for e-ticket delivery";
                 }
                 const result = validateEmail.safeParse(value);
                 return result.success
@@ -102,16 +89,14 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                 field={field}
                 label="Email Address"
                 type="email"
+                placeholder="your@email.com"
                 required
-                description="We'll send the e-ticket to this address"
-                disabled={formPending}
-                className="max-w-sm"
-                autoComplete="email"
-                inputMode="email"
+                description="We'll send your e-ticket confirmation to this email address"
               />
             )}
           </form.AppField>
 
+          {/* Phone Number */}
           <form.AppField
             name="contactInfo.phone"
             validators={{

@@ -56,7 +56,6 @@ export const applicationFormOptions = formOptions({
     // TanStack Form array for travelers (always used, even for solo travel)
     travelers: [] as TravelerData[],
     contactInfo: {
-      preferredName: "",
       email: "",
       phone: "",
     },
@@ -116,7 +115,6 @@ export const legacyApplicationFormOptions = formOptions({
     passportNumber: "",
     nationality: "" as "dominican" | "other" | "",
     // Additional fields from existing form
-    preferredName: "",
     countryCode: "+1",
     dateOfBirth: "",
     radioOption: "",

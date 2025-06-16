@@ -220,11 +220,6 @@ export const validateOccupation = z.enum(OCCUPATION_OPTIONS, {
 });
 
 // Contact info field rules
-export const validatePreferredName = z
-  .string()
-  .max(50, "Preferred name is too long")
-  .optional()
-  .or(z.literal(""));
 export const validateEmail = z
   .string()
   .min(1, "Email address is required")
@@ -308,7 +303,6 @@ export const validatePersonalInfoData = z.object({
 
 // Contact information validation rules
 export const validateContactInfoData = z.object({
-  preferredName: validatePreferredName,
   email: validateEmail,
   phone: phoneSchema, // Required for travel notifications
 });

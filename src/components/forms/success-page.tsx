@@ -128,20 +128,11 @@ export function SuccessPage({
               </div>
 
               {/* Contact Information (if provided) */}
-              {(submittedData.contactInfo.preferredName ||
-                submittedData.contactInfo.email ||
+              {(submittedData.contactInfo.email ||
                 submittedData.contactInfo.phone) && (
                 <div className="space-y-2">
                   <h4 className="font-medium">Contact Information</h4>
                   <div className="space-y-1 text-sm">
-                    {submittedData.contactInfo.preferredName && (
-                      <p>
-                        <span className="text-muted-foreground">
-                          Preferred Name:
-                        </span>{" "}
-                        {submittedData.contactInfo.preferredName}
-                      </p>
-                    )}
                     {submittedData.contactInfo.email && (
                       <p>
                         <span className="text-muted-foreground">Email:</span>{" "}
