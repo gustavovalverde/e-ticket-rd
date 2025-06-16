@@ -293,7 +293,23 @@ export function TravelCompanionsStep({ form }: FormStepProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form.AppField name="travelCompanions.numberOfCompanions">
+              <form.AppField
+                name="travelCompanions.numberOfCompanions"
+                validators={{
+                  onChange: ({ value }: { value: number }) => {
+                    if (!value) {
+                      return "Number of companions is required";
+                    }
+                    if (value < 1) {
+                      return "At least 1 companion is required";
+                    }
+                    if (value > 6) {
+                      return "Maximum 6 companions allowed";
+                    }
+                    return undefined;
+                  },
+                }}
+              >
                 {(field: AppFieldApi) => (
                   <FormField
                     field={field}
@@ -301,10 +317,10 @@ export function TravelCompanionsStep({ form }: FormStepProps) {
                     type="number"
                     placeholder="Enter number of companions"
                     min={1}
-                    max={20}
+                    max={6}
                     step={1}
                     required
-                    description="1-20 companions"
+                    description="1-6 companions"
                     className="max-w-xs"
                   />
                 )}

@@ -1009,7 +1009,7 @@ function IndividualAddressForm({
               >
                 <CountrySelect
                   field={field}
-                  placeholder="Select your country of residence"
+                  placeholder="Country of residence"
                 />
               </FormField>
             )}

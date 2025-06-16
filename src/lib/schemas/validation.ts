@@ -137,7 +137,7 @@ export const validateIsGroupTravel = z.boolean();
 export const validateNumberOfCompanions = z
   .number()
   .min(1, "At least 1 companion is required")
-  .max(20, "Maximum 20 companions allowed")
+  .max(6, "Maximum 6 companions allowed")
   .optional();
 export const validateGroupNature = z
   .enum(["Family", "Friends", "Work_Colleagues", "Partner"])

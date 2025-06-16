@@ -52,6 +52,7 @@ function PhoneField({ field }: { field: AnyFieldApi }) {
         onBlur={handlePhoneBlur}
         disabled={formPending}
         className="w-full max-w-sm"
+        autoComplete="tel"
       />
     </FormField>
   );
@@ -92,6 +93,7 @@ export function ContactInfoStep({ form }: ContactInfoStepProps) {
                 placeholder="your@email.com"
                 required
                 description="We'll send your e-ticket confirmation to this email address"
+                autoComplete="email"
               />
             )}
           </form.AppField>
