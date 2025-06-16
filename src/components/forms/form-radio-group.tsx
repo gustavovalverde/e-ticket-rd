@@ -10,14 +10,15 @@ import {
   FormMessage,
 } from "@/components/ui/tanstack-form";
 import { cn } from "@/lib/utils";
-import { getFieldRequirement } from "@/lib/utils/form-utils";
+import { getFieldRequirement, generateUniqueId } from "@/lib/utils/form-utils";
 
+import type { FormStepId } from "@/lib/types/form-api";
 import type { AnyFieldApi } from "@tanstack/react-form";
 import type { ReactNode } from "react";
 
 interface RadioOption {
   value: string;
-  id: string;
+  id?: string; // Optional - will be auto-generated if not provided
   label: string;
   description?: string;
   icon?: ReactNode;
@@ -38,19 +39,24 @@ interface FormRadioGroupProps {
   required?: boolean;
   value?: string;
   onValueChange?: (value: string) => void;
+  // Step context for unique ID generation
+  stepId?: FormStepId;
+  travelerIndex?: number;
 }
 
 /**
  * Standard Radio Group for string fields
  *
  * Use this for fields that store string values directly (e.g., "ENTRY"/"EXIT").
+ * Now includes automatic unique ID generation to prevent ARIA collisions.
  *
  * @example
  * <FormRadioGroup
  *   field={field}
+ *   stepId="flight-info"
  *   options={[
- *     { value: "ENTRY", id: "entry", label: "Entering" },
- *     { value: "EXIT", id: "exit", label: "Leaving" }
+ *     { value: "ENTRY", label: "Entering" },
+ *     { value: "EXIT", label: "Leaving" }
  *   ]}
  * />
  */
@@ -67,9 +73,19 @@ export function FormRadioGroup({
   required,
   value,
   onValueChange,
+  stepId = "unknown", // Default fallback
+  travelerIndex,
 }: FormRadioGroupProps) {
   const isRequired =
     required !== undefined ? required : getFieldRequirement(field.name);
+
+  // Generate unique options with proper IDs
+  const uniqueOptions = options.map((option) => ({
+    ...option,
+    id:
+      option.id ||
+      generateUniqueId(stepId, field.name, option.value, travelerIndex),
+  }));
 
   // Safe grid class selection
   const getGridClass = (cols: "1" | "2" | "3") => {
@@ -147,7 +163,7 @@ export function FormRadioGroup({
                 : "flex flex-col gap-3"
             )}
           >
-            {options.map((option) => (
+            {uniqueOptions.map((option) => (
               <label
                 key={option.id}
                 htmlFor={option.id}
@@ -210,7 +226,7 @@ export function FormRadioGroup({
 // Enhanced Boolean Radio Group for consistent boolean field handling
 interface BooleanRadioOption {
   value: boolean;
-  id: string;
+  id?: string; // Optional - will be auto-generated if not provided
   label: string;
   description?: string;
   icon?: ReactNode;
@@ -228,6 +244,8 @@ interface BooleanRadioGroupProps {
   size?: "small" | "large";
   description?: string;
   className?: string;
+  stepId?: FormStepId;
+  travelerIndex?: number;
 }
 
 /**
@@ -235,13 +253,15 @@ interface BooleanRadioGroupProps {
  *
  * Use this for fields that store boolean values (true/false).
  * Automatically handles conversion between boolean values and radio string values.
+ * Now includes automatic unique ID generation to prevent ARIA collisions.
  *
  * @example
  * <BooleanRadioGroup
  *   field={field}
+ *   stepId="flight-info"
  *   options={[
- *     { value: false, id: "no", label: "No" },
- *     { value: true, id: "yes", label: "Yes" }
+ *     { value: false, label: "No" },
+ *     { value: true, label: "Yes" }
  *   ]}
  * />
  */
@@ -255,11 +275,15 @@ export function BooleanRadioGroup({
   size = "large",
   description,
   className,
+  stepId = "unknown",
+  travelerIndex,
 }: BooleanRadioGroupProps) {
   // Convert boolean options to string options for RadioGroup
   const stringOptions = options.map((option) => ({
     value: String(option.value), // Convert boolean to string
-    id: option.id,
+    id:
+      option.id ||
+      generateUniqueId(stepId, field.name, String(option.value), travelerIndex),
     label: option.label,
     description: option.description,
     icon: option.icon,
@@ -288,6 +312,8 @@ export function BooleanRadioGroup({
         const booleanValue = stringValue === "true";
         field.handleChange(booleanValue);
       }}
+      stepId={stepId}
+      travelerIndex={travelerIndex}
     />
   );
 }

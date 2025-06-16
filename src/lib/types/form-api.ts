@@ -29,9 +29,23 @@ export interface FormComponentProps {
   showHeader?: boolean;
 }
 
-// Step component props
+// Step identifiers for consistent ID generation across components
+export const FORM_STEP_IDS = {
+  CONTACT_INFO: "contact-info",
+  FLIGHT_INFO: "flight-info",
+  TRAVEL_COMPANIONS: "travel-companions",
+  GENERAL_INFO: "general-info",
+  ALL_TRAVELERS: "all-travelers",
+  CUSTOMS_DECLARATION: "customs-declaration",
+  UNKNOWN: "unknown", // Fallback for components without step context
+} as const;
+
+export type FormStepId = (typeof FORM_STEP_IDS)[keyof typeof FORM_STEP_IDS];
+
+// Enhanced form step props with step context
 export interface FormStepProps {
   form: AppFormApi;
-  onNext: () => void;
-  onPrevious: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  stepId?: FormStepId; // Step context for unique ID generation
 }

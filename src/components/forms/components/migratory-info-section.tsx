@@ -31,13 +31,14 @@ import {
 import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { ApplicationData } from "@/lib/schemas/forms";
-import type { AppFormApi, AppFieldApi } from "@/lib/types/form-api";
+import type { AppFormApi, AppFieldApi, FormStepId } from "@/lib/types/form-api";
 
 // =====================================================
 // CONSTANTS
 // =====================================================
 
 const ICON_COLOR_BLUE = "text-blue-600";
+const DEFAULT_STEP_ID = "all-travelers";
 
 // =====================================================
 // REUSABLE MIGRATORY INFO COMPONENTS
@@ -50,11 +51,16 @@ interface MigratoryInfoSectionProps {
   showResidencyStatus?: boolean;
   showHeader?: boolean;
   showAddress?: boolean; // Whether to show address section
+  stepId?: FormStepId; // Step context for unique ID generation
 }
 
 /**
- * Main reusable component that combines all migratory info sections
- * Works with both single traveler and array-based travelers
+ * Comprehensive migratory information section that includes:
+ * - Name information
+ * - Birth information
+ * - Passport information
+ * - Residency status (conditional)
+ * - Address information (conditional)
  */
 export function MigratoryInfoSection({
   form,
@@ -63,6 +69,7 @@ export function MigratoryInfoSection({
   showResidencyStatus = true,
   showHeader = true,
   showAddress = true,
+  stepId = DEFAULT_STEP_ID,
 }: MigratoryInfoSectionProps) {
   // Reactive values using TanStack Form's useStore
   const isEnteringDR = useStore(
@@ -104,17 +111,29 @@ export function MigratoryInfoSection({
       <NameInformationSection form={form} fieldPrefix={fieldPrefix} />
 
       {/* Birth Information */}
-      <BirthInformationSection form={form} fieldPrefix={fieldPrefix} />
+      <BirthInformationSection
+        form={form}
+        fieldPrefix={fieldPrefix}
+        stepId={stepId}
+        travelerIndex={travelerIndex}
+      />
 
       {/* Residency Status - Only show when entering DR */}
       {showResidencyStatus && isEnteringDR && (
-        <ResidencyStatusSection form={form} fieldPrefix={fieldPrefix} />
+        <ResidencyStatusSection
+          form={form}
+          fieldPrefix={fieldPrefix}
+          stepId={stepId}
+          travelerIndex={travelerIndex}
+        />
       )}
 
       {/* Passport Information */}
       <PassportInformationSection
         form={form}
         fieldPrefix={fieldPrefix}
+        stepId={stepId}
+        travelerIndex={travelerIndex}
         isDifferentNationality={isDifferentNationality || false}
       />
 
@@ -210,17 +229,16 @@ export function NameInformationSection({
 export function BirthInformationSection({
   form,
   fieldPrefix = "",
+  stepId = DEFAULT_STEP_ID,
+  travelerIndex,
 }: {
   form: AppFormApi;
   fieldPrefix?: string;
+  stepId?: FormStepId;
+  travelerIndex?: number;
 }) {
   const fieldName = (name: string) =>
     fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
-  // Extract traveler index from fieldPrefix to create unique IDs
-  const travelerSuffix = fieldPrefix
-    ? fieldPrefix.replace(/[[\].]/g, "-")
-    : "single";
 
   return (
     <Card>
@@ -293,18 +311,18 @@ export function BirthInformationSection({
             {(field: AppFieldApi) => (
               <FormRadioGroup
                 field={field}
+                stepId={stepId}
+                travelerIndex={travelerIndex}
                 label="Sex"
                 options={[
                   {
                     value: "MALE",
-                    id: `male-${travelerSuffix}`,
                     label: "Male",
                     icon: <User className="h-5 w-5" />,
                     iconColor: ICON_COLOR_BLUE,
                   },
                   {
                     value: "FEMALE",
-                    id: `female-${travelerSuffix}`,
                     label: "Female",
                     icon: <User className="h-5 w-5" />,
                     iconColor: "text-pink-600",
@@ -378,17 +396,16 @@ export function BirthInformationSection({
 export function ResidencyStatusSection({
   form,
   fieldPrefix = "",
+  stepId = DEFAULT_STEP_ID,
+  travelerIndex,
 }: {
   form: AppFormApi;
   fieldPrefix?: string;
+  stepId?: FormStepId;
+  travelerIndex?: number;
 }) {
   const fieldName = (name: string) =>
     fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
-  // Extract traveler index from fieldPrefix to create unique IDs
-  const travelerSuffix = fieldPrefix
-    ? fieldPrefix.replace(/[[\].]/g, "-")
-    : "single";
 
   const isEnteringDR = useStore(
     form.store,
@@ -420,12 +437,13 @@ export function ResidencyStatusSection({
           {(field: AppFieldApi) => (
             <FormRadioGroup
               field={booleanFieldAdapter(field)}
+              stepId={stepId}
+              travelerIndex={travelerIndex}
               label="Are you a foreign resident in the Dominican Republic?"
               required={isEnteringDR}
               options={[
                 {
                   value: "no",
-                  id: `not-foreign-resident-${travelerSuffix}`,
                   label: "No",
                   description: "I am not a foreign resident",
                   icon: <Check className="h-5 w-5" />,
@@ -433,7 +451,6 @@ export function ResidencyStatusSection({
                 },
                 {
                   value: "yes",
-                  id: `foreign-resident-${travelerSuffix}`,
                   label: "Yes",
                   description: "I am a foreign resident",
                   icon: <Info className="h-5 w-5" />,
@@ -458,19 +475,18 @@ export function ResidencyStatusSection({
 export function PassportInformationSection({
   form,
   fieldPrefix = "",
+  stepId = DEFAULT_STEP_ID,
+  travelerIndex,
   isDifferentNationality,
 }: {
   form: AppFormApi;
   fieldPrefix?: string;
+  stepId?: FormStepId;
+  travelerIndex?: number;
   isDifferentNationality: boolean;
 }) {
   const fieldName = (name: string) =>
     fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
-  // Extract traveler index from fieldPrefix to create unique IDs
-  const travelerSuffix = fieldPrefix
-    ? fieldPrefix.replace(/[[\].]/g, "-")
-    : "single";
 
   return (
     <Card>
@@ -620,11 +636,12 @@ export function PassportInformationSection({
           {(field: AppFieldApi) => (
             <FormRadioGroup
               field={booleanFieldAdapter(field)}
+              stepId={stepId}
+              travelerIndex={travelerIndex}
               label="Do you have a different nationality from your passport-issuing country?"
               options={[
                 {
                   value: "no",
-                  id: `same-nationality-${travelerSuffix}`,
                   label: "No",
                   description: "My nationality is the same as my passport",
                   icon: <Check className="h-5 w-5" />,
@@ -632,7 +649,6 @@ export function PassportInformationSection({
                 },
                 {
                   value: "yes",
-                  id: `different-nationality-${travelerSuffix}`,
                   label: "Yes",
                   description: "I have a different nationality",
                   icon: <Info className="h-5 w-5" />,

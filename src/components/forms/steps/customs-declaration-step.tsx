@@ -21,6 +21,7 @@ import {
   validateCarriesTaxableGoods,
 } from "@/lib/schemas/validation";
 
+import type { FormStepProps } from "@/lib/types/form-api";
 import type { AnyFieldApi } from "@tanstack/react-form";
 
 // Constants for icon colors to avoid duplication
@@ -31,14 +32,15 @@ const ICON_COLORS = {
   RED: "text-red-600",
 } as const;
 
-interface CustomsDeclarationStepProps {
+interface CustomsDeclarationStepProps extends FormStepProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
-  onNext: () => void;
-  onPrevious: () => void;
 }
 
-export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
+export function CustomsDeclarationStep({
+  form,
+  stepId = "customs-declaration",
+}: CustomsDeclarationStepProps) {
   return (
     <div className="space-y-6">
       {/* Money Declaration */}
@@ -67,10 +69,10 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             {(field: AnyFieldApi) => (
               <BooleanRadioGroup
                 field={field}
+                stepId={stepId}
                 options={[
                   {
                     value: false,
-                    id: "money-no",
                     label: "No",
                     description: "Less than US$10,000",
                     icon: <Shield className="h-5 w-5" />,
@@ -78,7 +80,6 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                   },
                   {
                     value: true,
-                    id: "money-yes",
                     label: "Yes",
                     description: "US$10,000 or more",
                     icon: <DollarSign className="h-5 w-5" />,
@@ -122,10 +123,10 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             {(field: AnyFieldApi) => (
               <BooleanRadioGroup
                 field={field}
+                stepId={stepId}
                 options={[
                   {
                     value: false,
-                    id: "bio-no",
                     label: "No",
                     description: "No biological materials",
                     icon: <Shield className="h-5 w-5" />,
@@ -133,7 +134,6 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                   },
                   {
                     value: true,
-                    id: "bio-yes",
                     label: "Yes",
                     description: "Carrying biological items",
                     icon: <Leaf className="h-5 w-5" />,
@@ -177,10 +177,10 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
             {(field: AnyFieldApi) => (
               <BooleanRadioGroup
                 field={field}
+                stepId={stepId}
                 options={[
                   {
                     value: false,
-                    id: "goods-no",
                     label: "No",
                     description: "Personal items only",
                     icon: <Shield className="h-5 w-5" />,
@@ -188,7 +188,6 @@ export function CustomsDeclarationStep({ form }: CustomsDeclarationStepProps) {
                   },
                   {
                     value: true,
-                    id: "goods-yes",
                     label: "Yes",
                     description: "Commercial or taxable goods",
                     icon: <Package className="h-5 w-5" />,
