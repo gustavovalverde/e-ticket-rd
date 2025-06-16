@@ -146,7 +146,7 @@ export const validateGroupNature = z
 // General info field rules
 export const validatePermanentAddress = z
   .string()
-  .min(10, "Please provide a complete address")
+  .min(5, "Address is too short")
   .max(200, "Address is too long");
 export const validateResidenceCountry = z
   .string()
