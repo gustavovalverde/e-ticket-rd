@@ -49,7 +49,7 @@ export function AllTravelersStep({ form }: FormStepProps) {
                     travelerIndex={index}
                     showResidencyStatus={true}
                     showHeader={isGroupTravel} // Only show header for group travel
-                    showAddress={isGroupTravel} // Only show address for group travel (solo uses General Info address)
+                    showAddress={true} // Always show address (centralized from removed General Info step)
                   />
                 </div>
               );

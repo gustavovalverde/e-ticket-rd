@@ -66,12 +66,12 @@ export const FIELD_REQUIREMENTS = new Map<string, boolean>([
   ["flightInfo.hasStops", true],
   ["flightInfo.confirmationNumber", false], // Optional
 
-  // General Information - Required fields
-  ["generalInfo.permanentAddress", true],
-  ["generalInfo.residenceCountry", true],
-  ["generalInfo.city", true],
-  ["generalInfo.state", false], // Optional
-  ["generalInfo.postalCode", false], // Optional
+  // Address Information - Required fields (now in traveler records)
+  ["addressInheritance.individualAddress.permanentAddress", true],
+  ["addressInheritance.individualAddress.residenceCountry", true],
+  ["addressInheritance.individualAddress.city", true],
+  ["addressInheritance.individualAddress.state", false], // Optional
+  ["addressInheritance.individualAddress.postalCode", false], // Optional
 
   // Travel Companions - Conditional requirements
   ["travelCompanions.isGroupTravel", true],

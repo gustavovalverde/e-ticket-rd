@@ -289,14 +289,7 @@ export const validateTravelCompanionsData = z
     }
   );
 
-// General information validation rules (Step 1)
-export const validateGeneralInfoData = z.object({
-  permanentAddress: validatePermanentAddress,
-  residenceCountry: validateResidenceCountry,
-  city: validateCity,
-  state: validateState,
-  postalCode: validatePostalCode,
-});
+// Note: General information validation removed - address validation now handled in travelers array
 
 // Enhanced migratory information validation rules (Step 2)
 export const validatePersonalInfoData = z.object({
@@ -369,7 +362,6 @@ export const validateTravelersData = z
 export const validateApplicationData = z
   .object({
     travelCompanions: validateTravelCompanionsData,
-    generalInfo: validateGeneralInfoData,
     travelers: validateTravelersData,
     contactInfo: validateContactInfoData,
     flightInfo: validateFlightInfoData,
@@ -428,7 +420,6 @@ export const validateApplicationData = z
 // ===== TYPE EXPORTS =====
 
 export type TravelCompanionsData = z.infer<typeof validateTravelCompanionsData>;
-export type GeneralInfoData = z.infer<typeof validateGeneralInfoData>;
 export type PersonalInfoData = z.infer<typeof validatePersonalInfoData>;
 export type ContactInfoData = z.infer<typeof validateContactInfoData>;
 export type FlightInfoData = z.infer<typeof validateFlightInfoData>;

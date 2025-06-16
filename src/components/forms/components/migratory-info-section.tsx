@@ -1,11 +1,21 @@
 "use client";
 
 import { lightFormat } from "date-fns";
-import { User, FileText, Check, Info, Home, CheckCircle } from "lucide-react";
+import {
+  User,
+  FileText,
+  Check,
+  Info,
+  Home,
+  CheckCircle,
+  MapPin,
+  InfoIcon,
+} from "lucide-react";
 import * as React from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CountrySelect } from "@/components/ui/country-select";
@@ -25,6 +35,11 @@ import {
   validateNationality,
   validateSex,
   validateOccupation,
+  validatePermanentAddress,
+  validateResidenceCountry,
+  validateCity,
+  validateState,
+  validatePostalCode,
   OCCUPATION_OPTIONS,
   CIVIL_STATUS_OPTIONS,
 } from "@/lib/schemas/validation";
@@ -145,6 +160,9 @@ export function MigratoryInfoSection({
           travelerIndex={travelerIndex}
         />
       )}
+
+      {/* Migration Information Context Alert - Inherited from general-info-step.tsx */}
+      <MigrationInfoAlert form={form} travelerIndex={travelerIndex} />
     </div>
   );
 }
@@ -533,7 +551,6 @@ export function PassportInformationSection({
                 type="text"
                 placeholder="Enter passport number"
                 required
-                description="As it appears on your passport"
                 className="uppercase"
               />
             )}
@@ -575,7 +592,6 @@ export function PassportInformationSection({
                 type="text"
                 placeholder="Re-enter passport number"
                 required
-                description="Must match the passport number above"
                 className="uppercase"
               />
             )}
@@ -754,11 +770,156 @@ export function AddressSection({
     );
   }
 
-  return <IndividualAddressForm form={form} fieldPrefix={fieldPrefix} />;
+  return (
+    <div className="space-y-6">
+      <IndividualAddressForm form={form} fieldPrefix={fieldPrefix} />
+
+      {/* Contextual Information Alert - Inherited from general-info-step.tsx */}
+      <AddressInformationAlert
+        form={form}
+        _fieldPrefix={fieldPrefix}
+        travelerIndex={travelerIndex}
+      />
+    </div>
+  );
 }
 
 /**
- * Individual Address Form - For travelers who need their own address
+ * Migration Information Context Alert - Inherited from general-info-step.tsx pattern
+ * Provides context about why migration information is needed
+ */
+function MigrationInfoAlert({
+  form,
+  travelerIndex,
+}: {
+  form: AppFormApi;
+  travelerIndex?: number;
+}) {
+  const travelDirection = useStore(
+    form.store,
+    (state: unknown) =>
+      (state as { values: ApplicationData }).values.flightInfo.travelDirection
+  );
+
+  const isLeadTraveler = travelerIndex === 0;
+
+  if (travelDirection === "ENTRY") {
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Entry to Dominican Republic:</strong> This information is
+          required for immigration control and will be verified against your
+          passport at arrival.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (travelDirection === "EXIT") {
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Departure from Dominican Republic:</strong> This information
+          helps ensure a smooth departure process at the airport.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // Fallback for when travel direction is not set
+  if (isLeadTraveler) {
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>E-Ticket System:</strong> This information will be used to
+          generate your official e-ticket for Dominican Republic migration
+          control.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return null;
+}
+
+/**
+ * Address Information Alert - Inherited from general-info-step.tsx pattern
+ * Provides contextual information about address collection
+ */
+function AddressInformationAlert({
+  form,
+  _fieldPrefix,
+  travelerIndex,
+}: {
+  form: AppFormApi;
+  _fieldPrefix?: string;
+  travelerIndex?: number;
+}) {
+  const isGroupTravel = useStore(
+    form.store,
+    (state: unknown) =>
+      (state as { values: ApplicationData }).values.travelCompanions
+        ?.isGroupTravel
+  );
+
+  const groupNature = useStore(
+    form.store,
+    (state: unknown) =>
+      (state as { values: ApplicationData }).values.travelCompanions
+        ?.groupNature
+  );
+
+  const isLeadTraveler = travelerIndex === 0;
+
+  // Show different alerts based on context
+  if (!isGroupTravel) {
+    // Solo traveler
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Address information:</strong> This will be used for your
+          e-ticket and any official correspondence.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (isLeadTraveler) {
+    // Lead traveler in group
+    const familyMessage =
+      groupNature === "Family" || groupNature === "Partner"
+        ? "Your address will be used for all family members in your group."
+        : "Each traveler in your group will need to provide their own address information.";
+
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Group travel:</strong> {familyMessage}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // Companion traveler (non-lead)
+  return (
+    <Alert>
+      <InfoIcon className="h-4 w-4" />
+      <AlertDescription>
+        <strong>Individual address:</strong> Please provide your own address
+        information as this group requires individual addresses.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+/**
+ * Enhanced Address Form - Based on well-designed general-info-step.tsx
+ * For travelers who need their own address information
  */
 function IndividualAddressForm({
   form,
@@ -781,73 +942,90 @@ function IndividualAddressForm({
   // For group travel, use individual address path; for solo, use general info
   const getAddressFieldName = (field: string) => {
     if (isGroupTravel && fieldPrefix) {
+      // Group travel: use individual address inheritance logic
       return fieldName(`addressInheritance.individualAddress.${field}`);
     }
-    return `generalInfo.${field}`;
+    // Solo travel: collect address directly in traveler record (replaces General Info step)
+    return fieldName(`addressInheritance.individualAddress.${field}`);
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Home className="h-5 w-5" />
+          <MapPin className="h-5 w-5" />
           Address Information
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Street Address - Enhanced with better validation */}
         <form.AppField
           name={getAddressFieldName("permanentAddress")}
           validators={{
             onBlur: ({ value }: { value: string }) => {
-              if (!value || value.trim() === "")
-                return "Permanent address is required";
-              return undefined;
+              if (!value || value.trim() === "") {
+                return "Street address is required";
+              }
+              const result = validatePermanentAddress.safeParse(value);
+              return result.success
+                ? undefined
+                : result.error.issues[0]?.message;
             },
           }}
         >
           {(field: AppFieldApi) => (
             <FormField
               field={field}
-              label="Permanent Address"
-              placeholder="Enter your permanent address"
+              label="Street Address"
+              placeholder="Enter your complete street address"
               required
-              description="Street address, apartment, suite, etc."
+              autoComplete="address-line1"
             />
           )}
         </form.AppField>
 
-        <form.AppField
-          name={getAddressFieldName("residenceCountry")}
-          validators={{
-            onBlur: ({ value }: { value: string }) => {
-              if (!value || value.trim() === "")
-                return "Country of residence is required";
-              return undefined;
-            },
-          }}
-        >
-          {(field: AppFieldApi) => (
-            <FormField
-              field={field}
-              label="Country of Residence"
-              required
-              description="Country where you currently live"
-            >
-              <CountrySelect
+        {/* Country and City - Enhanced grid layout */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <form.AppField
+            name={getAddressFieldName("residenceCountry")}
+            validators={{
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") {
+                  return "Country is required";
+                }
+                const result = validateResidenceCountry.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
+          >
+            {(field: AppFieldApi) => (
+              <FormField
                 field={field}
-                placeholder="Select your country of residence"
-              />
-            </FormField>
-          )}
-        </form.AppField>
+                label="Country"
+                required
+                autoComplete="country-name"
+              >
+                <CountrySelect
+                  field={field}
+                  placeholder="Select your country of residence"
+                />
+              </FormField>
+            )}
+          </form.AppField>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <form.AppField
             name={getAddressFieldName("city")}
             validators={{
               onBlur: ({ value }: { value: string }) => {
-                if (!value || value.trim() === "") return "City is required";
-                return undefined;
+                if (!value || value.trim() === "") {
+                  return "City is required";
+                }
+                const result = validateCity.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
               },
             }}
           >
@@ -855,30 +1033,56 @@ function IndividualAddressForm({
               <FormField
                 field={field}
                 label="City"
-                placeholder="Enter city"
+                placeholder="Enter your city"
                 required
+                autoComplete="address-level2"
               />
             )}
           </form.AppField>
+        </div>
 
-          <form.AppField name={getAddressFieldName("state")}>
+        {/* State and Postal Code - Enhanced validation */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <form.AppField
+            name={getAddressFieldName("state")}
+            validators={{
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") return undefined; // Optional field
+                const result = validateState.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
+          >
             {(field: AppFieldApi) => (
               <FormField
                 field={field}
                 label="State/Province"
-                placeholder="Enter state or province"
-                description="Optional"
+                placeholder="Enter your state or province"
+                autoComplete="address-level1"
               />
             )}
           </form.AppField>
 
-          <form.AppField name={getAddressFieldName("postalCode")}>
+          <form.AppField
+            name={getAddressFieldName("postalCode")}
+            validators={{
+              onBlur: ({ value }: { value: string }) => {
+                if (!value || value.trim() === "") return undefined; // Optional field
+                const result = validatePostalCode.safeParse(value);
+                return result.success
+                  ? undefined
+                  : result.error.issues[0]?.message;
+              },
+            }}
+          >
             {(field: AppFieldApi) => (
               <FormField
                 field={field}
                 label="Postal Code"
-                placeholder="Enter postal code"
-                description="Optional"
+                placeholder="Enter your postal/ZIP code"
+                autoComplete="postal-code"
               />
             )}
           </form.AppField>

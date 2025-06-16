@@ -121,7 +121,8 @@ export function SuccessPage({
                   </p>
                   <p>
                     <span className="text-muted-foreground">Address:</span>{" "}
-                    {submittedData.generalInfo.permanentAddress}
+                    {submittedData.travelers[0].addressInheritance
+                      .individualAddress?.permanentAddress || "Not provided"}
                   </p>
                 </div>
               </div>

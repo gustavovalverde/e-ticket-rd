@@ -117,9 +117,10 @@ export const FIELD_REQUIREMENTS: Record<string, boolean> = {
   // Group Travel
   "groupTravel.travelingAlone": true,
 
-  // General Information
-  "generalInfo.permanentAddress": true,
-  "generalInfo.purposeOfTrip": true,
+  // Address Information (moved to traveler records)
+  "addressInheritance.individualAddress.permanentAddress": true,
+  "addressInheritance.individualAddress.residenceCountry": true,
+  "addressInheritance.individualAddress.city": true,
 
   // Customs Declaration - Legal requirement
   "customsDeclaration.carryingMoney": true,
