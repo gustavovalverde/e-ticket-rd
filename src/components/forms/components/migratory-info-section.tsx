@@ -1,5 +1,6 @@
 "use client";
 
+import { parseISO, format } from "date-fns";
 import {
   Check,
   CheckCircle,
@@ -14,11 +15,11 @@ import * as React from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
-import { ISODatePicker } from "@/components/iso-date-picker";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CountrySelect } from "@/components/ui/country-select";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -273,7 +274,7 @@ export function BirthInformationSection({
         <form.AppField name={fieldName("personalInfo.birthDate")}>
           {(field: AppFieldApi) => (
             <FormField field={field} label="Date of Birth" required>
-              <ISODatePickerWithFormContext
+              <DatePickerWithFormContext
                 field={field}
                 mode="past"
                 className="max-w-xs"
@@ -629,7 +630,7 @@ export function PassportInformationSection({
         <form.AppField name={fieldName("personalInfo.passport.expiryDate")}>
           {(field: AppFieldApi) => (
             <FormField field={field} label="Passport Expiry Date" required>
-              <ISODatePickerWithFormContext
+              <DatePickerWithFormContext
                 field={field}
                 mode="future"
                 className="max-w-xs"
@@ -1093,7 +1094,7 @@ function IndividualAddressForm({
 // HELPER COMPONENTS
 // =====================================================
 
-function ISODatePickerWithFormContext({
+function DatePickerWithFormContext({
   field,
   mode,
   className,
@@ -1104,10 +1105,18 @@ function ISODatePickerWithFormContext({
 }) {
   const { formItemId } = useFieldContext();
 
+  const parsedDate = field.state.value
+    ? parseISO(field.state.value)
+    : undefined;
+
   return (
-    <ISODatePicker
+    <DatePicker
       id={formItemId}
-      field={field}
+      value={parsedDate}
+      onChange={(date) => {
+        const isoString = date ? format(date, "yyyy-MM-dd") : "";
+        field.handleChange(isoString);
+      }}
       mode={mode}
       className={className}
       placeholder="Select date"

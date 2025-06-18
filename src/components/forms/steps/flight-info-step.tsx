@@ -1,6 +1,6 @@
 "use client";
 
-import { isAfter, lightFormat, parseISO } from "date-fns";
+import { isAfter, lightFormat, parseISO, format } from "date-fns";
 import {
   AlertCircle,
   ArrowDown,
@@ -22,7 +22,6 @@ import {
   BooleanRadioGroup,
   FormRadioGroup,
 } from "@/components/forms/form-radio-group";
-import { ISODatePicker } from "@/components/iso-date-picker";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +31,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useStore } from "@/components/ui/tanstack-form";
 import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
 import { validateFlightNumber } from "@/lib/schemas/validation";
@@ -331,8 +331,16 @@ function FlightSearchSection({
               required
               description={getDescriptionText()}
             >
-              <ISODatePicker
-                field={dateField}
+              <DatePicker
+                value={
+                  dateField.state.value
+                    ? parseISO(dateField.state.value)
+                    : undefined
+                }
+                onChange={(date) => {
+                  const isoString = date ? format(date, "yyyy-MM-dd") : "";
+                  dateField.handleChange(isoString);
+                }}
                 mode={isOrigin ? "any" : "future"}
                 maxDate={maxDate}
                 className="w-full max-w-sm"
