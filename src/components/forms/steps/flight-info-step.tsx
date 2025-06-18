@@ -1,27 +1,28 @@
 "use client";
 
-import { lightFormat, isAfter, parseISO } from "date-fns";
+import { isAfter, lightFormat, parseISO } from "date-fns";
 import {
-  Plane,
+  AlertCircle,
   ArrowDown,
   ArrowUp,
-  Route,
-  MapPin,
-  Info,
-  Search,
-  Loader2,
   CheckCircle,
-  AlertCircle,
+  Info,
+  Loader2,
+  MapPin,
+  Plane,
+  Route,
+  Search,
   X,
 } from "lucide-react";
-import React, { useCallback, useEffect, useTransition } from "react";
+import { useCallback, useEffect, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 
 import { FormField } from "@/components/forms/form-field";
 import {
-  FormRadioGroup,
   BooleanRadioGroup,
+  FormRadioGroup,
 } from "@/components/forms/form-radio-group";
+import { ISODatePicker } from "@/components/iso-date-picker";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +32,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DatePicker } from "@/components/ui/date-picker";
 import { useStore } from "@/components/ui/tanstack-form";
 import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
 import { validateFlightNumber } from "@/lib/schemas/validation";
@@ -331,17 +331,8 @@ function FlightSearchSection({
               required
               description={getDescriptionText()}
             >
-              <DatePicker
-                value={
-                  dateField.state.value
-                    ? new Date(dateField.state.value)
-                    : undefined
-                }
-                onChange={(date) =>
-                  dateField.handleChange(
-                    date ? lightFormat(date, "yyyy-MM-dd") : ""
-                  )
-                }
+              <ISODatePicker
+                field={dateField}
                 mode={isOrigin ? "any" : "future"}
                 maxDate={maxDate}
                 className="w-full max-w-sm"
@@ -521,7 +512,7 @@ function FlightDetailsDisplay({
                 label={`${isOrigin ? "Origin " : ""}Aircraft Type`}
                 disabled
                 placeholder="Auto-populated from flight search"
-                className="text-muted-foreground bg-muted"
+                className="bg-muted text-muted-foreground"
                 inputMode="text"
                 autoComplete="off"
               />
