@@ -51,6 +51,9 @@ export function FormContainer({
   className,
   config = {},
 }: FormContainerProps = {}) {
+  // Determine if data was imported (has data but not from draft recovery)
+  const isImported = Boolean(initialData && !config.enableDraftRecovery);
+
   // Merge with default configuration (memoized to prevent useCallback re-creation)
   const formConfig = useMemo(
     () => ({ ...DEFAULT_CONFIG, ...config }),
@@ -66,6 +69,29 @@ export function FormContainer({
     applicationCode: "", // Will be generated client-side to avoid hydration mismatch
     retryCount: 0,
   });
+
+  // Handle draft recovery from localStorage (only if no imported data)
+  const [draftData, setDraftData] = useState<
+    Partial<ApplicationData> | undefined
+  >(initialData);
+
+  useEffect(() => {
+    // Only check for drafts if no initial data provided and draft recovery is enabled
+    if (!initialData && formConfig.enableDraftRecovery) {
+      const savedDraft = localStorage.getItem("eticket-draft");
+      if (savedDraft) {
+        try {
+          setDraftData(JSON.parse(savedDraft));
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.warn("Invalid draft data found:", error);
+        }
+      }
+    }
+  }, [initialData, formConfig.enableDraftRecovery]);
+
+  // Use initial data or draft data
+  const finalInitialData = initialData || draftData;
 
   // Generate application code only on client to avoid hydration mismatch
   useEffect(() => {
@@ -228,8 +254,20 @@ export function FormContainer({
         </Alert>
       )}
 
+      {/* Success notification for imported data */}
+      {isImported && (
+        <Alert className="mb-6">
+          <CheckCircle className="h-4 w-4" />
+          <AlertTitle>Data Imported Successfully</AlertTitle>
+          <AlertDescription>
+            ✓ Successfully imported your previous e-ticket data. You can review
+            and modify the information below.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Success notification for form recovery */}
-      {formConfig.enableDraftRecovery && initialData && (
+      {formConfig.enableDraftRecovery && draftData && !isImported && (
         <Alert className="mb-6">
           <CheckCircle className="h-4 w-4" />
           <AlertTitle>Draft Recovered</AlertTitle>
@@ -246,7 +284,7 @@ export function FormContainer({
         applicationCode={
           formConfig.showApplicationCode ? formState.applicationCode : undefined
         }
-        initialData={initialData}
+        initialData={finalInitialData}
       />
     </div>
   );

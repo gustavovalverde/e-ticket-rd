@@ -1,8 +1,16 @@
 "use client";
 
-import { CheckCircle, FileText, ArrowLeft, QrCode } from "lucide-react";
+import {
+  CheckCircle,
+  FileText,
+  ArrowLeft,
+  QrCode,
+  Download,
+  ShieldCheck,
+} from "lucide-react";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
+import { useState } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +22,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createApplicationUUID } from "@/lib/utils/application-utils";
 
 import type { ApplicationData } from "@/lib/schemas/forms";
@@ -31,6 +49,75 @@ export function SuccessPage({
 }: SuccessPageProps) {
   // Generate a deterministic UUID for this application
   const applicationUUID = createApplicationUUID(applicationCode);
+
+  // Export functionality state
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [flightNumber, setFlightNumber] = useState(
+    submittedData.flightInfo?.flightNumber || ""
+  );
+  const [passportNumber, setPassportNumber] = useState(
+    submittedData.travelers?.[0]?.personalInfo?.passport?.number || ""
+  );
+
+  const handleExportData = async () => {
+    if (!flightNumber.trim() || !passportNumber.trim()) {
+      setExportError("Both flight number and passport number are required");
+      return;
+    }
+
+    setIsExporting(true);
+    setExportError(null);
+
+    try {
+      const response = await fetch("/api/encrypt-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          formData: submittedData,
+          flightNumber: flightNumber.trim(),
+          passportNumber: passportNumber.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to export data");
+      }
+
+      const { data } = await response.json();
+
+      // Create download
+      const exportData = {
+        ...data,
+        applicationCode,
+        exported: true,
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `eticket-backup-${applicationCode}-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setIsExportOpen(false);
+    } catch (error) {
+      setExportError(
+        error instanceof Error ? error.message : "Failed to export data"
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="section-padding-y container mx-auto max-w-4xl">
@@ -257,8 +344,8 @@ export function SuccessPage({
 
       {/* Action Buttons */}
       <div className="mb-8 space-y-6">
-        {/* Primary Action */}
-        <div className="flex justify-center">
+        {/* Primary Actions - Side by Side */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Button
             size="lg"
             className="w-full sm:w-auto"
@@ -301,6 +388,78 @@ export function SuccessPage({
             <FileText className="mr-2 h-4 w-4" />
             Download PDF
           </Button>
+
+          <Dialog open={isExportOpen} onOpenChange={setIsExportOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="w-full sm:w-auto">
+                <Download className="mr-2 h-4 w-4" />
+                Export Data
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5" />
+                  Export Form Data
+                </DialogTitle>
+                <DialogDescription>
+                  Your form data will be encrypted and can only be restored
+                  using your flight number and passport number.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="export-flight">Flight Number</Label>
+                  <Input
+                    id="export-flight"
+                    value={flightNumber}
+                    onChange={(e) => setFlightNumber(e.target.value)}
+                    placeholder="e.g., AA1234"
+                    disabled={isExporting}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="export-passport">Passport Number</Label>
+                  <Input
+                    id="export-passport"
+                    value={passportNumber}
+                    onChange={(e) => setPassportNumber(e.target.value)}
+                    placeholder="Enter passport number"
+                    disabled={isExporting}
+                  />
+                </div>
+
+                {exportError && (
+                  <Alert>
+                    <AlertDescription>{exportError}</AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleExportData}
+                    disabled={
+                      isExporting ||
+                      !flightNumber.trim() ||
+                      !passportNumber.trim()
+                    }
+                    className="flex-1"
+                  >
+                    {isExporting ? "Exporting..." : "Export & Download"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsExportOpen(false)}
+                    disabled={isExporting}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Secondary Actions */}
@@ -308,6 +467,7 @@ export function SuccessPage({
           <Button variant="outline" size="lg" className="w-full">
             Send by Email
           </Button>
+
           <Button
             variant="outline"
             size="lg"
@@ -316,6 +476,7 @@ export function SuccessPage({
           >
             Create New Application
           </Button>
+
           <Button variant="outline" size="lg" asChild className="w-full">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
