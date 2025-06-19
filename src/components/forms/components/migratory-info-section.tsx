@@ -1,15 +1,15 @@
 "use client";
 
-import { lightFormat } from "date-fns";
+import { parseISO, format } from "date-fns";
 import {
-  User,
-  FileText,
   Check,
-  Info,
-  Home,
   CheckCircle,
-  MapPin,
+  FileText,
+  Home,
+  Info,
   InfoIcon,
+  MapPin,
+  User,
 } from "lucide-react";
 import * as React from "react";
 
@@ -29,24 +29,24 @@ import {
 } from "@/components/ui/select";
 import { useFieldContext, useStore } from "@/components/ui/tanstack-form";
 import {
+  CIVIL_STATUS_OPTIONS,
+  OCCUPATION_OPTIONS,
+  validateCity,
   validateFirstName,
   validateLastName,
-  validatePassportNumber,
   validateNationality,
-  validateSex,
   validateOccupation,
+  validatePassportNumber,
   validatePermanentAddress,
-  validateResidenceCountry,
-  validateCity,
-  validateState,
   validatePostalCode,
-  OCCUPATION_OPTIONS,
-  CIVIL_STATUS_OPTIONS,
+  validateResidenceCountry,
+  validateSex,
+  validateState,
 } from "@/lib/schemas/validation";
 import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { ApplicationData } from "@/lib/schemas/forms";
-import type { AppFormApi, AppFieldApi, FormStepId } from "@/lib/types/form-api";
+import type { AppFieldApi, AppFormApi, FormStepId } from "@/lib/types/form-api";
 
 // =====================================================
 // CONSTANTS
@@ -275,15 +275,8 @@ export function BirthInformationSection({
           {(field: AppFieldApi) => (
             <FormField field={field} label="Date of Birth" required>
               <DatePickerWithFormContext
+                field={field}
                 mode="past"
-                value={
-                  field.state.value ? new Date(field.state.value) : undefined
-                }
-                onChange={(date) =>
-                  field.handleChange(
-                    date ? lightFormat(date, "yyyy-MM-dd") : ""
-                  )
-                }
                 className="max-w-xs"
               />
             </FormField>
@@ -638,15 +631,8 @@ export function PassportInformationSection({
           {(field: AppFieldApi) => (
             <FormField field={field} label="Passport Expiry Date" required>
               <DatePickerWithFormContext
+                field={field}
                 mode="future"
-                value={
-                  field.state.value ? new Date(field.state.value) : undefined
-                }
-                onChange={(date) =>
-                  field.handleChange(
-                    date ? lightFormat(date, "yyyy-MM-dd") : ""
-                  )
-                }
                 className="max-w-xs"
               />
             </FormField>
@@ -1109,24 +1095,29 @@ function IndividualAddressForm({
 // =====================================================
 
 function DatePickerWithFormContext({
-  value,
-  onChange,
+  field,
   mode,
   className,
 }: {
-  value?: Date;
-  onChange?: (date: Date | undefined) => void;
+  field: AppFieldApi;
   mode?: "future" | "past" | "any";
   className?: string;
 }) {
   const { formItemId } = useFieldContext();
 
+  const parsedDate = field.state.value
+    ? parseISO(field.state.value)
+    : undefined;
+
   return (
     <DatePicker
       id={formItemId}
+      value={parsedDate}
+      onChange={(date) => {
+        const isoString = date ? format(date, "yyyy-MM-dd") : "";
+        field.handleChange(isoString);
+      }}
       mode={mode}
-      value={value}
-      onChange={onChange}
       className={className}
       placeholder="Select date"
     />

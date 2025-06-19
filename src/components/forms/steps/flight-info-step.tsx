@@ -1,26 +1,26 @@
 "use client";
 
-import { lightFormat, isAfter, parseISO } from "date-fns";
+import { isAfter, lightFormat, parseISO, format } from "date-fns";
 import {
-  Plane,
+  AlertCircle,
   ArrowDown,
   ArrowUp,
-  Route,
-  MapPin,
-  Info,
-  Search,
-  Loader2,
   CheckCircle,
-  AlertCircle,
+  Info,
+  Loader2,
+  MapPin,
+  Plane,
+  Route,
+  Search,
   X,
 } from "lucide-react";
-import React, { useCallback, useEffect, useTransition } from "react";
+import { useCallback, useEffect, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 
 import { FormField } from "@/components/forms/form-field";
 import {
-  FormRadioGroup,
   BooleanRadioGroup,
+  FormRadioGroup,
 } from "@/components/forms/form-radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -334,14 +334,13 @@ function FlightSearchSection({
               <DatePicker
                 value={
                   dateField.state.value
-                    ? new Date(dateField.state.value)
+                    ? parseISO(dateField.state.value)
                     : undefined
                 }
-                onChange={(date) =>
-                  dateField.handleChange(
-                    date ? lightFormat(date, "yyyy-MM-dd") : ""
-                  )
-                }
+                onChange={(date) => {
+                  const isoString = date ? format(date, "yyyy-MM-dd") : "";
+                  dateField.handleChange(isoString);
+                }}
                 mode={isOrigin ? "any" : "future"}
                 maxDate={maxDate}
                 className="w-full max-w-sm"
@@ -521,7 +520,7 @@ function FlightDetailsDisplay({
                 label={`${isOrigin ? "Origin " : ""}Aircraft Type`}
                 disabled
                 placeholder="Auto-populated from flight search"
-                className="text-muted-foreground bg-muted"
+                className="bg-muted text-muted-foreground"
                 inputMode="text"
                 autoComplete="off"
               />
