@@ -1,6 +1,6 @@
 import { getRequestConfig } from "next-intl/server";
 
-import { getCookie } from "@/lib/utils/cookies-utils";
+import { COOKIES, getCookie } from "@/lib/utils/cookies-utils";
 
 import { EN } from "./en";
 import { ES } from "./es";
@@ -18,7 +18,7 @@ const messagesMap = {
 };
 
 export default getRequestConfig(async () => {
-  const localeCookie = await getCookie("NEXT_LOCALE");
+  const localeCookie = await getCookie(COOKIES.NEXT_LOCALE);
 
   const locale = localeCookie || DEFAULT_LOCALE;
 
