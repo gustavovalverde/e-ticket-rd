@@ -4,6 +4,7 @@ import { Upload, FileKey, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -20,8 +21,12 @@ import { FileInput } from "@/components/ui/file-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { messages } from "../i18n/messages";
+
 export function LandingPage() {
   const router = useRouter();
+  const t = useTranslations();
+
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -31,9 +36,7 @@ export function LandingPage() {
 
   const handleImportData = async () => {
     if (!selectedFile || !flightNumber.trim() || !passportNumber.trim()) {
-      setImportError(
-        "Please select your e-ticket backup file and enter both flight number and passport number used during export"
-      );
+      setImportError(t(messages.SYSTEM_MESSAGES.SELECT_TIKECT_BACKUP));
       return;
     }
 
@@ -114,22 +117,22 @@ export function LandingPage() {
           {/* Title Section */}
           <div className="section-title-gap-lg flex flex-col">
             <h1 className="heading-xl text-primary-foreground">
-              Dominican Republic
+              {t(messages.LANDING_PAGE.DOMINICAN_REPUBLIC)}
               <br />
-              E-Ticket System
+              {t(messages.LANDING_PAGE.E_TICKET_SYSTEM)}
             </h1>
             <p className="text-primary-foreground/90 text-lg font-medium">
-              Electronic Entry/Exit Form for Migration Control
+              {t(messages.LANDING_PAGE.ELECTRONIC_ENTRY_MIGRATION_CONTROL)}
             </p>
           </div>
 
           {/* Welcome Section */}
           <div className="section-title-gap-md flex max-w-2xl flex-col">
-            <h2 className="heading-md text-primary-foreground">Welcome</h2>
+            <h2 className="heading-md text-primary-foreground">
+              {t(messages.LANDING_PAGE.WELCOME)}
+            </h2>
             <p className="text-primary-foreground/85 text-lg leading-relaxed">
-              Complete your electronic entry or exit form for the Dominican
-              Republic. This digital form replaces the traditional paper-based
-              process for a faster and more efficient migration experience.
+              {t(messages.LANDING_PAGE.WELCOME_DESCRIPTION)}
             </p>
           </div>
 
@@ -141,7 +144,9 @@ export function LandingPage() {
               className="w-full py-6 text-lg font-semibold shadow-lg transition-shadow hover:shadow-xl"
               asChild
             >
-              <Link href="/form">New E-Ticket Application</Link>
+              <Link href="/form">
+                {t(messages.LANDING_PAGE.NEW_ETICKET_APPLICATION)}
+              </Link>
             </Button>
 
             <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
@@ -152,7 +157,7 @@ export function LandingPage() {
                   className="bg-accent/10 border-accent/30 text-primary-foreground hover:bg-accent/20 hover:border-accent/50 w-full py-6 text-lg font-semibold shadow-lg backdrop-blur-sm transition-all duration-200 hover:shadow-xl"
                 >
                   <Upload className="mr-2 h-5 w-5" />
-                  Import Previous E-Ticket
+                  {t(messages.LANDING_PAGE.IMPORT_PREVIOUS_ETICKET)}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
