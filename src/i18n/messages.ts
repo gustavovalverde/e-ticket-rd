@@ -1,5 +1,5 @@
 export type SystemMessages = {
-  SELECT_TIKECT_BACKUP: string;
+  SELECT_TICKET_BACKUP: string;
 };
 
 export type LandingPageMessages = {
@@ -19,7 +19,7 @@ export type Messages = {
 
 export const messages = {
   SYSTEM_MESSAGES: {
-    SELECT_TIKECT_BACKUP: "SYSTEM_MESSAGES.SELECT_TIKECT_BACKUP",
+    SELECT_TICKET_BACKUP: "SYSTEM_MESSAGES.SELECT_TICKET_BACKUP",
   },
   LANDING_PAGE: {
     DOMINICAN_REPUBLIC: "LANDING_PAGE.DOMINICAN_REPUBLIC",

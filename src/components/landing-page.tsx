@@ -36,7 +36,7 @@ export function LandingPage() {
 
   const handleImportData = async () => {
     if (!selectedFile || !flightNumber.trim() || !passportNumber.trim()) {
-      setImportError(t(messages.SYSTEM_MESSAGES.SELECT_TIKECT_BACKUP));
+      setImportError(t(messages.SYSTEM_MESSAGES.SELECT_TICKET_BACKUP));
       return;
     }
 

@@ -2,7 +2,7 @@ import type { Messages } from "./messages";
 
 export const ES: Messages = {
   SYSTEM_MESSAGES: {
-    SELECT_TIKECT_BACKUP:
+    SELECT_TICKET_BACKUP:
       "Por favor, seleccione su archivo de respaldo de e-ticket e ingrese tanto el número de vuelo como el número de pasaporte utilizados durante la exportación",
   },
   LANDING_PAGE: {
