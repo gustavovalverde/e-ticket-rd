@@ -50,7 +50,7 @@ The development will follow these principles:
 
 - **Passport Scanning (OCR):**
 
-  - **Prototype (Web-based):** Client-side JavaScript OCR library like Tesseract.js for proof-of-concept to parse Machine-Readable Zone (MRZ) from uploaded passport images
+  - **Prototype (Web-based):** Client-side OCR.space API integration for proof-of-concept to parse Machine-Readable Zone (MRZ) from uploaded passport images or PDFs
   - **Production (Mobile):** For production mobile app, native SDKs (Google ML Kit, Apple Vision Framework, or commercial SDKs) would be more reliable and allow direct camera access and potentially NFC reading
 
 - **QR Code Generation:** Library like qrcode.react for generating QR codes on the client-side
@@ -158,7 +158,7 @@ The development will follow these principles:
   - Basic Email Confirmation (Optional): If time permits, integrate a simple email notification (using Resend or another email provider) sending the QR code and confirmation
   - Passport OCR Proof-of-Concept (Optional):
     - Add an "Upload Passport Photo" option
-    - Integrate Tesseract.js to try to extract MRZ data from the uploaded image on the client-side
+    - Integrate client-side OCR.space API to extract MRZ data from uploaded passport images or PDFs
     - Use extracted data to pre-fill relevant form fields. This is a proof-of-concept and may have limitations
   - Accessibility Review: Do an initial accessibility check using Axe DevTools and keyboard navigation
 

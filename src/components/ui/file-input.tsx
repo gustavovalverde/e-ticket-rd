@@ -161,13 +161,16 @@ const FileInput = React.forwardRef<HTMLInputElement, FileInputProps>(
             selectedFile ? `Selected file: ${selectedFile.name}` : placeholder
           }
           aria-describedby={error ? "file-input-error" : undefined}
-          aria-disabled={disabled}
+          {...(disabled && { "aria-disabled": "true" })} // Only add aria-disabled when actually disabled
           className={cn(
             "border-input bg-background hover:bg-accent hover:text-accent-foreground focus-visible:ring-ring relative flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed px-6 py-4 text-center transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
             isDragOver && "border-primary bg-primary/10",
             error && "border-destructive",
             disabled && "cursor-not-allowed opacity-50",
-            className
+            className,
+            // mobile overflow fix 🎯
+            selectedFile?.name &&
+              "w-full [&_div:has(svg+div)]:max-w-full [&_p:first-child]:max-w-[150px] [&_p:first-child]:leading-tight [&_p:first-child]:break-words [&_p:first-child]:hyphens-auto [&_p:first-child]:sm:max-w-[400px] [&_p:first-child]:lg:max-w-[500px]"
           )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
