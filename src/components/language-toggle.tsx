@@ -49,7 +49,7 @@ export function LanguageToggle() {
           disabled={isMutating || isLoading}
           className="border-accent/30 hover:border-accent/10 flex w-auto items-center gap-0 p-1.5 text-lg font-semibold shadow-lg backdrop-blur-sm transition-all duration-200 hover:shadow-xl"
         >
-          <Languages className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+          <Languages className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all" />
           <span className="sr-only">Language selector</span>
           <span className="ml-2 text-xs">
             {isLoading ? "..." : (currentLocale || "").toUpperCase()}
