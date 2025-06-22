@@ -1,155 +1,160 @@
 "use client";
 
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useMemo, useTransition } from "react";
 
 import { devLog } from "@/lib/utils";
-import { extractMrzFromPassport } from "@/lib/utils/passport-ocr-api";
 
-import type { MrzResult, OcrError } from "@/lib/types/passport";
-
-type OcrStatus = "idle" | "processing" | "success" | "error";
+import type { MrzResult } from "@/lib/types/passport";
 
 /**
- * React hook for passport OCR processing with SWR-style caching
- *
- * State machine: idle → processing → success | error
- * @returns Hook state and processing functions
+ * OCR processing progress information
  */
-export function usePassportOcr() {
-  const [status, setStatus] = useState<OcrStatus>("idle");
+type OcrProgress = {
+  status:
+    | "idle"
+    | "loading"
+    | "preprocessing"
+    | "recognizing"
+    | "parsing"
+    | "complete";
+  percentage: number;
+};
+
+/**
+ * OCR processing status states
+ */
+type TesseractOcrStatus =
+  | "idle"
+  | "loading"
+  | "processing"
+  | "success"
+  | "error";
+
+/**
+ * Return type for usePassportOcr hook
+ */
+interface UsePassportOcrReturn {
+  processImage: (file: File) => void;
+  status: TesseractOcrStatus;
+  isProcessing: boolean;
+  result: MrzResult | null;
+  error: string | null;
+  progress: OcrProgress;
+  reset: () => void;
+}
+
+/**
+ * Custom hook for passport OCR processing using Tesseract.js
+ *
+ * Provides a complete interface for processing passport images locally
+ * using Tesseract.js OCR engine. Handles loading, processing, error states,
+ * and progress updates.
+ *
+ * @returns Object containing OCR processing functions and state
+ *
+ * @example
+ * ```tsx
+ * function PassportUpload() {
+ *   const { processImage, status, result, error, progress } = usePassportOcr();
+ *
+ *   const handleFileChange = (file: File) => {
+ *     processImage(file);
+ *   };
+ *
+ *   return (
+ *     <div>
+ *       <input type="file" accept="image/*" onChange={handleFileChange} />
+ *       {status === 'processing' && <Progress value={progress.percentage} />}
+ *       {result && <div>Passport: {result.passportNumber}</div>}
+ *       {error && <div>Error: {error}</div>}
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
+export function usePassportOcr(): UsePassportOcrReturn {
+  const [status, setStatus] = useState<TesseractOcrStatus>("idle");
   const [result, setResult] = useState<MrzResult | null>(null);
-  const [error, setError] = useState<OcrError | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<OcrProgress>({
+    status: "idle",
+    percentage: 0,
+  });
 
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // Cache to prevent duplicate API calls for the same image
-  const cacheRef = useRef<Map<string, Promise<MrzResult>>>(new Map());
+  const processImage = useCallback((file: File) => {
+    if (!file) return;
 
-  // Generate cache key from file content
-  const generateCacheKey = useCallback(async (file: File): Promise<string> => {
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-  }, []);
+    devLog("🚀 Starting passport OCR processing", { fileName: file.name });
 
-  const processImage = useCallback(
-    async (file: File): Promise<MrzResult> => {
-      devLog("🎯 usePassportOcr: Starting image processing", {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-      });
-
-      // Generate cache key for deduplication
-      const cacheKey = await generateCacheKey(file);
-
-      // Check if we're already processing this image
-      const existingRequest = cacheRef.current.get(cacheKey);
-      if (existingRequest) {
-        devLog("🔄 Returning cached OCR request for identical image");
-        try {
-          const cachedResult = await existingRequest;
-          setResult(cachedResult);
-          setStatus("success");
-          return cachedResult;
-        } catch {
-          // If cached request failed, proceed with new request
-          devLog("⚠️ Cached request failed, processing new request");
-          cacheRef.current.delete(cacheKey);
-        }
-      }
-
-      if (abortControllerRef.current) {
-        devLog("🛑 Aborting previous passport OCR operation");
-        abortControllerRef.current.abort();
-      }
-
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
-
-      devLog("🔄 Setting passport OCR state to processing");
-      setStatus("processing");
+    startTransition(async () => {
+      setStatus("loading");
       setError(null);
       setResult(null);
+      setProgress({ status: "loading", percentage: 5 });
 
-      // Create and cache the processing promise
-      const processingPromise = extractMrzFromPassport(file, {
-        signal: abortController.signal,
-        timeout: 30000,
-      });
-
-      // Cache the promise to prevent duplicate requests
-      cacheRef.current.set(cacheKey, processingPromise);
+      let imageUrl: string | null = null;
 
       try {
-        devLog("📞 Calling passport OCR processing");
-        const mrzResult = await processingPromise;
+        imageUrl = URL.createObjectURL(file);
 
-        if (!abortController.signal.aborted) {
-          devLog("✅ Passport OCR processing successful", mrzResult);
-          devLog("💾 Setting passport OCR success state");
-          setResult(mrzResult);
-          setStatus("success");
-          return mrzResult;
-        } else {
-          devLog("🛑 Passport OCR operation was cancelled");
-          throw new Error("Operation cancelled");
-        }
+        const { processPassport } = await import("../utils/passport-ocr");
+
+        setStatus("processing");
+
+        const mrzResult = await processPassport(
+          imageUrl,
+          (progressUpdate: OcrProgress) => setProgress(progressUpdate)
+        );
+
+        devLog("✅ OCR processing completed successfully");
+
+        setResult(mrzResult);
+        setStatus("success");
+        setProgress({ status: "complete", percentage: 100 });
       } catch (err) {
-        devLog("❌ Passport OCR processing failed", err);
+        devLog("❌ OCR processing failed", err);
 
-        // Remove failed request from cache
-        cacheRef.current.delete(cacheKey);
-
-        if (!abortController.signal.aborted) {
-          const ocrError = err as OcrError;
-          devLog("💾 Setting passport OCR error state", ocrError);
-          setError(ocrError);
-          setStatus("error");
-          throw ocrError;
-        } else {
-          devLog("🛑 Passport OCR error ignored due to cancellation");
-          throw new Error("Operation cancelled");
+        let errorMessage = "Processing failed. Please try a clearer image.";
+        if (err && typeof err === "object" && "message" in err) {
+          errorMessage = (err as { message: string }).message;
+        } else if (typeof err === "string") {
+          errorMessage = err;
         }
+
+        setError(errorMessage);
+        setStatus("error");
+        setProgress({ status: "idle", percentage: 0 });
       } finally {
-        devLog("🧹 Cleaning up passport OCR abort controller");
-        if (abortControllerRef.current === abortController) {
-          abortControllerRef.current = null;
+        if (imageUrl) {
+          URL.revokeObjectURL(imageUrl);
         }
       }
-    },
-    [generateCacheKey]
-  );
+    });
+  }, []);
 
   const reset = useCallback(() => {
-    devLog("🔄 Resetting passport OCR hook state");
-
-    if (abortControllerRef.current) {
-      devLog("🛑 Aborting current passport OCR operation");
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-
-    // Clear cache on reset
-    cacheRef.current.clear();
-
     setStatus("idle");
     setResult(null);
     setError(null);
-    devLog("✅ Passport OCR hook state reset complete");
+    setProgress({ status: "idle", percentage: 0 });
   }, []);
 
-  // Memoize return object to prevent unnecessary re-renders
+  const isProcessing = useMemo(() => {
+    return status === "loading" || status === "processing" || isPending;
+  }, [status, isPending]);
+
   return useMemo(
     () => ({
       processImage,
+      status,
+      isProcessing,
       result,
       error,
-      status,
+      progress,
       reset,
-      isProcessing: status === "processing",
     }),
-    [processImage, result, error, status, reset]
+    [processImage, status, isProcessing, result, error, progress, reset]
   );
 }

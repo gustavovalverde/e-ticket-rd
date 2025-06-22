@@ -106,7 +106,7 @@ Create a clickable web-based prototype showing the core user flow for a single t
 
 - **Passport OCR Proof-of-Concept (Optional)**
   - Add "Upload Passport Photo" functionality
-  - Integrate OCR.space API for passport scanning
+  - Integrate Tesseract.js for client-side OCR
   - Extract MRZ (Machine Readable Zone) data
   - Pre-fill form fields with extracted data
   - Handle OCR errors and edge cases
@@ -190,4 +190,5 @@ Create a clickable web-based prototype showing the core user flow for a single t
 For detailed implementation patterns, see:
 - [Technology Stack](mdc:.cursor/rules/technology-stack.mdc)
 - [Development Guidelines](mdc:.cursor/rules/development-guidelines.mdc)
+- [UI Patterns](mdc:.cursor/rules/ui-patterns.mdc)
 - [UI Patterns](mdc:.cursor/rules/ui-patterns.mdc)

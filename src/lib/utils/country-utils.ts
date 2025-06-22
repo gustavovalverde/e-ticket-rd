@@ -313,6 +313,22 @@ const ALPHA3_TO_ALPHA2_MAP: Record<string, string> = {
 };
 
 /**
+ * Validates if a 3-letter country code is valid according to ISO 3166-1 alpha-3 standard
+ *
+ * @param alpha3Code - 3-letter country code to validate
+ * @returns true if valid, false otherwise
+ */
+export function isValidCountryCode(alpha3Code?: string): boolean {
+  if (!alpha3Code || alpha3Code.length !== 3) return false;
+
+  const normalizedCode = alpha3Code.toUpperCase();
+  return Object.prototype.hasOwnProperty.call(
+    ALPHA3_TO_ALPHA2_MAP,
+    normalizedCode
+  );
+}
+
+/**
  * Converts 3-letter ISO country code (from passport MRZ) to country name
  * used by CountrySelect component.
  *

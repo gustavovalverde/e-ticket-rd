@@ -77,7 +77,7 @@ alwaysApply: false
 ## Specialized Features (Future)
 
 ### OCR & Document Processing
-- **OCR Service** - OCR.space API for passport MRZ reading (25k requests/month free)
+- **OCR Service** - Tesseract.js for client-side OCR for passport MRZ reading with enhanced privacy
 - **QR Code Generation** - qrcode.react for confirmations
 - **Production OCR** - Native mobile SDKs (Google ML Kit, Apple Vision) for production mobile apps
 
