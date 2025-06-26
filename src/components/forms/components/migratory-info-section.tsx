@@ -939,9 +939,9 @@ function FamilyNationalityInheritance({
     return applicationState.values.travelCompanions?.groupNature;
   });
 
-  // Only show for family groups and when lead traveler has nationality set
+  // Show for family groups and partner groups when lead traveler has nationality set
   if (
-    groupNature !== "Family" ||
+    (groupNature !== "Family" && groupNature !== "Partner") ||
     !leadTravelerNationality ||
     !leadTravelerNationality.trim()
   ) {
@@ -962,8 +962,11 @@ function FamilyNationalityInheritance({
       <Info className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <span>
-          <strong>Family travel:</strong> Use the same nationality as the main
-          traveler ({leadTravelerNationality})?
+          <strong>
+            {groupNature === "Partner" ? "Partner travel" : "Family travel"}:
+          </strong>{" "}
+          Use the same nationality as the main traveler (
+          {leadTravelerNationality})?
         </span>
         <Button
           type="button"
