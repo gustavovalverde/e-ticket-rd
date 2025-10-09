@@ -64,7 +64,6 @@ const MAX_PASSPORT_NUMBER_LENGTH = 12;
 
 const SUSPICIOUS_PATTERNS = [
   /^[A-Z]{3,}$/, // All letters (like "LST", "XXX")
-  /^[0-9]{3,}$/, // All numbers
   /^[<]{3,}$/, // All angle brackets
   /^.{1,3}$/, // Too short
 ];
@@ -778,16 +777,6 @@ function validateDataQuality(
     SUSPICIOUS_PATTERNS.some((pattern) => pattern.test(result.passportNumber))
   ) {
     errors.push(`Passport number "${result.passportNumber}" appears malformed`);
-  }
-
-  // Validate passport number has both letters and numbers (most passports do)
-  if (
-    !/\d/.test(result.passportNumber) ||
-    !/[A-Z]/.test(result.passportNumber)
-  ) {
-    errors.push(
-      `Passport number "${result.passportNumber}" should contain both letters and numbers`
-    );
   }
 
   // Validate nationality/country code using original 3-letter code
