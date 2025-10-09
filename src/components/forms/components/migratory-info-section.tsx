@@ -15,6 +15,7 @@ import * as React from "react";
 
 import { FormField } from "@/components/forms/form-field";
 import { FormRadioGroup } from "@/components/forms/form-radio-group";
+import { PassportOcrUpload } from "@/components/forms/passport-ocr-upload";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +48,7 @@ import { booleanFieldAdapter } from "@/lib/utils/form-utils";
 
 import type { ApplicationData } from "@/lib/schemas/forms";
 import type { AppFieldApi, AppFormApi, FormStepId } from "@/lib/types/form-api";
+import type { MrzResult } from "@/lib/types/passport";
 
 // =====================================================
 // CONSTANTS
@@ -54,6 +56,10 @@ import type { AppFieldApi, AppFormApi, FormStepId } from "@/lib/types/form-api";
 
 const ICON_COLOR_BLUE = "text-blue-600";
 const DEFAULT_STEP_ID = "all-travelers";
+
+const PASSPORT_NUMBER_FIELD_PATH = "personalInfo.passport.number";
+const PASSPORT_CONFIRM_FIELD_PATH = "personalInfo.passport.confirmNumber";
+const PASSPORT_NATIONALITY_FIELD_PATH = "personalInfo.passport.nationality";
 
 // =====================================================
 // REUSABLE MIGRATORY INFO COMPONENTS
@@ -68,6 +74,10 @@ interface MigratoryInfoSectionProps {
   showAddress?: boolean; // Whether to show address section
   stepId?: FormStepId; // Step context for unique ID generation
 }
+
+// Moved to the top to prevent recreation on every render
+const fieldName = (fieldPrefix: string, name: string) =>
+  fieldPrefix ? `${fieldPrefix}.${name}` : name;
 
 /**
  * Comprehensive migratory information section that includes:
@@ -177,9 +187,6 @@ export function NameInformationSection({
   form: AppFormApi;
   fieldPrefix?: string;
 }) {
-  const fieldName = (name: string) =>
-    fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
   return (
     <Card>
       <CardHeader>
@@ -191,7 +198,7 @@ export function NameInformationSection({
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <form.AppField
-            name={fieldName("personalInfo.firstName")}
+            name={fieldName(fieldPrefix, "personalInfo.firstName")}
             validators={{
               onBlur: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "") {
@@ -216,7 +223,7 @@ export function NameInformationSection({
           </form.AppField>
 
           <form.AppField
-            name={fieldName("personalInfo.lastName")}
+            name={fieldName(fieldPrefix, "personalInfo.lastName")}
             validators={{
               onBlur: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "") {
@@ -259,9 +266,6 @@ export function BirthInformationSection({
   stepId?: FormStepId;
   travelerIndex?: number;
 }) {
-  const fieldName = (name: string) =>
-    fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
   return (
     <Card>
       <CardHeader>
@@ -271,7 +275,7 @@ export function BirthInformationSection({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <form.AppField name={fieldName("personalInfo.birthDate")}>
+        <form.AppField name={fieldName(fieldPrefix, "personalInfo.birthDate")}>
           {(field: AppFieldApi) => (
             <FormField field={field} label="Date of Birth" required>
               <DatePickerWithFormContext
@@ -284,7 +288,7 @@ export function BirthInformationSection({
         </form.AppField>
 
         <form.AppField
-          name={fieldName("personalInfo.birthCountry")}
+          name={fieldName(fieldPrefix, "personalInfo.birthCountry")}
           validators={{
             onBlur: ({ value }: { value: string }) => {
               if (!value || value.trim() === "")
@@ -310,7 +314,7 @@ export function BirthInformationSection({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <form.AppField
-            name={fieldName("personalInfo.sex")}
+            name={fieldName(fieldPrefix, "personalInfo.sex")}
             validators={{
               onChange: ({ value }: { value: string }) => {
                 if (!value || value.trim() === "") {
@@ -350,7 +354,9 @@ export function BirthInformationSection({
             )}
           </form.AppField>
 
-          <form.AppField name={fieldName("personalInfo.civilStatus")}>
+          <form.AppField
+            name={fieldName(fieldPrefix, "personalInfo.civilStatus")}
+          >
             {(field: AppFieldApi) => (
               <FormField field={field} label="Civil Status" required>
                 <SelectWithFormContext
@@ -371,7 +377,7 @@ export function BirthInformationSection({
         </div>
 
         <form.AppField
-          name={fieldName("personalInfo.occupation")}
+          name={fieldName(fieldPrefix, "personalInfo.occupation")}
           validators={{
             onBlur: ({ value }: { value: string }) => {
               if (!value || value.trim() === "")
@@ -419,9 +425,6 @@ export function ResidencyStatusSection({
   stepId?: FormStepId;
   travelerIndex?: number;
 }) {
-  const fieldName = (name: string) =>
-    fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
   const isEnteringDR = useStore(
     form.store,
     (state: unknown) =>
@@ -439,7 +442,7 @@ export function ResidencyStatusSection({
       </CardHeader>
       <CardContent className="space-y-6">
         <form.AppField
-          name={fieldName("personalInfo.isForeignResident")}
+          name={fieldName(fieldPrefix, "personalInfo.isForeignResident")}
           validators={{
             onChange: ({ value }: { value: boolean }) => {
               if (isEnteringDR && (value === null || value === undefined)) {
@@ -500,9 +503,6 @@ export function PassportInformationSection({
   travelerIndex?: number;
   isDifferentNationality: boolean;
 }) {
-  const fieldName = (name: string) =>
-    fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
   return (
     <Card>
       <CardHeader>
@@ -512,9 +512,12 @@ export function PassportInformationSection({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Passport OCR Scanner */}
+        <PassportScannerSection form={form} fieldPrefix={fieldPrefix} />
+
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <form.AppField
-            name={fieldName("personalInfo.passport.number")}
+            name={fieldName(fieldPrefix, PASSPORT_NUMBER_FIELD_PATH)}
             validators={{
               onChange: ({
                 value,
@@ -533,7 +536,8 @@ export function PassportInformationSection({
 
                 // Trigger re-validation of confirm field if it has a value
                 const confirmFieldName = fieldName(
-                  "personalInfo.passport.confirmNumber"
+                  fieldPrefix,
+                  PASSPORT_CONFIRM_FIELD_PATH
                 );
                 fieldApi.form.validateField(confirmFieldName, "change");
 
@@ -556,7 +560,7 @@ export function PassportInformationSection({
           </form.AppField>
 
           <form.AppField
-            name={fieldName("personalInfo.passport.confirmNumber")}
+            name={fieldName(fieldPrefix, PASSPORT_CONFIRM_FIELD_PATH)}
             validators={{
               onChange: ({
                 value,
@@ -571,7 +575,8 @@ export function PassportInformationSection({
 
                 // Get the original passport number
                 const originalFieldName = fieldName(
-                  "personalInfo.passport.number"
+                  fieldPrefix,
+                  PASSPORT_NUMBER_FIELD_PATH
                 );
                 const originalValue =
                   fieldApi.form.getFieldValue(originalFieldName);
@@ -600,7 +605,7 @@ export function PassportInformationSection({
         </div>
 
         <form.AppField
-          name={fieldName("personalInfo.passport.nationality")}
+          name={fieldName(fieldPrefix, PASSPORT_NATIONALITY_FIELD_PATH)}
           validators={{
             onBlur: ({ value }: { value: string }) => {
               if (!value || value.trim() === "")
@@ -627,7 +632,9 @@ export function PassportInformationSection({
           )}
         </form.AppField>
 
-        <form.AppField name={fieldName("personalInfo.passport.expiryDate")}>
+        <form.AppField
+          name={fieldName(fieldPrefix, "personalInfo.passport.expiryDate")}
+        >
           {(field: AppFieldApi) => (
             <FormField field={field} label="Passport Expiry Date" required>
               <DatePickerWithFormContext
@@ -641,7 +648,10 @@ export function PassportInformationSection({
 
         {/* Different Nationality Question */}
         <form.AppField
-          name={fieldName("personalInfo.passport.isDifferentNationality")}
+          name={fieldName(
+            fieldPrefix,
+            "personalInfo.passport.isDifferentNationality"
+          )}
         >
           {(field: AppFieldApi) => (
             <FormRadioGroup
@@ -676,7 +686,10 @@ export function PassportInformationSection({
         {/* Additional Nationality - Only show if different nationality */}
         {isDifferentNationality && (
           <form.AppField
-            name={fieldName("personalInfo.passport.additionalNationality")}
+            name={fieldName(
+              fieldPrefix,
+              "personalInfo.passport.additionalNationality"
+            )}
             validators={{
               onBlur: ({ value }: { value: string }) => {
                 if (isDifferentNationality && (!value || value.trim() === ""))
@@ -703,6 +716,139 @@ export function PassportInformationSection({
       </CardContent>
     </Card>
   );
+}
+
+/**
+ * Address Information Alert - Inherited from general-info-step.tsx pattern
+ * Provides contextual information about address collection
+ */
+function AddressInformationAlert({
+  form,
+  _fieldPrefix,
+  travelerIndex,
+}: {
+  form: AppFormApi;
+  _fieldPrefix?: string;
+  travelerIndex?: number;
+}) {
+  const isGroupTravel = useStore(
+    form.store,
+    (state: unknown) =>
+      (state as { values: ApplicationData }).values.travelCompanions
+        ?.isGroupTravel
+  );
+
+  const groupNature = useStore(
+    form.store,
+    (state: unknown) =>
+      (state as { values: ApplicationData }).values.travelCompanions
+        ?.groupNature
+  );
+
+  const isLeadTraveler = travelerIndex === 0;
+
+  // Show different alerts based on context
+  if (!isGroupTravel) {
+    // Solo traveler
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Address information:</strong> This will be used for your
+          e-ticket and any official correspondence.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (isLeadTraveler) {
+    // Lead traveler in group
+    const familyMessage =
+      groupNature === "Family" || groupNature === "Partner"
+        ? "Your address will be used for all family members in your group."
+        : "Each traveler in your group will need to provide their own address information.";
+
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Group travel:</strong> {familyMessage}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // Companion traveler (non-lead)
+  return (
+    <Alert>
+      <InfoIcon className="h-4 w-4" />
+      <AlertDescription>
+        <strong>Individual address:</strong> Please provide your own address
+        information as this group requires individual addresses.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+/**
+ * Migration Information Context Alert - Inherited from general-info-step.tsx pattern
+ * Provides context about why migration information is needed
+ */
+function MigrationInfoAlert({
+  form,
+  travelerIndex,
+}: {
+  form: AppFormApi;
+  travelerIndex?: number;
+}) {
+  const travelDirection = useStore(
+    form.store,
+    (state: unknown) =>
+      (state as { values: ApplicationData }).values.flightInfo.travelDirection
+  );
+
+  const isLeadTraveler = travelerIndex === 0;
+
+  if (travelDirection === "ENTRY") {
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Entry to Dominican Republic:</strong> This information is
+          required for immigration control and will be verified against your
+          passport at arrival.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (travelDirection === "EXIT") {
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Departure from Dominican Republic:</strong> This information
+          helps ensure a smooth departure process at the airport.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // Fallback for when travel direction is not set
+  if (isLeadTraveler) {
+    return (
+      <Alert>
+        <InfoIcon className="h-4 w-4" />
+        <AlertDescription>
+          <strong>E-Ticket System:</strong> This information will be used to
+          generate your official e-ticket for Dominican Republic migration
+          control.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return null;
 }
 
 /**
@@ -779,139 +925,6 @@ export function AddressSection({
 }
 
 /**
- * Migration Information Context Alert - Inherited from general-info-step.tsx pattern
- * Provides context about why migration information is needed
- */
-function MigrationInfoAlert({
-  form,
-  travelerIndex,
-}: {
-  form: AppFormApi;
-  travelerIndex?: number;
-}) {
-  const travelDirection = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.flightInfo.travelDirection
-  );
-
-  const isLeadTraveler = travelerIndex === 0;
-
-  if (travelDirection === "ENTRY") {
-    return (
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Entry to Dominican Republic:</strong> This information is
-          required for immigration control and will be verified against your
-          passport at arrival.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (travelDirection === "EXIT") {
-    return (
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Departure from Dominican Republic:</strong> This information
-          helps ensure a smooth departure process at the airport.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  // Fallback for when travel direction is not set
-  if (isLeadTraveler) {
-    return (
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>E-Ticket System:</strong> This information will be used to
-          generate your official e-ticket for Dominican Republic migration
-          control.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  return null;
-}
-
-/**
- * Address Information Alert - Inherited from general-info-step.tsx pattern
- * Provides contextual information about address collection
- */
-function AddressInformationAlert({
-  form,
-  _fieldPrefix,
-  travelerIndex,
-}: {
-  form: AppFormApi;
-  _fieldPrefix?: string;
-  travelerIndex?: number;
-}) {
-  const isGroupTravel = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.travelCompanions
-        ?.isGroupTravel
-  );
-
-  const groupNature = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.travelCompanions
-        ?.groupNature
-  );
-
-  const isLeadTraveler = travelerIndex === 0;
-
-  // Show different alerts based on context
-  if (!isGroupTravel) {
-    // Solo traveler
-    return (
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Address information:</strong> This will be used for your
-          e-ticket and any official correspondence.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  if (isLeadTraveler) {
-    // Lead traveler in group
-    const familyMessage =
-      groupNature === "Family" || groupNature === "Partner"
-        ? "Your address will be used for all family members in your group."
-        : "Each traveler in your group will need to provide their own address information.";
-
-    return (
-      <Alert>
-        <InfoIcon className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Group travel:</strong> {familyMessage}
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  // Companion traveler (non-lead)
-  return (
-    <Alert>
-      <InfoIcon className="h-4 w-4" />
-      <AlertDescription>
-        <strong>Individual address:</strong> Please provide your own address
-        information as this group requires individual addresses.
-      </AlertDescription>
-    </Alert>
-  );
-}
-
-/**
  * Enhanced Address Form - Based on well-designed general-info-step.tsx
  * For travelers who need their own address information
  */
@@ -922,9 +935,6 @@ function IndividualAddressForm({
   form: AppFormApi;
   fieldPrefix?: string;
 }) {
-  const fieldName = (name: string) =>
-    fieldPrefix ? `${fieldPrefix}.${name}` : name;
-
   // Determine if we're in a group travel scenario or single traveler
   const isGroupTravel = useStore(
     form.store,
@@ -937,10 +947,16 @@ function IndividualAddressForm({
   const getAddressFieldName = (field: string) => {
     if (isGroupTravel && fieldPrefix) {
       // Group travel: use individual address inheritance logic
-      return fieldName(`addressInheritance.individualAddress.${field}`);
+      return fieldName(
+        fieldPrefix,
+        `addressInheritance.individualAddress.${field}`
+      );
     }
     // Solo travel: collect address directly in traveler record (replaces General Info step)
-    return fieldName(`addressInheritance.individualAddress.${field}`);
+    return fieldName(
+      fieldPrefix,
+      `addressInheritance.individualAddress.${field}`
+    );
   };
 
   return (
@@ -1142,5 +1158,94 @@ function SelectWithFormContext({
       </SelectTrigger>
       <SelectContent>{children}</SelectContent>
     </Select>
+  );
+}
+
+/**
+ * Passport Scanner Section - Focused component for OCR functionality
+ */
+function PassportScannerSection({
+  form,
+  fieldPrefix = "",
+}: {
+  form: AppFormApi;
+  fieldPrefix?: string;
+}) {
+  const applyOcrDataToFields = React.useCallback(
+    (ocrResult: MrzResult) => {
+      if (!ocrResult) return;
+
+      // Constants to avoid duplicate strings
+      const PASSPORT_NUMBER_FIELD = fieldName(
+        fieldPrefix,
+        PASSPORT_NUMBER_FIELD_PATH
+      );
+      const PASSPORT_CONFIRM_FIELD = fieldName(
+        fieldPrefix,
+        PASSPORT_CONFIRM_FIELD_PATH
+      );
+
+      const fieldMappings: Array<{
+        sourceValue: string;
+        targetFields: string[];
+      }> = [
+        {
+          sourceValue: ocrResult.passportNumber,
+          targetFields: [PASSPORT_NUMBER_FIELD, PASSPORT_CONFIRM_FIELD],
+        },
+        {
+          sourceValue: ocrResult.nationality,
+          targetFields: [
+            fieldName(fieldPrefix, PASSPORT_NATIONALITY_FIELD_PATH),
+          ],
+        },
+        {
+          sourceValue: ocrResult.birthDate,
+          targetFields: [fieldName(fieldPrefix, "personalInfo.birthDate")],
+        },
+        {
+          sourceValue: ocrResult.expiryDate,
+          targetFields: [
+            fieldName(fieldPrefix, "personalInfo.passport.expiryDate"),
+          ],
+        },
+      ];
+
+      fieldMappings.forEach((mapping) => {
+        // Only skip if the value is undefined/null, not if it's empty string
+        if (mapping.sourceValue !== undefined && mapping.sourceValue !== null) {
+          mapping.targetFields.forEach((fieldPath) => {
+            try {
+              // Set the field value with touch: true
+              form.setFieldValue(fieldPath, mapping.sourceValue, {
+                touch: true,
+              });
+
+              // Validate the field to clear any existing errors
+              form.validateField(fieldPath, "change");
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.error(`Failed to set field ${fieldPath}:`, error);
+            }
+          });
+        }
+      });
+    },
+    [form, fieldPrefix]
+  );
+
+  return (
+    <div className="space-y-2 rounded-lg border border-dashed p-4">
+      <h4 className="text-base font-semibold">Passport Scanner (Optional)</h4>
+      <p className="text-muted-foreground text-sm">
+        Scan your passport to automatically fill in your information. This is
+        optional - you can also enter details manually below.
+      </p>
+      <p className="text-muted-foreground text-xs">
+        Processes on your device, no data is sent to servers. Works offline
+        after the first visit.
+      </p>
+      <PassportOcrUpload onSuccess={applyOcrDataToFields} />
+    </div>
   );
 }
