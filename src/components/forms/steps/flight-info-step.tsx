@@ -38,7 +38,6 @@ import { validateFlightNumber } from "@/lib/schemas/validation";
 import {
   autoDetectTravelDirection,
   validateFlightConnection,
-  getDominicanAirportName as _getDominicanAirportName,
 } from "@/lib/utils/flight-utils";
 
 import type { FlightLookupResult } from "@/lib/types/flight";
@@ -822,12 +821,10 @@ export function FlightInfoStep({
       originResult?.success &&
       originResult.flight
     ) {
+      // Validate airport matching for connection
       return validateFlightConnection(
         originResult.flight.destination.iata,
-        result.flight.origin.iata,
-        originResult.flight.estimatedArrival,
-        // Main flight departure time would need to be calculated or provided by API
-        undefined
+        result.flight.origin.iata
       );
     }
     return null;
@@ -940,25 +937,15 @@ export function FlightInfoStep({
                       </AlertDescription>
                     </Alert>
                   )}
-                  {connectionValidation.warning && (
+                  {connectionValidation.isValid && (
                     <Alert>
-                      <Info className="h-4 w-4" />
+                      <CheckCircle className="h-4 w-4" />
                       <AlertDescription>
-                        <strong>Connection Warning:</strong>{" "}
-                        {connectionValidation.warning}
+                        <strong>Connection Validated:</strong> Your flight
+                        connection appears valid.
                       </AlertDescription>
                     </Alert>
                   )}
-                  {connectionValidation.isValid &&
-                    !connectionValidation.warning && (
-                      <Alert>
-                        <CheckCircle className="h-4 w-4" />
-                        <AlertDescription>
-                          <strong>Connection Validated:</strong> Your flight
-                          connection appears valid.
-                        </AlertDescription>
-                      </Alert>
-                    )}
                 </div>
               )}
             </CardContent>

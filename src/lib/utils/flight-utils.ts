@@ -49,52 +49,15 @@ export function autoDetectTravelDirection(
  * Validates if flight connection makes logical sense
  */
 export function validateFlightConnection(
-  firstFlightDestination: string,
-  secondFlightOrigin: string,
-  firstFlightArrival?: string,
-  secondFlightDeparture?: string
-): {
-  isValid: boolean;
-  error?: string;
-  warning?: string;
-} {
-  // Check if airports match for connection
-  if (
-    firstFlightDestination.toUpperCase() !== secondFlightOrigin.toUpperCase()
-  ) {
+  arrivalAirport: string,
+  departureAirport: string
+): { isValid: boolean; error?: string } | null {
+  // Validate airports match
+  if (arrivalAirport !== departureAirport) {
     return {
       isValid: false,
-      error: `Connection mismatch: First flight arrives at ${firstFlightDestination} but second flight departs from ${secondFlightOrigin}`,
+      error: `Airport mismatch: Your first flight arrives in ${arrivalAirport}, but your connecting flight departs from ${departureAirport}.`,
     };
-  }
-
-  // Check connection time if both times are provided
-  if (firstFlightArrival && secondFlightDeparture) {
-    try {
-      const arrivalTime = new Date(firstFlightArrival);
-      const departureTime = new Date(secondFlightDeparture);
-      const connectionMinutes =
-        (departureTime.getTime() - arrivalTime.getTime()) / (1000 * 60);
-
-      // Less than 45 minutes is too short for international connections
-      if (connectionMinutes < 45) {
-        return {
-          isValid: true,
-          warning: `Connection time is very short (${Math.round(connectionMinutes)} minutes). Ensure this is sufficient for international transfer.`,
-        };
-      }
-
-      // More than 24 hours might be intentional layover
-      if (connectionMinutes > 1440) {
-        return {
-          isValid: true,
-          warning: `Long layover detected (${Math.round(connectionMinutes / 60)} hours). Confirm this is intentional.`,
-        };
-      }
-    } catch {
-      // If we can't parse times, just validate airports
-      return { isValid: true };
-    }
   }
 
   return { isValid: true };
@@ -143,18 +106,32 @@ export function shouldShareNationality(
 
 /**
  * Gets suggested nationality based on birth country
+ * Returns country name in the same format as CountrySelect (full country names)
+ *
+ * Note: This is a simple heuristic. In reality, nationality can differ from birth country
+ * due to citizenship laws (jus soli vs jus sanguinis), naturalization, etc.
  */
 export function suggestNationalityFromBirthCountry(
   birthCountry: string
 ): string | null {
-  // If born in Dominican Republic, suggest Dominican nationality
+  if (!birthCountry || birthCountry.trim() === "") {
+    return null;
+  }
+
+  const normalized = birthCountry.toLowerCase().trim();
+
+  // Handle Dominican Republic variations
   if (
-    birthCountry.toLowerCase().includes("dominican") ||
-    birthCountry === "DO"
+    normalized === "dominican republic" ||
+    normalized.includes("dominican republic") ||
+    normalized === "do" ||
+    normalized === "república dominicana"
   ) {
     return "Dominican Republic";
   }
 
-  // For other countries, return the birth country as likely nationality
+  // For most countries, nationality follows the birth country
+  // (assuming jus soli - right of soil citizenship)
+  // CountrySelect uses full country names, so we return as-is
   return birthCountry;
 }

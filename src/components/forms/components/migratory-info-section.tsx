@@ -96,12 +96,12 @@ export function MigratoryInfoSection({
         .travelDirection === "ENTRY"
   );
 
-  const isDifferentNationality = useStore(form.store, (state: unknown) => {
-    const applicationState = state as { values: ApplicationData };
+  const isDifferentNationality = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
     if (fieldPrefix && travelerIndex !== undefined) {
       // For array items: travelers[0].personalInfo.passport.isDifferentNationality
       // eslint-disable-next-line security/detect-object-injection
-      const traveler = applicationState.values.travelers?.[travelerIndex];
+      const traveler = appState.values.travelers?.[travelerIndex];
       return traveler?.personalInfo?.passport?.isDifferentNationality;
     }
     // No single traveler path - this is only used for array-based travelers
@@ -692,7 +692,6 @@ export function PassportInformationSection({
                 {showGroupInheritanceInfo && (
                   <FamilyNationalityInheritance
                     form={form}
-                    currentTravelerIndex={travelerIndex}
                     nationalityField={field}
                   />
                 )}
@@ -792,22 +791,20 @@ export function AddressSection({
   travelerIndex?: number;
 }) {
   // Check if this traveler uses shared address (from group logic)
-  const usesSharedAddress = useStore(form.store, (state: unknown) => {
-    const applicationState = state as { values: ApplicationData };
+  const usesSharedAddress = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
     if (fieldPrefix && travelerIndex !== undefined) {
       // eslint-disable-next-line security/detect-object-injection
-      const traveler = applicationState.values.travelers?.[travelerIndex];
+      const traveler = appState.values.travelers?.[travelerIndex];
       return traveler?.addressInheritance?.usesSharedAddress || false;
     }
     return false;
   });
 
-  const groupNature = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.travelCompanions
-        ?.groupNature
-  );
+  const groupNature = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
+    return appState.values.travelCompanions?.groupNature;
+  });
 
   if (usesSharedAddress) {
     return (
@@ -843,11 +840,7 @@ export function AddressSection({
       <IndividualAddressForm form={form} fieldPrefix={fieldPrefix} />
 
       {/* Contextual Information Alert - Inherited from general-info-step.tsx */}
-      <AddressInformationAlert
-        form={form}
-        _fieldPrefix={fieldPrefix}
-        travelerIndex={travelerIndex}
-      />
+      <AddressInformationAlert form={form} travelerIndex={travelerIndex} />
     </div>
   );
 }
@@ -863,11 +856,10 @@ function MigrationInfoAlert({
   form: AppFormApi;
   travelerIndex?: number;
 }) {
-  const travelDirection = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.flightInfo.travelDirection
-  );
+  const travelDirection = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
+    return appState.values.flightInfo.travelDirection;
+  });
 
   const isLeadTraveler = travelerIndex === 0;
 
@@ -919,24 +911,21 @@ function MigrationInfoAlert({
  */
 function FamilyNationalityInheritance({
   form,
-  currentTravelerIndex: _currentTravelerIndex,
   nationalityField,
 }: {
   form: AppFormApi;
-  currentTravelerIndex: number;
   nationalityField: AppFieldApi;
 }) {
   // Get lead traveler's nationality
-  const leadTravelerNationality = useStore(form.store, (state: unknown) => {
-    const applicationState = state as { values: ApplicationData };
-    const leadTraveler = applicationState.values.travelers?.[0];
-    return leadTraveler?.personalInfo?.passport?.nationality;
+  const leadTravelerNationality = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
+    return appState.values.travelers?.[0]?.personalInfo?.passport?.nationality;
   });
 
   // Get group nature to determine if we should show inheritance option
-  const groupNature = useStore(form.store, (state: unknown) => {
-    const applicationState = state as { values: ApplicationData };
-    return applicationState.values.travelCompanions?.groupNature;
+  const groupNature = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
+    return appState.values.travelCompanions?.groupNature;
   });
 
   // Show for family groups and partner groups when lead traveler has nationality set
@@ -987,26 +976,20 @@ function FamilyNationalityInheritance({
  */
 function AddressInformationAlert({
   form,
-  _fieldPrefix,
   travelerIndex,
 }: {
   form: AppFormApi;
-  _fieldPrefix?: string;
   travelerIndex?: number;
 }) {
-  const isGroupTravel = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.travelCompanions
-        ?.isGroupTravel
-  );
+  const isGroupTravel = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
+    return appState.values.travelCompanions?.isGroupTravel;
+  });
 
-  const groupNature = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.travelCompanions
-        ?.groupNature
-  );
+  const groupNature = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
+    return appState.values.travelCompanions?.groupNature;
+  });
 
   const isLeadTraveler = travelerIndex === 0;
 
@@ -1068,12 +1051,10 @@ function IndividualAddressForm({
     fieldPrefix ? `${fieldPrefix}.${name}` : name;
 
   // Determine if we're in a group travel scenario or single traveler
-  const isGroupTravel = useStore(
-    form.store,
-    (state: unknown) =>
-      (state as { values: ApplicationData }).values.travelCompanions
-        ?.isGroupTravel
-  );
+  const isGroupTravel = useStore(form.store, (state) => {
+    const appState = state as { values: ApplicationData };
+    return appState.values.travelCompanions?.isGroupTravel;
+  });
 
   // For group travel, use individual address path; for solo, use general info
   const getAddressFieldName = (field: string) => {
