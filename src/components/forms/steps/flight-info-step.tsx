@@ -14,7 +14,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useTransition } from "react";
+import React, { useCallback, useEffect, useTransition } from "react";
 import { useFormStatus } from "react-dom";
 
 import { FormField } from "@/components/forms/form-field";
@@ -35,6 +35,10 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { useStore } from "@/components/ui/tanstack-form";
 import { useFlightLookup } from "@/lib/hooks/use-flight-lookup";
 import { validateFlightNumber } from "@/lib/schemas/validation";
+import {
+  autoDetectTravelDirection,
+  validateFlightConnection,
+} from "@/lib/utils/flight-utils";
 
 import type { FlightLookupResult } from "@/lib/types/flight";
 import type { AppFormApi, FormStepId } from "@/lib/types/form-api";
@@ -200,10 +204,15 @@ function FlightNumberField({
 function TravelDirectionSection({
   form,
   stepId,
+  flightResult,
 }: {
   form: AppFormApi;
   stepId: FormStepId;
+  flightResult?: FlightLookupResult | null;
 }) {
+  // Check if direction was auto-detected
+  const showAutoDetectedInfo = flightResult?.success && flightResult.flight;
+
   return (
     <Card>
       <CardHeader>
@@ -212,7 +221,7 @@ function TravelDirectionSection({
           Travel Direction
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <form.AppField
           name="flightInfo.travelDirection"
           validators={{
@@ -248,6 +257,29 @@ function TravelDirectionSection({
               size="small"
             />
           )}
+        </form.AppField>
+
+        {/* Auto-detection feedback */}
+        <form.AppField name="flightInfo.travelDirection">
+          {(directionField: AnyFieldApi) =>
+            showAutoDetectedInfo &&
+            directionField.state.value &&
+            flightResult?.flight && (
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Auto-detected:</strong> Based on your flight from{" "}
+                  <code>{flightResult.flight.origin.iata}</code> to{" "}
+                  <code>{flightResult.flight.destination.iata}</code>,
+                  we&apos;ve detected you&apos;re{" "}
+                  {directionField.state.value === "ENTRY"
+                    ? "entering"
+                    : "leaving"}{" "}
+                  the Dominican Republic. You can change this if needed.
+                </AlertDescription>
+              </Alert>
+            )
+          }
         </form.AppField>
       </CardContent>
     </Card>
@@ -748,8 +780,21 @@ export function FlightInfoStep({
         "flightInfo.estimatedArrival",
         flight.estimatedArrival
       );
+
+      // Auto-detect travel direction if not already set
+      const currentTravelDirection = flightInfoValues?.travelDirection;
+      if (!currentTravelDirection || currentTravelDirection.trim() === "") {
+        const detectedDirection = autoDetectTravelDirection(
+          flight.origin.iata,
+          flight.destination.iata
+        );
+
+        if (detectedDirection) {
+          form.setFieldValue("flightInfo.travelDirection", detectedDirection);
+        }
+      }
     }
-  }, [result, form]);
+  }, [result, form, flightInfoValues?.travelDirection]);
 
   useEffect(() => {
     if (originResult?.success && originResult.flight) {
@@ -768,13 +813,34 @@ export function FlightInfoStep({
     }
   }, [originResult, form]);
 
+  // Validate flight connections when both flights are available
+  const connectionValidation = React.useMemo(() => {
+    if (
+      result?.success &&
+      result.flight &&
+      originResult?.success &&
+      originResult.flight
+    ) {
+      // Validate airport matching for connection
+      return validateFlightConnection(
+        originResult.flight.destination.iata,
+        result.flight.origin.iata
+      );
+    }
+    return null;
+  }, [result, originResult]);
+
   // Check if travel direction is selected
   const hasTravelDirection = Boolean(flightInfoValues?.travelDirection?.trim());
 
   return (
     <div className="space-y-6">
       {/* Travel Direction Section */}
-      <TravelDirectionSection form={form} stepId={stepId} />
+      <TravelDirectionSection
+        form={form}
+        stepId={stepId}
+        flightResult={result}
+      />
 
       {/* Main Travel Information - Only show after travel direction is selected */}
       {hasTravelDirection && (
@@ -858,6 +924,30 @@ export function FlightInfoStep({
                 form={form}
                 isOrigin={true}
               />
+
+              {/* Connection Validation */}
+              {connectionValidation && (
+                <div className="space-y-2">
+                  {!connectionValidation.isValid && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Connection Error:</strong>{" "}
+                        {connectionValidation.error}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {connectionValidation.isValid && (
+                    <Alert>
+                      <CheckCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Connection Validated:</strong> Your flight
+                        connection appears valid.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
